@@ -1,14 +1,14 @@
-// App.jsx
 import React, { useState } from 'react';
 import VehicleFormModal from './VehicleFormModal';
 import { formatCurrency } from './utils';
 import TabbedTable from './TabbedTable';
 import { IconButton, Menu, MenuItem } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-
+import { useDispatch } from 'react-redux'; // For dispatching actions to the store
+import { addCarToStage } from './store'; // Import the action to add car to stages
 
 function App() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);  // Modal open state
   const [vin, setVin] = useState('');
   const [mmr, setMmr] = useState('');
   const [transport, setTransport] = useState('');
@@ -20,6 +20,14 @@ function App() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCar, setSelectedCar] = useState(null);
   const [pipelineCars, setPipelineCars] = useState([]);
+  
+  const dispatch = useDispatch();  // Initialize dispatch
+
+  // Open the modal
+  const handleOpen = () => setOpen(true);
+  
+  // Close the modal
+  const handleClose = () => setOpen(false);
 
   const handleMenuOpen = (event, car) => {
     setAnchorEl(event.currentTarget);
@@ -38,16 +46,52 @@ function App() {
   };
 
   const moveToPurchased = (car) => {
-  console.log("Moving to Purchased:", car);
+    console.log("Moving to Purchased:", car);
+    setPipelineCars((prevCars) => {
+      const updatedPipelineCars = [...prevCars, car];
+      console.log("Updated Pipeline Cars:", updatedPipelineCars);
+      return updatedPipelineCars;
+    });
+  };
 
-  // Update pipelineCars only (primary state)
-  setPipelineCars((prevCars) => {
-    const updatedPipelineCars = [...prevCars, car];
-    console.log("Updated Pipeline Cars:", updatedPipelineCars);
-    return updatedPipelineCars;
-  });
-};
-
+  const handleSubmit = async () => {
+    const parsedMmr = parseFloat(mmr) || 0;
+    const parsedProfit = parseFloat(profit) || 0;
+    const parsedTransport = parseFloat(transport) || 0;
+    const parsedRepair = parseFloat(repair) || 0;
+  
+    const fees = (parsedMmr - parsedProfit - parsedTransport - parsedRepair) * 0.05;
+    const maxBid = parsedMmr - parsedProfit - parsedTransport - parsedRepair - fees;
+  
+    const vehicleDetails = await fetchVehicleDetails(vin);
+  
+    const newCar = {
+      id: Date.now(), // Generate a unique ID
+      vin,
+      mmr,
+      transport,
+      repair,
+      fees,
+      maxBid,
+      carfaxStatus,
+      profit,
+      ...vehicleDetails,
+      status: 'Purchased', // Default status
+    };
+  
+    setRows([...rows, newCar]);
+    setCars([...cars, newCar]);
+  
+    dispatch(addCarToStage({ stage: 'Purchased', car: newCar })); // Dispatch to Redux
+  
+    setVin('');
+    setMmr('');
+    setTransport('');
+    setRepair('');
+    setCarfaxStatus('');
+    setProfit('');
+    handleClose();
+  };
   
 
   const fetchVehicleDetails = async (vin) => {
@@ -64,47 +108,6 @@ function App() {
       return { make: 'N/A', model: 'N/A', year: 'N/A' };
     }
   };
-
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  const handleSubmit = async () => {
-    const parsedMmr = parseFloat(mmr) || 0;
-    const parsedProfit = parseFloat(profit) || 0;
-    const parsedTransport = parseFloat(transport) || 0;
-    const parsedRepair = parseFloat(repair) || 0;
-
-    const fees = (parsedMmr - parsedProfit - parsedTransport - parsedRepair) * 0.05;
-    const maxBid = parsedMmr - parsedProfit - parsedTransport - parsedRepair - fees;
-
-    const vehicleDetails = await fetchVehicleDetails(vin);
-
-    const newCar = {
-      vin,
-      mmr,
-      transport,
-      repair,
-      fees,
-      maxBid,
-      carfaxStatus,
-      profit,
-      ...vehicleDetails,
-      status: 'Purchased', // Default status when car is added
-    };
-
-    setRows([...rows, newCar]);
-    setCars([...cars, newCar]);
-
-    setVin('');
-    setMmr('');
-    setTransport('');
-    setRepair('');
-    setCarfaxStatus('');
-    setProfit('');
-    handleClose();
-  };
-
-
 
   const columns = [
     { accessorKey: 'year', header: 'Year' },
@@ -135,7 +138,6 @@ function App() {
         </IconButton>
       )
     },
-
   ];
 
   return (
@@ -150,7 +152,7 @@ function App() {
         {/* Add more menu items as needed */}
       </Menu>
       <VehicleFormModal
-        open={open}
+        open={open}  // Ensure this is passed to control modal visibility
         handleClose={handleClose}
         vin={vin}
         setVin={setVin}
@@ -165,9 +167,7 @@ function App() {
         profit={profit}
         setProfit={setProfit}
         handleSubmit={handleSubmit}
-
       />
-
     </div>
   );
 }

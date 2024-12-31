@@ -1,32 +1,36 @@
 import React, { useMemo } from "react";
+import { useSelector } from "react-redux";
 import { MaterialReactTable } from "material-react-table";
 import { Chip } from "@mui/material";
 
-function InventoryTable({ pipelineData }) {
-  // Filter out cars with status "Sold"
-  const filteredData = useMemo(() => {
-    return pipelineData.filter((car) => car.status !== "Sold");
-  }, [pipelineData]);
+function InventoryTable() {
+  // Retrieve data from Redux store
+  const stages = useSelector((state) => state.pipeline.stages);
+
+  // Combine cars from all stages into a single array and filter out "Sold"
+  const pipelineData = useMemo(() => {
+    return Object.values(stages).flat().filter((car) => car.status !== "Sold");
+  }, [stages]);
 
   // Define a function to assign colors to each status
   const getStatusColor = (status) => {
     switch (status) {
       case "Purchased":
-        return "blue"; // Change to your preferred color
+        return "blue";
       case "Transport":
-        return "orange"; // Change to your preferred color
+        return "orange";
       case "Needs Parts":
-        return "purple"; // Change to your preferred color
+        return "purple";
       case "Mechanic":
-        return "yellow"; // Change to your preferred color
-      case "BodyShop":
-        return "teal"; // Change to your preferred color
+        return "darkred";
+      case "Bodyshop":
+        return "teal";
       case "Detail":
-        return "pink"; // Change to your preferred color
+        return "pink";
       case "Available":
-        return "green"; // Keep green for "Available"
+        return "green";
       default:
-        return "gray"; // Default color for unknown statuses
+        return "gray";
     }
   };
 
@@ -70,7 +74,7 @@ function InventoryTable({ pipelineData }) {
   return (
     <MaterialReactTable
       columns={columns}
-      data={filteredData}
+      data={pipelineData}
       enableSorting
       enablePagination
     />

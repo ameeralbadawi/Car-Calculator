@@ -1,107 +1,42 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Box, Typography, Card, CardContent } from "@mui/material";
+import { moveCarBetweenStages } from "./store";
 
-const predefinedStages = [
-    "Purchased",
-    "Transport",
-    "Needs Parts",
-    "Mechanic",
-    "Bodyshop",
-    "Detail",
-    "Available",
-    "Sold",
-];
+function Pipeline() {
+    const dispatch = useDispatch();
 
-function Pipeline({ rows, setRows }) {
-    const [stages, setStages] = useState({});
-
-    useEffect(() => {
-        if (!stages || Object.values(stages).every((stage) => stage.length === 0)) {
-            const groupedStages = predefinedStages.reduce((acc, stage) => {
-                acc[stage] = [];
-                return acc;
-            }, {});
-    
-            rows.forEach((car) => {
-                const stage = car.status || "Uncategorized";
-                if (!groupedStages[stage]) {
-                    groupedStages[stage] = [];
-                }
-                groupedStages[stage].push({
-                    id: car.vin,
-                    year: car.year,
-                    make: car.make,
-                    model: car.model,
-                });
-            });
-    
-            console.log("Initialized Stages:", groupedStages);
-            setStages(groupedStages);
-        }
-    }, [rows]);
-    
-
+    // Get the stages from the Redux store
+    const stages = useSelector((state) => state.pipeline.stages);
 
     const onDragEnd = (result) => {
         const { source, destination, draggableId } = result;
-    
-        if (!destination) {
-            // If item is dropped outside a droppable area
-            return;
-        }
-    
+
+        if (!destination) return; // If dropped outside a droppable area, do nothing
+
         const sourceStage = source.droppableId;
         const destinationStage = destination.droppableId;
-    
-        if (sourceStage === destinationStage) {
-            // No change in stage, do nothing
-            return;
-        }
-    
-        const movedItem = stages[sourceStage].find((item) => item.id === draggableId);
-    
-        if (!movedItem) {
-            console.error("Item not found in source stage");
-            return;
-        }
-    
-        // Remove item from source stage
-        const updatedSourceStage = stages[sourceStage].filter(
-            (item) => item.id !== movedItem.id
+
+        if (sourceStage === destinationStage && source.index === destination.index)
+            return; // If dropped in the same position, do nothing
+
+        console.log(
+            `Car with ID ${draggableId} moved from "${sourceStage}" to "${destinationStage}"`
+        );        
+
+        // Dispatch the action to move the car and update its status
+        dispatch(
+            moveCarBetweenStages({
+                sourceStage,
+                destinationStage,
+                carId: parseInt(draggableId), // Convert draggableId back to a number if necessary
+            })
         );
-    
-        // Add item to destination stage
-        const updatedDestinationStage = [...stages[destinationStage], movedItem];
-    
-        // Update stages
-        const updatedStages = {
-            ...stages,
-            [sourceStage]: updatedSourceStage,
-            [destinationStage]: updatedDestinationStage,
-        };
-    
-        setStages(updatedStages);
-    
-        // Update rows
-        const updatedRows = rows.map((row) =>
-            row.vin === draggableId ? { ...row, status: destinationStage } : row
-        );
-        setRows(updatedRows);
-    
-        console.log("Stages Updated:", updatedStages);
-        console.log("Rows Updated:", updatedRows);
     };
-       
 
     return (
-        <Box
-            sx={{
-                display: "flex",
-                overflowX: "auto",
-                padding: "20px",
-            }}
-        >
+        <Box sx={{ display: "flex", overflowX: "auto", padding: "20px" }}>
             <DragDropContext onDragEnd={onDragEnd}>
                 {Object.keys(stages).map((stage) => (
                     <Droppable droppableId={stage} key={stage}>
@@ -124,9 +59,9 @@ function Pipeline({ rows, setRows }) {
                                 </Typography>
                                 {stages[stage].map((car, index) => (
                                     <Draggable
-                                        draggableId={car.id}
+                                        draggableId={String(car.id)} // Use string IDs consistently
                                         index={index}
-                                        key={car.id}
+                                        key={car.id} // Ensure each card has a unique key
                                     >
                                         {(provided) => (
                                             <Card
@@ -141,13 +76,21 @@ function Pipeline({ rows, setRows }) {
                                                 }}
                                             >
                                                 <CardContent>
-                                                    <Typography variant="body1">{car.year} {car.make} {car.model}</Typography>
+                                                    <Typography variant="body1">
+                                                        {car.year} {car.make} {car.model}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="textSecondary"
+                                                    >
+                                                        Status: {car.status}
+                                                    </Typography>
                                                 </CardContent>
                                             </Card>
                                         )}
                                     </Draggable>
                                 ))}
-                                {provided.placeholder}
+                                {provided.placeholder} {/* Ensures proper spacing when dragging */}
                             </Box>
                         )}
                     </Droppable>
