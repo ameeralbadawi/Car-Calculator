@@ -12,6 +12,7 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import Settings from './Settings';
 import Pipeline from './Pipeline';
 import InventoryTable from './InventoryTable';
+import SoldTable from './SoldTable';
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -107,7 +108,7 @@ function TabbedTable({ rows, setRows, columns, handleOpen, cars, moveToPurchased
             </TabPanel>
             <TabPanel value={value} index={3}>
                 {/* Sold Tab Content */}
-                <Typography>Coming Soon 3</Typography>
+                <SoldTable pipelineData={pipelineCars}/>
             </TabPanel>
             <TabPanel value={value} index={4}>
                 {/* Settings Tab Content */}
