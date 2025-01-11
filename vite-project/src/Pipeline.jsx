@@ -75,115 +75,115 @@ function Pipeline() {
                                     {stage}
                                 </Typography>
                                 {stages[stage].map((car, index) => (
-    <Draggable draggableId={String(car.id)} index={index} key={car.id}>
-        {(provided) => (
-            <Card
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                sx={{
-                    width: "100%",
-                    margin: 0,
-                    padding: "8px",
-                    backgroundColor: "#f9f9f9",
-                    border: "1px solid #ddd",
-                    borderRadius: "0",
-                    display: "flex",
-                    flexDirection: "column",
-                    position: "relative", // Ensure icons are positioned relative to the card
-                    boxShadow: "none",
-                    transition: "background-color 0.2s ease",
-                    "&:hover": {
-                        backgroundColor: "#f1f1f1",
-                    },
-                }}
-            >
-                <CardContent
-                    sx={{
-                        padding: "8px", // Keep padding minimal
-                        display: "flex",
-                        flexDirection: "column",
-                        width: "100%", // Ensure content spans the card's full width
-                    }}
-                >
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            fontWeight: "bold",
-                            color: "#333",
-                            overflow: "hidden",
-                            whiteSpace: "nowrap",
-                            textOverflow: "ellipsis",
-                            position: "relative",
-                            transition: "all 0.2s ease",
-                            "&:hover": {
-                                overflow: "visible",
-                                whiteSpace: "normal",
-                                textOverflow: "clip",
-                                backgroundColor: "#ffffff",
-                                zIndex: 1,
-                                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.3)", // Optional: Add a hover highlight
-                                padding: "4px", // Ensure proper padding for revealed text
-                            },
-                        }}
-                    >
-                        {car.year} {car.make} {car.model}
-                    </Typography>
-                    <Typography
-                        variant="body2"
-                        sx={{
-                            marginTop: "4px",
-                            color: "#666", // Subtle color for secondary text
-                            overflow: "hidden",
-                            whiteSpace: "nowrap",
-                            textOverflow: "ellipsis",
-                        }}
-                    >
-                    {car.vin.slice(-8)} {/* Extract the last 8 characters */}
-                    </Typography>
-                    {/* Icons Section */}
-                    <Box
-                        sx={{
-                            display: "flex",
-                            gap: "2px",
-                            position: "absolute",
-                            bottom: "1px",
-                            right: "15px",
-                        }}
-                    >
-                        <Visibility
-                            sx={{
-                                fontSize: "20px",
-                                cursor: "pointer",
-                                color: "#757575",
-                                "&:hover": { color: "#000" },
-                            }}
-                            onClick={() => console.log("View", car.id)} // Replace with actual view logic
-                        />
-                        <Edit
-                            sx={{
-                                fontSize: "20px",
-                                cursor: "pointer",
-                                color: "#757575",
-                                "&:hover": { color: "#000" },
-                            }}
-                            onClick={() => console.log("Edit", car.id)} // Replace with actual edit logic
-                        />
-                        <Delete
-                            sx={{
-                                fontSize: "20px",
-                                cursor: "pointer",
-                                color: "#757575",
-                                "&:hover": { color: "#000" },
-                            }}
-                            onClick={() => console.log("Delete", car.id)} // Replace with actual delete logic
-                        />
-                    </Box>
-                </CardContent>
-            </Card>
-        )}
-    </Draggable>
-))}
+                                    <Draggable draggableId={String(car.id)} index={index} key={car.id}>
+                                        {(provided) => (
+                                            <Card
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                sx={{
+                                                    width: "100%",
+                                                    margin: 0,
+                                                    padding: "8px",
+                                                    backgroundColor: "#f9f9f9",
+                                                    border: "1px solid #ddd",
+                                                    borderRadius: "0",
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    position: "relative", // Ensure icons are positioned relative to the card
+                                                    boxShadow: "none",
+                                                    transition: "background-color 0.2s ease",
+                                                    "&:hover": {
+                                                        backgroundColor: "#f1f1f1",
+                                                    },
+                                                }}
+                                            >
+                                                <CardContent
+                                                    sx={{
+                                                        padding: "8px", // Keep padding minimal
+                                                        display: "flex",
+                                                        flexDirection: "column",
+                                                        width: "100%", // Ensure content spans the card's full width
+                                                    }}
+                                                >
+                                                    <Typography
+                                                        variant="body1"
+                                                        sx={{
+                                                            fontWeight: "bold",
+                                                            color: "#333",
+                                                            overflow: "hidden",
+                                                            whiteSpace: "nowrap",
+                                                            textOverflow: "ellipsis",
+                                                            position: "relative",
+                                                            transition: "all 0.2s ease",
+                                                            "&:hover": {
+                                                                overflow: "visible",
+                                                                whiteSpace: "normal",
+                                                                textOverflow: "clip",
+                                                                backgroundColor: "#ffffff",
+                                                                zIndex: 1,
+                                                                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.3)", // Optional: Add a hover highlight
+                                                                padding: "4px", // Ensure proper padding for revealed text
+                                                            },
+                                                        }}
+                                                    >
+                                                        {`${car.year} ${car.make.charAt(0).toUpperCase()}${car.make.slice(1).toLowerCase()} ${car.model}`}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{
+                                                            marginTop: "4px",
+                                                            color: "#666", // Subtle color for secondary text
+                                                            overflow: "hidden",
+                                                            whiteSpace: "nowrap",
+                                                            textOverflow: "ellipsis",
+                                                        }}
+                                                    >
+                                                        {car.vin.slice(-8)} {/* Extract the last 8 characters */}
+                                                    </Typography>
+                                                    {/* Icons Section */}
+                                                    <Box
+                                                        sx={{
+                                                            display: "flex",
+                                                            gap: "2px",
+                                                            position: "absolute",
+                                                            bottom: "1px",
+                                                            right: "15px",
+                                                        }}
+                                                    >
+                                                        <Visibility
+                                                            sx={{
+                                                                fontSize: "20px",
+                                                                cursor: "pointer",
+                                                                color: "#757575",
+                                                                "&:hover": { color: "#000" },
+                                                            }}
+                                                            onClick={() => console.log("View", car.id)} // Replace with actual view logic
+                                                        />
+                                                        <Edit
+                                                            sx={{
+                                                                fontSize: "20px",
+                                                                cursor: "pointer",
+                                                                color: "#757575",
+                                                                "&:hover": { color: "#000" },
+                                                            }}
+                                                            onClick={() => console.log("Edit", car.id)} // Replace with actual edit logic
+                                                        />
+                                                        <Delete
+                                                            sx={{
+                                                                fontSize: "20px",
+                                                                cursor: "pointer",
+                                                                color: "#757575",
+                                                                "&:hover": { color: "#000" },
+                                                            }}
+                                                            onClick={() => console.log("Delete", car.id)} // Replace with actual delete logic
+                                                        />
+                                                    </Box>
+                                                </CardContent>
+                                            </Card>
+                                        )}
+                                    </Draggable>
+                                ))}
                                 {provided.placeholder}
                             </Box>
                         )}

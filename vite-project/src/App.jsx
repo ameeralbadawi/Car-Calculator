@@ -7,6 +7,11 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useDispatch } from 'react-redux'; // For dispatching actions to the store
 import { addCarToStage } from './store'; // Import the action to add car to stages
 
+const formatMake = (make) => {
+  if (!make || typeof make !== 'string') return 'N/A';
+  return make.charAt(0).toUpperCase() + make.slice(1).toLowerCase();
+};
+
 function App() {
   const [open, setOpen] = useState(false);  // Modal open state
   const [vin, setVin] = useState('');
@@ -96,18 +101,19 @@ function App() {
 
   const fetchVehicleDetails = async (vin) => {
     try {
-      const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVIN/${vin}?format=json`);
-      const data = await response.json();
-      return {
-        make: data.Results.find(result => result.Variable === 'Make')?.Value || 'N/A',
-        model: data.Results.find(result => result.Variable === 'Model')?.Value || 'N/A',
-        year: data.Results.find(result => result.Variable === 'Model Year')?.Value || 'N/A',
-      };
+        const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVIN/${vin}?format=json`);
+        const data = await response.json();
+        return {
+            make: formatMake(data.Results.find(result => result.Variable === 'Make')?.Value || 'N/A'),
+            model: data.Results.find(result => result.Variable === 'Model')?.Value || 'N/A',
+            year: data.Results.find(result => result.Variable === 'Model Year')?.Value || 'N/A',
+        };
     } catch (error) {
-      console.error("Error fetching vehicle details:", error);
-      return { make: 'N/A', model: 'N/A', year: 'N/A' };
+        console.error("Error fetching vehicle details:", error);
+        return { make: 'N/A', model: 'N/A', year: 'N/A' };
     }
-  };
+};
+
 
   const columns = [
     { accessorKey: 'year', header: 'Year' },
