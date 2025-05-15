@@ -1,12 +1,32 @@
-import React from "react";
+import React, {useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Box, Typography, Card, CardContent } from "@mui/material";
 import { moveCarBetweenStages } from "./store";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
+import InvoiceModal from "./InvoiceModal"; // Adjust the path if needed
+
 
 function Pipeline() {
     const dispatch = useDispatch();
+    const [selectedCar, setSelectedCar] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleEditClick = (car) => {
+        setSelectedCar(car);
+        setIsModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        setSelectedCar(null);
+    };
+
+    const handleSave = (updatedCar) => {
+        console.log("Updated car:", updatedCar);
+        // Dispatch or update the car details in the Redux store
+    };
+
 
     // Get the stages from the Redux store
     const stages = useSelector((state) => state.pipeline.stages);
@@ -167,7 +187,7 @@ function Pipeline() {
                                                                 color: "#757575",
                                                                 "&:hover": { color: "#000" },
                                                             }}
-                                                            onClick={() => console.log("Edit", car.id)} // Replace with actual edit logic
+                                                            onClick={() => handleEditClick(car)}
                                                         />
                                                         <Delete
                                                             sx={{
@@ -190,7 +210,15 @@ function Pipeline() {
                     </Droppable>
                 ))}
             </DragDropContext>
+            <InvoiceModal
+                open={isModalOpen}
+                onClose={handleModalClose}
+                car={selectedCar}
+                onSave={handleSave}
+            />
+
         </Box>
+
     );
 }
 
