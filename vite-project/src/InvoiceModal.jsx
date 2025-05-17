@@ -12,10 +12,20 @@ import {
     Typography,
     Grid2,
     InputAdornment,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    IconButton,
 } from "@mui/material";
 import DatePicker from 'react-datepicker'; // Import react-datepicker
 import "react-datepicker/dist/react-datepicker.css"; // Import the CSS for the date picker
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'; // Import CalendarToday icon from MUI
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const InvoiceModal = ({ open, onClose, car, onSave }) => {
     const [formData, setFormData] = useState({
@@ -35,6 +45,9 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
         purchaseFrom: car?.purchaseFrom || "",
         purchaseLocation: car?.purchaseLocation || "",
         amountPaid: car?.amountPaid || "",
+        parts: car?.parts || [{ part: '', purchasedFrom: '', amount: 0 }], // Initialize parts array
+        transportNotes: car?.transportNotes || "",
+        purchaseNotes: car?.purchaseNotes || "",
     });
 
     const [selectedTab, setSelectedTab] = useState(0);
@@ -60,7 +73,7 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
     const handlePhoneChange = (e) => {
         const input = e.target.value.replace(/\D/g, ''); // Remove all non-digit characters
         let formattedInput = '';
-        
+
         if (input.length > 0) {
             formattedInput = `(${input.substring(0, 3)}`;
         }
@@ -70,8 +83,32 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
         if (input.length > 6) {
             formattedInput += ` - ${input.substring(6, 10)}`;
         }
-        
+
         setFormData((prev) => ({ ...prev, phone: formattedInput }));
+    };
+
+    // Parts table handlers
+    const handleAddPart = () => {
+        setFormData(prev => ({
+            ...prev,
+            parts: [...prev.parts, { part: '', purchasedFrom: '', amount: 0 }]
+        }));
+    };
+
+    const handleRemovePart = (index) => {
+        if (formData.parts.length <= 1) return;
+        setFormData(prev => ({
+            ...prev,
+            parts: prev.parts.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handlePartChange = (index, field, value) => {
+        setFormData(prev => {
+            const updatedParts = [...prev.parts];
+            updatedParts[index][field] = field === 'amount' ? Number(value) : value;
+            return { ...prev, parts: updatedParts };
+        });
     };
 
     useEffect(() => {
@@ -93,6 +130,9 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
                 purchaseFrom: car?.purchaseFrom || "",
                 purchaseLocation: car.purchaseLocation || "",
                 amountPaid: car.amountPaid || "",
+                parts: car.parts || [{ part: '', purchasedFrom: '', amount: 0 }],
+                transportNotes: car.transportNotes || "",
+                purchaseNotes: car.purchaseNotes || "",
             });
         }
     }, [car]);
@@ -143,61 +183,77 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
         );
     };
 
+
+
+
     const renderPurchasedContent = () => (
         <Box sx={{ p: 2 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
                 Purchased Details
             </Typography>
-            <Grid2 container spacing={3}>
-                <Grid2 item size={{ xs: 12, sm: 6 }}>
+
+            {/* First Row - 3 fields */}
+            <Grid2 container spacing={3} sx={{ mb: 3 }}>
+                <Grid2 item xs={12} sm={4}>
                     <TextField
                         label="Purchase Date"
                         name="purchaseDate"
                         value={formData.purchaseDate ? formData.purchaseDate.toLocaleDateString() : ''}
-                        onChange={() => { }}
                         fullWidth
                         margin="normal"
+                        variant="standard"
                         InputProps={{
-                            readOnly: true, // Make the text field readonly to only allow date picker input
+                            readOnly: true,
                             endAdornment: (
                                 <DatePicker
                                     selected={formData.purchaseDate}
                                     onChange={(date) => setFormData((prev) => ({ ...prev, purchaseDate: date }))}
                                     dateFormat="MM/dd/yyyy"
-                                    customInput={<Button variant="outlined" sx={{ minWidth: 0, padding: 1 }}><CalendarTodayIcon /></Button>} // Use Calendar icon here
+                                    customInput={
+                                        <Button variant="standard" sx={{ minWidth: 0, padding: 0 }}>
+                                            <CalendarTodayIcon />
+                                        </Button>
+                                    }
                                 />
                             )
                         }}
                     />
                 </Grid2>
-                <Grid2 item size={{ xs: 12, sm: 6 }}>
+                <Grid2 item xs={12} sm={4}>
                     <TextField
                         label="Purchase From"
                         name="purchaseFrom"
                         value={formData.purchaseFrom}
                         onChange={handleChange}
                         fullWidth
-                        variant="outlined"
+                        margin="normal"
+                        variant="standard"
                     />
                 </Grid2>
-                <Grid2 item size={{ xs: 12, sm: 6 }}>
+                <Grid2 item xs={12} sm={4}>
                     <TextField
                         label="Purchase Location"
                         name="purchaseLocation"
                         value={formData.purchaseLocation}
                         onChange={handleChange}
                         fullWidth
-                        variant="outlined"
+                        margin="normal"
+                        variant="standard"
                     />
                 </Grid2>
-                <Grid2 item size={{ xs: 12, sm: 6 }}>
+            </Grid2>
+
+            {/* Second Row - 2 fields */}
+            <Grid2 container spacing={3} sx={{ mb: 3 }}>
+                <Grid2 item xs={12} sm={6}>
                     <TextField
-                        label="Amount Paid"
-                        name="amountPaid"
-                        value={formData.amountPaid}
+                        label="Winning Bid"
+                        name="winningBid"
+                        value={formData.winningBid}
                         onChange={handleChange}
                         fullWidth
-                        variant="outlined"
+                        margin="normal"
+                        variant="standard"
                         type="number"
                         InputProps={{
                             startAdornment: (
@@ -208,26 +264,76 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
                         }}
                     />
                 </Grid2>
-                <Grid2 container sx={{ width: '100%'}}>
+                <Grid2 item xs={12} sm={6}>
                     <TextField
-                        label="Notes"
-                        name="notes"
-                        value={formData.notes}
+                        label="Amount Paid"
+                        name="amountPaid"
+                        value={formData.amountPaid}
                         onChange={handleChange}
                         fullWidth
-                        variant="outlined"
+                        margin="normal"
+                        variant="standard"
+                        type="number"
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    $
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Grid2>
+                <Grid2 item xs={12} sm={6}>
+                    <TextField
+                        label="Buyer Name"
+                        name="buyer"
+                        value={formData.buyer}
+                        onChange={handleChange}
+                        fullWidth
+                        margin="normal"
+                        variant="standard"
                     />
                 </Grid2>
             </Grid2>
+
+            {/* Third Row - Full width notes */}
+            <Box sx={{
+                width: '100%',
+                mt: 2,
+                '& .MuiTextField-root': {
+                    width: '100%'
+                }
+            }}>
+                <TextField
+                    label="Notes"
+                    name="purchaseNotes"
+                    value={formData.purchaseNotes}
+                    onChange={handleChange}
+                    fullWidth
+                    margin="normal"
+                    variant="outlined"
+                    multiline
+                    rows={6}
+                    sx={{
+                        '& .MuiOutlinedInput-root': {
+                            padding: 1,
+                            alignItems: 'flex-start'
+                        }
+                    }}
+                />
+            </Box>
         </Box>
     );
+
+
+
 
     const renderTransportContent = () => (
         <Box sx={{ p: 2 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
                 Transport Details
             </Typography>
-            <Grid2 container spacing={3}>
+            <Grid2 container spacing={3} sx={{ mb: 3 }}>
                 <Grid2 item size={{ xs: 12, sm: 6 }}>
                     <TextField
                         label="Transporter Name"
@@ -235,7 +341,7 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
                         value={formData.transporterName}
                         onChange={handleChange}
                         fullWidth
-                        variant="outlined"
+                        variant="standard"
                     />
                 </Grid2>
                 <Grid2 item size={{ xs: 12, sm: 6 }}>
@@ -245,9 +351,11 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
                         value={formData.phone}
                         onChange={handlePhoneChange}
                         fullWidth
-                        variant="outlined"
+                        variant="standard"
                     />
                 </Grid2>
+            </Grid2>
+            <Grid2 container spacing={3} sx={{ mb: 3 }}>
                 <Grid2 item size={{ xs: 12, sm: 6 }}>
                     <TextField
                         label="Pickup Date"
@@ -256,6 +364,7 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
                         onChange={() => { }}
                         fullWidth
                         margin="normal"
+                        variant="standard"
                         InputProps={{
                             readOnly: true, // Make the text field readonly to only allow date picker input
                             endAdornment: (
@@ -263,7 +372,7 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
                                     selected={formData.pickupDate}
                                     onChange={(date) => setFormData((prev) => ({ ...prev, pickupDate: date }))}
                                     dateFormat="MM/dd/yyyy"
-                                    customInput={<Button variant="outlined" sx={{ minWidth: 0, padding: 1 }}><CalendarTodayIcon /></Button>} // Use Calendar icon here
+                                    customInput={<Button variant="standard" sx={{ minWidth: 0, padding: 0 }}><CalendarTodayIcon /></Button>} // Use Calendar icon here
                                 />
                             )
                         }}
@@ -277,6 +386,7 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
                         onChange={() => { }}
                         fullWidth
                         margin="normal"
+                        variant="standard"
                         InputProps={{
                             readOnly: true, // Make the text field readonly to only allow date picker input
                             endAdornment: (
@@ -284,12 +394,14 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
                                     selected={formData.deliveryDate}
                                     onChange={(date) => setFormData((prev) => ({ ...prev, deliveryDate: date }))}
                                     dateFormat="MM/dd/yyyy"
-                                    customInput={<Button variant="outlined" sx={{ minWidth: 0, padding: 1 }}><CalendarTodayIcon /></Button>} // Use Calendar icon here
+                                    customInput={<Button variant="standard" sx={{ minWidth: 0, padding: 0 }}><CalendarTodayIcon /></Button>} // Use Calendar icon here
                                 />
                             )
                         }}
                     />
                 </Grid2>
+            </Grid2>
+            <Grid2 container spacing={3} sx={{ mb: 3 }}>
                 <Grid2 item size={{ xs: 12, sm: 6 }}>
                     <TextField
                         label="Cost"
@@ -297,7 +409,7 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
                         value={formData.cost}
                         onChange={handleChange}
                         fullWidth
-                        variant="outlined"
+                        variant="standard"
                         type="number"
                         InputProps={{
                             startAdornment: (
@@ -308,17 +420,33 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
                         }}
                     />
                 </Grid2>
-                <Grid2 item size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                        label="Notes"
-                        name="notes"
-                        value={formData.notes}
-                        onChange={handleChange}
-                        fullWidth
-                        variant="outlined"
-                    />
-                </Grid2>
             </Grid2>
+            <Box sx={{
+                width: '100%',
+                mt: 2,
+                '& .MuiTextField-root': {
+                    width: '100%'
+                }
+            }}>
+                <TextField
+                    label="Notes"
+                    name="transportNotes"
+                    value={formData.transportNotes}
+                    onChange={handleChange}
+                    fullWidth
+                    margin="normal"
+                    variant="outlined"
+                    multiline
+                    rows={6}
+                    sx={{
+                        '& .MuiOutlinedInput-root': {
+                            padding: 1,
+                            alignItems: 'flex-start'
+                        }
+                    }}
+                />
+            </Box>
+
         </Box>
 
     );
@@ -328,21 +456,91 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
             <Typography variant="h6" sx={{ mb: 2 }}>
                 Parts Details
             </Typography>
-            <Grid2 container spacing={3}>
-                <Grid2 item size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                        label="Notes"
-                        name="notes"
-                        value={formData.notes}
-                        onChange={handleChange}
-                        fullWidth
-                        variant="outlined"
-                    />
-                </Grid2>
-            </Grid2>
-        </Box>
 
+            <TableContainer component={Paper} sx={{ mb: 3 }}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Part</TableCell>
+                            <TableCell>Purchased From</TableCell>
+                            <TableCell>Amount</TableCell>
+                            <TableCell align="right">
+                                <IconButton onClick={handleAddPart} color="primary">
+                                    <AddIcon />
+                                </IconButton>
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {formData.parts.map((part, index) => (
+                            <TableRow key={index}>
+                                <TableCell>
+                                    <TextField
+                                        value={part.part || ''}
+                                        onChange={(e) => handlePartChange(index, 'part', e.target.value)}
+                                        variant="standard"
+                                        fullWidth
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <TextField
+                                        value={part.purchasedFrom || ''}
+                                        onChange={(e) => handlePartChange(index, 'purchasedFrom', e.target.value)}
+                                        variant="standard"
+                                        fullWidth
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <TextField
+                                        value={part.amount || ''}
+                                        onChange={(e) => handlePartChange(index, 'amount', e.target.value)}
+                                        type="number"
+                                        variant="standard"
+                                        fullWidth
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">$</InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </TableCell>
+                                <TableCell align="right">
+                                    <IconButton
+                                        onClick={() => handleRemovePart(index)}
+                                        color="error"
+                                        disabled={formData.parts.length <= 1}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <Typography variant="subtitle1" textAlign={"right"} sx={{ fontWeight: 'bold' }}>
+                Parts Total: ${formData.parts.reduce((sum, part) => sum + (Number(part.amount) || 0), 0).toFixed(2)}
+            </Typography>
+            <TextField
+                label="Notes"
+                name="transportNotes"
+                value={formData.transportNotes || ''}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                variant="outlined"
+                multiline
+                rows={4}
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        padding: 1,
+                        alignItems: 'flex-start'
+                    }
+                }}
+            />
+        </Box>
     );
+
 
     const renderMechanicContent = () => (
         <Box sx={{ p: 2 }}>
