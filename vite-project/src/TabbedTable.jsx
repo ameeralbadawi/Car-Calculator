@@ -7,6 +7,7 @@ import AddCarButton from './AddCarButton';
 import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
 import CallMergeOutlinedIcon from '@mui/icons-material/CallMergeOutlined';
 import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import Settings from './Settings';
@@ -78,6 +79,10 @@ function TabbedTable({ rows, setRows, columns, handleOpen, cars, moveToPurchased
                     color: 'green', // default color
                     '&.Mui-selected': { color: 'green', fontWeight: 'bold' }, // color when selected
                 }} />
+                <Tab icon={<LeaderboardIcon />} label="Reports" sx={{
+                    color: 'grey', // default color
+                    '&.Mui-selected': { color: 'grey', fontWeight: 'bold' }, // color when selected
+                }} />
                 <Tab icon={<SettingsIcon />} label="Settings" sx={{
                     color: 'black', // default color
                     '&.Mui-selected': { color: 'black', fontWeight: 'bold' }, // color when selected
@@ -111,6 +116,12 @@ function TabbedTable({ rows, setRows, columns, handleOpen, cars, moveToPurchased
                 <SoldTable pipelineData={pipelineCars}/>
             </TabPanel>
             <TabPanel value={value} index={4}>
+                {/* Reports Tab Content, create Reports.jsx */}
+                <Typography>
+                    Reports
+                </Typography>
+            </TabPanel>
+            <TabPanel value={value} index={5}>
                 {/* Settings Tab Content */}
                 <Settings />
             </TabPanel>

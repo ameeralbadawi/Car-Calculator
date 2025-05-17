@@ -12,7 +12,6 @@ import {
     Typography,
     Grid2,
     InputAdornment,
-    InputProps,
 } from "@mui/material";
 import DatePicker from 'react-datepicker'; // Import react-datepicker
 import "react-datepicker/dist/react-datepicker.css"; // Import the CSS for the date picker
