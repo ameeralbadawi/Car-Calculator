@@ -523,8 +523,8 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
             </Typography>
             <TextField
                 label="Notes"
-                name="transportNotes"
-                value={formData.transportNotes || ''}
+                name="partsNotes"
+                value={formData.partsNotes || ''}
                 onChange={handleChange}
                 fullWidth
                 margin="normal"
@@ -541,26 +541,94 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
         </Box>
     );
 
-
     const renderMechanicContent = () => (
         <Box sx={{ p: 2 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
-                Parts Details
+                Mechanic Details
             </Typography>
-            <Grid2 container spacing={3}>
-                <Grid2 item size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                        label="Notes"
-                        name="notes"
-                        value={formData.notes}
-                        onChange={handleChange}
-                        fullWidth
-                        variant="outlined"
-                    />
-                </Grid2>
-            </Grid2>
-        </Box>
 
+            <TableContainer component={Paper} sx={{ mb: 3 }}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Shop</TableCell>
+                            <TableCell>Service</TableCell>
+                            <TableCell>Amount</TableCell>
+                            <TableCell align="right">
+                                <IconButton onClick={handleAddPart} color="primary">
+                                    <AddIcon />
+                                </IconButton>
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {formData.parts.map((part, index) => (
+                            <TableRow key={index}>
+                                <TableCell>
+                                    <TextField
+                                        value={part.shop || ''}
+                                        onChange={(e) => handlePartChange(index, 'shop', e.target.value)}
+                                        variant="standard"
+                                        fullWidth
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <TextField
+                                        value={part.service || ''}
+                                        onChange={(e) => handlePartChange(index, 'service', e.target.value)}
+                                        variant="standard"
+                                        fullWidth
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <TextField
+                                        value={part.amount || ''}
+                                        onChange={(e) => handlePartChange(index, 'amount', e.target.value)}
+                                        type="number"
+                                        variant="standard"
+                                        fullWidth
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">$</InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </TableCell>
+                                <TableCell align="right">
+                                    <IconButton
+                                        onClick={() => handleRemovePart(index)}
+                                        color="error"
+                                        disabled={formData.parts.length <= 1}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <Typography variant="subtitle1" textAlign={"right"} sx={{ fontWeight: 'bold' }}>
+                Mechanic Total: ${formData.parts.reduce((sum, part) => sum + (Number(part.amount) || 0), 0).toFixed(2)}
+            </Typography>
+            <TextField
+                label="Notes"
+                name="mechanicNotes"
+                value={formData.mechanicNotes || ''}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                variant="outlined"
+                multiline
+                rows={4}
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        padding: 1,
+                        alignItems: 'flex-start'
+                    }
+                }}
+            />
+        </Box>
     );
 
     const renderBodyshopContent = () => (
@@ -568,41 +636,179 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
             <Typography variant="h6" sx={{ mb: 2 }}>
                 Bodyshop Details
             </Typography>
-            <Grid2 container spacing={3}>
-                <Grid2 item size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                        label="Notes"
-                        name="notes"
-                        value={formData.notes}
-                        onChange={handleChange}
-                        fullWidth
-                        variant="outlined"
-                    />
-                </Grid2>
-            </Grid2>
-        </Box>
 
+            <TableContainer component={Paper} sx={{ mb: 3 }}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Shop</TableCell>
+                            <TableCell>Service</TableCell>
+                            <TableCell>Amount</TableCell>
+                            <TableCell align="right">
+                                <IconButton onClick={handleAddPart} color="primary">
+                                    <AddIcon />
+                                </IconButton>
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {formData.parts.map((part, index) => (
+                            <TableRow key={index}>
+                                <TableCell>
+                                    <TextField
+                                        value={part.shop || ''}
+                                        onChange={(e) => handlePartChange(index, 'shop', e.target.value)}
+                                        variant="standard"
+                                        fullWidth
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <TextField
+                                        value={part.service || ''}
+                                        onChange={(e) => handlePartChange(index, 'service', e.target.value)}
+                                        variant="standard"
+                                        fullWidth
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <TextField
+                                        value={part.amount || ''}
+                                        onChange={(e) => handlePartChange(index, 'amount', e.target.value)}
+                                        type="number"
+                                        variant="standard"
+                                        fullWidth
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">$</InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </TableCell>
+                                <TableCell align="right">
+                                    <IconButton
+                                        onClick={() => handleRemovePart(index)}
+                                        color="error"
+                                        disabled={formData.parts.length <= 1}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <Typography variant="subtitle1" textAlign={"right"} sx={{ fontWeight: 'bold' }}>
+                Bodyshop Total: ${formData.parts.reduce((sum, part) => sum + (Number(part.amount) || 0), 0).toFixed(2)}
+            </Typography>
+            <TextField
+                label="Notes"
+                name="bodyshopNotes"
+                value={formData.bodyshopNotes || ''}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                variant="outlined"
+                multiline
+                rows={4}
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        padding: 1,
+                        alignItems: 'flex-start'
+                    }
+                }}
+            />
+        </Box>
     );
 
     const renderDetailContent = () => (
         <Box sx={{ p: 2 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
-                Detail Details (Change Detail Tab to Miscellanius Tab ex. for detail towing tires etc.)
+                Miscellanious Details
             </Typography>
-            <Grid2 container spacing={3}>
-                <Grid2 item size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                        label="Notes"
-                        name="notes"
-                        value={formData.notes}
-                        onChange={handleChange}
-                        fullWidth
-                        variant="outlined"
-                    />
-                </Grid2>
-            </Grid2>
-        </Box>
 
+            <TableContainer component={Paper} sx={{ mb: 3 }}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Service</TableCell>
+                            <TableCell>Amount</TableCell>
+                            <TableCell align="right">
+                                <IconButton onClick={handleAddPart} color="primary">
+                                    <AddIcon />
+                                </IconButton>
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {formData.parts.map((part, index) => (
+                            <TableRow key={index}>
+                                <TableCell>
+                                    <TextField
+                                        value={part.name || ''}
+                                        onChange={(e) => handlePartChange(index, 'name', e.target.value)}
+                                        variant="standard"
+                                        fullWidth
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <TextField
+                                        value={part.service || ''}
+                                        onChange={(e) => handlePartChange(index, 'service', e.target.value)}
+                                        variant="standard"
+                                        fullWidth
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <TextField
+                                        value={part.amount || ''}
+                                        onChange={(e) => handlePartChange(index, 'amount', e.target.value)}
+                                        type="number"
+                                        variant="standard"
+                                        fullWidth
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">$</InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </TableCell>
+                                <TableCell align="right">
+                                    <IconButton
+                                        onClick={() => handleRemovePart(index)}
+                                        color="error"
+                                        disabled={formData.parts.length <= 1}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <Typography variant="subtitle1" textAlign={"right"} sx={{ fontWeight: 'bold' }}>
+                Miscellanious Total: ${formData.parts.reduce((sum, part) => sum + (Number(part.amount) || 0), 0).toFixed(2)}
+            </Typography>
+            <TextField
+                label="Notes"
+                name="miscNotes"
+                value={formData.miscNotes || ''}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                variant="outlined"
+                multiline
+                rows={4}
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        padding: 1,
+                        alignItems: 'flex-start'
+                    }
+                }}
+            />
+        </Box>
     );
 
     const renderSoldContent = () => (
@@ -687,7 +893,7 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
                     <Tab label="Parts" />
                     <Tab label="Mechanic" />
                     <Tab label="Bodyshop" />
-                    <Tab label="Detail" />
+                    <Tab label="Misc." />
                     <Tab label="Sold" />
                     <Tab label="Invoice" />
                 </Tabs>
