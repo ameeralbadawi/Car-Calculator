@@ -20,6 +20,9 @@ import {
     TableRow,
     Paper,
     IconButton,
+    RadioGroup,
+    FormControlLabel,
+    Radio
 } from "@mui/material";
 import DatePicker from 'react-datepicker'; // Import react-datepicker
 import "react-datepicker/dist/react-datepicker.css"; // Import the CSS for the date picker
@@ -816,18 +819,126 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
             <Typography variant="h6" sx={{ mb: 2 }}>
                 Sold Details
             </Typography>
-            <Grid2 container spacing={3}>
-                <Grid2 item size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                        label="Notes"
-                        name="notes"
-                        value={formData.notes}
-                        onChange={handleChange}
-                        fullWidth
-                        variant="outlined"
-                    />
-                </Grid2>
+            <RadioGroup>
+                <FormControlLabel value="Clean" control={<Radio />} label="Retail" />
+                <FormControlLabel value="Minor" control={<Radio />} label="Wholesale" />
+            </RadioGroup>
+            <Grid2 item size={{ xs: 12, sm: 6 }}>
+                <TextField
+                    label="Sale Date"
+                    name="saleDate"
+                    value={formData.saleDate ? formData.saleDate.toLocaleDateString() : ''}
+                    onChange={() => { }}
+                    fullWidth
+                    margin="normal"
+                    variant="standard"
+                    InputProps={{
+                        readOnly: true, // Make the text field readonly to only allow date picker input
+                        endAdornment: (
+                            <DatePicker
+                                selected={formData.saleDate}
+                                onChange={(date) => setFormData((prev) => ({ ...prev, saleDate: date }))}
+                                dateFormat="MM/dd/yyyy"
+                                customInput={<Button variant="standard" sx={{ minWidth: 0, padding: 0 }}><CalendarTodayIcon /></Button>} // Use Calendar icon here
+                            />
+                        )
+                    }}
+                />
+
+
+                <TextField
+                    label="Sale Amount"
+                    name="saleAmount"
+                    value={formData.saleAmount}
+                    onChange={handleChange}
+                    fullWidth
+                    margin="normal"
+                    variant="standard"
+                    type="number"
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                $
+                            </InputAdornment>
+                        ),
+                    }}
+                />
+                <TextField
+                    label="Fees"
+                    name="sellerFees"
+                    value={formData.sellerFees}
+                    onChange={handleChange}
+                    fullWidth
+                    margin="normal"
+                    variant="standard"
+                    type="number"
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                $
+                            </InputAdornment>
+                        ),
+                    }}
+                />
+                <Typography variant="subtitle1" textAlign={"right"} sx={{ fontWeight: 'bold' }}>
+                    Profit: *Handle Profit Calculation Here*
+                </Typography>
+                <TextField
+                    label="Sold To"
+                    name="soldTo"
+                    value={formData.soldTo}
+                    onChange={handleChange}
+                    fullWidth
+                    margin="normal"
+                    variant="standard"
+                />
+                <TextField
+                    label="Salesman Name"
+                    name="salesmanName"
+                    value={formData.salesmanName}
+                    onChange={handleChange}
+                    fullWidth
+                    margin="normal"
+                    variant="standard"
+                />
             </Grid2>
+            <TextField
+                label="Comission"
+                name="comission"
+                value={formData.comission}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                variant="standard"
+                type="number"
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            $
+                        </InputAdornment>
+                    ),
+                }}
+            />
+            <Typography variant="subtitle1" textAlign={"right"} sx={{ fontWeight: 'bold' }}>
+                Net Profit: *Handle Net Profit Calculation Here*
+            </Typography>
+            <TextField
+                label="Notes"
+                name="miscNotes"
+                value={formData.miscNotes || ''}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                variant="outlined"
+                multiline
+                rows={4}
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        padding: 1,
+                        alignItems: 'flex-start'
+                    }
+                }}
+            />
         </Box>
 
     );
