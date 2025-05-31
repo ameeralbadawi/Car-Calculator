@@ -10,6 +10,7 @@ import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import HomeIcon from '@mui/icons-material/Home';
 import Settings from './Settings';
 import Pipeline from './Pipeline';
 import InventoryTable from './InventoryTable';
@@ -50,7 +51,10 @@ function TabbedTable({ rows, setRows, columns, handleOpen, cars, moveToPurchased
                 '& .MuiTabs-indicator': { backgroundColor: 'black' }, // indicator color
                 borderBottom: '2px solid black', // Outline at the bottom
             }}>
-
+                <Tab icon={<HomeIcon />} label="Home" sx={{
+                    color: 'black', // default color
+                    '&.Mui-selected': { color: 'black', fontWeight: 'bold' }, // color when selected
+                }} />
                 <Tab icon={<RemoveRedEyeOutlinedIcon />} label="Watchlist" sx={{
                     color: 'white', // Text color
                     backgroundColor: 'white', // Tab background color
@@ -88,8 +92,13 @@ function TabbedTable({ rows, setRows, columns, handleOpen, cars, moveToPurchased
                     '&.Mui-selected': { color: 'black', fontWeight: 'bold' }, // color when selected
                 }} />
             </Tabs>
-
             <TabPanel value={value} index={0}>
+                <Typography>
+                    Coming Soon...
+                </Typography>
+            </TabPanel>
+
+            <TabPanel value={value} index={1}>
                 <Box sx={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -102,26 +111,26 @@ function TabbedTable({ rows, setRows, columns, handleOpen, cars, moveToPurchased
                 </Box>
             </TabPanel>
 
-            <TabPanel value={value} index={1}>
+            <TabPanel value={value} index={2}>
                 {/* Pipeline Tab Content */}
                 <Pipeline rows={pipelineCars} setRows={setRows} cars={cars} moveToPurchased={moveToPurchased} />
             </TabPanel>
 
-            <TabPanel value={value} index={2}>
+            <TabPanel value={value} index={3}>
                 {/* Inventory Tab Content */}
                 <InventoryTable pipelineData={pipelineCars}/>
             </TabPanel>
-            <TabPanel value={value} index={3}>
+            <TabPanel value={value} index={4}>
                 {/* Sold Tab Content */}
                 <SoldTable pipelineData={pipelineCars}/>
             </TabPanel>
-            <TabPanel value={value} index={4}>
+            <TabPanel value={value} index={5}>
                 {/* Reports Tab Content, create Reports.jsx */}
                 <Typography>
-                    Reports
+                    Coming Soon...
                 </Typography>
             </TabPanel>
-            <TabPanel value={value} index={5}>
+            <TabPanel value={value} index={6}>
                 {/* Settings Tab Content */}
                 <Settings />
             </TabPanel>
