@@ -1,44 +1,86 @@
 import React from 'react';
-import { Box, Typography, Grid } from '@mui/material';
+import { Box, Typography, Grid, TextField } from '@mui/material';
 
-const EstimateTab = ({ formData }) => {
+const EstimateTab = ({ data, onChange }) => {
+  const handleChange = (field, value) => {
+    onChange({
+      ...data,
+      [field]: value,
+    });
+  };
+
   return (
     <Box sx={{ p: 2 }}>
       <Grid container spacing={2}>
         <Grid item xs={6}>
-          <Typography variant="body1">
-            <strong>MMR:</strong> ${formData.mmr || '0'}
-          </Typography>
+          <TextField
+            label="MMR"
+            fullWidth
+            value={data.mmr || ''}
+            onChange={(e) => handleChange('mmr', e.target.value)}
+            type="number"
+          />
         </Grid>
         <Grid item xs={6}>
-          <Typography variant="body1">
-            <strong>Profit:</strong> ${formData.profit || '0'}
-          </Typography>
+          <TextField
+            label="Estimated Profit"
+            fullWidth
+            value={data.profit || ''}
+            onChange={(e) => handleChange('profit', e.target.value)}
+            type="number"
+          />
         </Grid>
         <Grid item xs={6}>
-          <Typography variant="body1">
-            <strong>Transport:</strong> ${formData.transport || '0'}
-          </Typography>
+          <TextField
+            label="Transport"
+            fullWidth
+            value={data.transport || ''}
+            onChange={(e) => handleChange('transport', e.target.value)}
+            type="number"
+          />
         </Grid>
         <Grid item xs={6}>
-          <Typography variant="body1">
-            <strong>Repair:</strong> ${formData.repair || '0'}
-          </Typography>
+          <TextField
+            label="Repair"
+            fullWidth
+            value={data.repair || ''}
+            onChange={(e) => handleChange('repair', e.target.value)}
+            type="number"
+          />
         </Grid>
         <Grid item xs={6}>
-          <Typography variant="body1">
-            <strong>Fees:</strong> ${formData.fees || '0'}
-          </Typography>
+          <TextField
+            label="Fees"
+            fullWidth
+            value={data.fees || ''}
+            onChange={(e) => handleChange('fees', e.target.value)}
+            type="number"
+          />
         </Grid>
         <Grid item xs={6}>
-          <Typography variant="body1">
-            <strong>Max Bid:</strong> ${formData.maxBid || '0'}
-          </Typography>
+          <TextField
+            label="Max Bid"
+            fullWidth
+            value={data.maxBid || ''}
+            onChange={(e) => handleChange('maxBid', e.target.value)}
+            type="number"
+          />
         </Grid>
         <Grid item xs={6}>
-          <Typography variant="body1">
-            <strong>Carfax Status:</strong> {formData.carfaxStatus || 'N/A'}
-          </Typography>
+          <TextField
+            label="Carfax Status"
+            fullWidth
+            value={data.carfaxStatus || ''}
+            onChange={(e) => handleChange('carfaxStatus', e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="Autocheck Status"
+            fullWidth
+            value={data.autocheckStatus || ''}
+            onChange={(e) => handleChange('autocheckStatus', e.target.value)}
+          />
         </Grid>
       </Grid>
     </Box>

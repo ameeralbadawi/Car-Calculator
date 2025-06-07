@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-import {
-    Tabs,
-    Tab,
-    Box
-} from "@mui/material";
+import { Tabs, Tab, Box } from "@mui/material";
 import EstimateTab from "./tabs/EstimateTab";
 import PurchasedTab from "./tabs/PurchasedTab";
 import TransportTab from "./tabs/TransportTab";
@@ -21,26 +17,80 @@ const InvoiceTabs = ({ formData, setFormData }) => {
         setSelectedTab(newValue);
     };
 
+    const updateSection = (sectionKey, newData) => {
+        setFormData(prev => ({
+            Car: {
+                ...prev.Car,
+                [sectionKey]: newData
+            }
+        }));
+    };
+
+    const car = formData.Car;
+
     const renderTabContent = () => {
         switch (selectedTab) {
             case 0:
-                return <EstimateTab formData={formData} />;
+                return (
+                    <EstimateTab
+                        data={car.EstimateDetails}
+                        onChange={newData => updateSection("EstimateDetails", newData)}
+                    />
+                );
             case 1:
-                return <PurchasedTab formData={formData} setFormData={setFormData} />;
+                return (
+                    <PurchasedTab
+                        data={car.PurchaseDetails}
+                        onChange={newData => updateSection("PurchaseDetails", newData)}
+                    />
+                );
             case 2:
-                return <TransportTab formData={formData} setFormData={setFormData} />;
+                return (
+                    <TransportTab
+                        data={car.TransportDetails}
+                        onChange={newData => updateSection("TransportDetails", newData)}
+                    />
+                );
             case 3:
-                return <PartsTab formData={formData} setFormData={setFormData} />;
+                return (
+                    <PartsTab
+                        data={car.PartsDetails}
+                        onChange={newData => updateSection("PartsDetails", newData)}
+                    />
+                );
             case 4:
-                return <MechanicTab formData={formData} setFormData={setFormData} />;
+                return (
+                    <MechanicTab
+                        data={car.MechanicDetails}
+                        onChange={newData => updateSection("MechanicDetails", newData)}
+                    />
+                );
             case 5:
-                return <BodyshopTab formData={formData} setFormData={setFormData} />;
+                return (
+                    <BodyshopTab
+                        data={car.BodyshopDetails}
+                        onChange={newData => updateSection("BodyshopDetails", newData)}
+                    />
+                );
             case 6:
-                return <DetailTab formData={formData} setFormData={setFormData} />;
+                return (
+                    <DetailTab
+                        data={car.MiscellaniousDetails}
+                        onChange={newData => updateSection("MiscellaniousDetails", newData)}
+                    />
+                );
             case 7:
-                return <SoldTab formData={formData} setFormData={setFormData} />;
+                return (
+                    <SoldTab
+                        data={car.saleDetails}
+                        onChange={newData => updateSection("saleDetails", newData)}
+                        invoiceSummary={car.InvoiceDetails}
+                    />
+                );
+
             case 8:
                 return <InvoiceTab formData={formData} />;
+
             default:
                 return null;
         }

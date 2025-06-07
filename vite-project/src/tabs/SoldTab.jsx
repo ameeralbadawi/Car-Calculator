@@ -7,19 +7,22 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  InputAdornment,
 } from '@mui/material';
 import DatePickerField from '../shared/DatePickerField';
 import MoneyField from '../shared/MoneyField';
 
-const SoldTab = ({ formData, setFormData }) => {
+const SoldTab = ({ data, onChange, invoiceSummary = {} }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    onChange({ ...data, [name]: value });
   };
 
   const handleSaleTypeChange = (e) => {
-    setFormData((prev) => ({ ...prev, saleType: e.target.value }));
+    onChange({ ...data, saleType: e.target.value });
+  };
+
+  const handleDateChange = (date) => {
+    onChange({ ...data, saleDate: date });
   };
 
   return (
@@ -27,96 +30,95 @@ const SoldTab = ({ formData, setFormData }) => {
       <Typography variant="h6" sx={{ mb: 2 }}>
         Sold Details
       </Typography>
+
       <RadioGroup
-        value={formData.saleType || ''}
+        value={data.saleType || ''}
         onChange={handleSaleTypeChange}
         row
         sx={{ mb: 2 }}
       >
-        <FormControlLabel value="retail" control={<Radio />} label="Retail" />
-        <FormControlLabel value="wholesale" control={<Radio />} label="Wholesale" />
+        <FormControlLabel value="Retail" control={<Radio />} label="Retail" />
+        <FormControlLabel value="Wholesale" control={<Radio />} label="Wholesale" />
       </RadioGroup>
+
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6}>
           <DatePickerField
             label="Sale Date"
-            value={formData.saleDate}
-            onChange={(date) => setFormData((prev) => ({ ...prev, saleDate: date }))}
+            value={data.saleDate}
+            onChange={handleDateChange}
           />
         </Grid>
+
         <Grid item xs={12} sm={6}>
           <MoneyField
             label="Sale Amount"
             name="saleAmount"
-            value={formData.saleAmount}
+            value={data.saleAmount}
             onChange={handleChange}
           />
         </Grid>
+
         <Grid item xs={12} sm={6}>
           <MoneyField
-            label="Fees"
+            label="Auction Fees"
             name="sellerFees"
-            value={formData.sellerFees}
+            value={data.sellerFees}
             onChange={handleChange}
           />
         </Grid>
+
         <Grid item xs={12} sm={6}>
           <Typography variant="subtitle1" textAlign="right" sx={{ fontWeight: 'bold' }}>
-            Profit: ${(
-              (parseFloat(formData.saleAmount || 0) - 
-              parseFloat(formData.sellerFees || 0) - 
-              parseFloat(formData.amountPaid || 0))
-              .toFixed(2)
-            )}
+            Profit: ${Number(invoiceSummary.grossProfit || 0).toFixed(2)}
           </Typography>
         </Grid>
+
         <Grid item xs={12} sm={6}>
           <TextField
             label="Sold To"
             name="soldTo"
-            value={formData.soldTo}
+            value={data.soldTo}
             onChange={handleChange}
             fullWidth
             margin="normal"
             variant="standard"
           />
         </Grid>
+
         <Grid item xs={12} sm={6}>
           <TextField
             label="Salesman Name"
             name="salesmanName"
-            value={formData.salesmanName}
+            value={data.salesmanName}
             onChange={handleChange}
             fullWidth
             margin="normal"
             variant="standard"
           />
         </Grid>
+
         <Grid item xs={12} sm={6}>
           <MoneyField
             label="Commission"
             name="commission"
-            value={formData.commission}
+            value={data.commission}
             onChange={handleChange}
           />
         </Grid>
+
         <Grid item xs={12} sm={6}>
           <Typography variant="subtitle1" textAlign="right" sx={{ fontWeight: 'bold' }}>
-            Net Profit: ${(
-              (parseFloat(formData.saleAmount || 0) - 
-              parseFloat(formData.sellerFees || 0) - 
-              parseFloat(formData.amountPaid || 0) - 
-              parseFloat(formData.commission || 0)
-              .toFixed(2)
-            ))}
+            Net Profit: ${Number(invoiceSummary.netProfit || 0).toFixed(2)}
           </Typography>
         </Grid>
       </Grid>
+
       <Box sx={{ width: '100%', mt: 2 }}>
         <TextField
           label="Notes"
           name="saleNotes"
-          value={formData.saleNotes || ''}
+          value={data.saleNotes || ''}
           onChange={handleChange}
           fullWidth
           margin="normal"

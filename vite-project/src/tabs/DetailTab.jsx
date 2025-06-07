@@ -2,43 +2,42 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import PartsTable from '../shared/PartsTable';
 
-const DetailTab = ({ formData, setFormData }) => {
+const DetailTab = ({ data, onChange }) => {
   const handleAddItem = () => {
-    setFormData((prev) => ({
-      ...prev,
-      detailServices: [...(prev.detailServices || []), { name: '', service: '', amount: 0 }],
-    }));
+    onChange({
+      ...data,
+      miscServices: [
+        ...(data.miscServices || []),
+        { name: '', service: '', amount: 0 },
+      ],
+    });
   };
 
   const handleRemoveItem = (index) => {
-    if (formData.detailServices.length <= 1) return;
-    setFormData((prev) => ({
-      ...prev,
-      detailServices: prev.detailServices.filter((_, i) => i !== index),
-    }));
+    if ((data.miscServices || []).length <= 1) return;
+    const updatedItems = data.miscServices.filter((_, i) => i !== index);
+    onChange({ ...data, miscServices: updatedItems });
   };
 
   const handleItemChange = (index, field, value) => {
-    setFormData((prev) => {
-      const updatedItems = [...prev.detailServices];
-      updatedItems[index][field] = field === 'amount' ? Number(value) : value;
-      return { ...prev, detailServices: updatedItems };
-    });
+    const updatedItems = [...data.miscServices];
+    updatedItems[index][field] = field === 'amount' ? Number(value) : value;
+    onChange({ ...data, miscServices: updatedItems });
   };
 
   const handleNotesChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    onChange({ ...data, [name]: value });
   };
 
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Miscellanious Details
+        Miscellaneous Details
       </Typography>
 
       <PartsTable
-        items={formData.detailServices || [{ name: '', service: '', amount: 0 }]}
+        items={data.miscServices || [{ name: '', service: '', amount: 0 }]}
         onAdd={handleAddItem}
         onRemove={handleRemoveItem}
         onChange={handleItemChange}
@@ -47,9 +46,9 @@ const DetailTab = ({ formData, setFormData }) => {
           { label: 'Service', field: 'service' },
           { label: 'Amount', field: 'amount', type: 'number' },
         ]}
-        itemName="Miscellanious"
+        itemName="Miscellaneous"
         notesField="miscNotes"
-        notesValue={formData.miscNotes}
+        notesValue={data.miscNotes}
         onNotesChange={handleNotesChange}
       />
     </Box>

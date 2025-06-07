@@ -2,33 +2,29 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import PartsTable from '../shared/PartsTable';
 
-const PartsTab = ({ formData, setFormData }) => {
+const PartsTab = ({ data, onChange }) => {
   const handleAddPart = () => {
-    setFormData((prev) => ({
-      ...prev,
-      parts: [...prev.parts, { part: '', purchasedFrom: '', amount: 0 }],
-    }));
+    onChange({
+      ...data,
+      parts: [...data.parts, { part: '', purchasedFrom: '', amount: 0 }],
+    });
   };
 
   const handleRemovePart = (index) => {
-    if (formData.parts.length <= 1) return;
-    setFormData((prev) => ({
-      ...prev,
-      parts: prev.parts.filter((_, i) => i !== index),
-    }));
+    if (data.parts.length <= 1) return;
+    const updatedParts = data.parts.filter((_, i) => i !== index);
+    onChange({ ...data, parts: updatedParts });
   };
 
   const handlePartChange = (index, field, value) => {
-    setFormData((prev) => {
-      const updatedParts = [...prev.parts];
-      updatedParts[index][field] = field === 'amount' ? Number(value) : value;
-      return { ...prev, parts: updatedParts };
-    });
+    const updatedParts = [...data.parts];
+    updatedParts[index][field] = field === 'amount' ? Number(value) : value;
+    onChange({ ...data, parts: updatedParts });
   };
 
   const handleNotesChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    onChange({ ...data, [name]: value });
   };
 
   return (
@@ -38,7 +34,7 @@ const PartsTab = ({ formData, setFormData }) => {
       </Typography>
 
       <PartsTable
-        items={formData.parts}
+        items={data.parts}
         onAdd={handleAddPart}
         onRemove={handleRemovePart}
         onChange={handlePartChange}
@@ -49,7 +45,7 @@ const PartsTab = ({ formData, setFormData }) => {
         ]}
         itemName="Parts"
         notesField="partsNotes"
-        notesValue={formData.partsNotes}
+        notesValue={data.partsNotes}
         onNotesChange={handleNotesChange}
       />
     </Box>

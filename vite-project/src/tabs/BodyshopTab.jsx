@@ -2,33 +2,32 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import PartsTable from '../shared/PartsTable';
 
-const BodyshopTab = ({ formData, setFormData }) => {
+const BodyshopTab = ({ data, onChange }) => {
   const handleAddItem = () => {
-    setFormData((prev) => ({
-      ...prev,
-      bodyshopServices: [...(prev.bodyshopServices || []), { shop: '', service: '', amount: 0 }],
-    }));
+    onChange({
+      ...data,
+      bodyshopServices: [
+        ...(data.bodyshopServices || []),
+        { shop: '', service: '', amount: 0 },
+      ],
+    });
   };
 
   const handleRemoveItem = (index) => {
-    if (formData.bodyshopServices.length <= 1) return;
-    setFormData((prev) => ({
-      ...prev,
-      bodyshopServices: prev.bodyshopServices.filter((_, i) => i !== index),
-    }));
+    if ((data.bodyshopServices || []).length <= 1) return;
+    const updatedItems = data.bodyshopServices.filter((_, i) => i !== index);
+    onChange({ ...data, bodyshopServices: updatedItems });
   };
 
   const handleItemChange = (index, field, value) => {
-    setFormData((prev) => {
-      const updatedItems = [...prev.bodyshopServices];
-      updatedItems[index][field] = field === 'amount' ? Number(value) : value;
-      return { ...prev, bodyshopServices: updatedItems };
-    });
+    const updatedItems = [...data.bodyshopServices];
+    updatedItems[index][field] = field === 'amount' ? Number(value) : value;
+    onChange({ ...data, bodyshopServices: updatedItems });
   };
 
   const handleNotesChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    onChange({ ...data, [name]: value });
   };
 
   return (
@@ -38,7 +37,7 @@ const BodyshopTab = ({ formData, setFormData }) => {
       </Typography>
 
       <PartsTable
-        items={formData.bodyshopServices || [{ shop: '', service: '', amount: 0 }]}
+        items={data.bodyshopServices || [{ shop: '', service: '', amount: 0 }]}
         onAdd={handleAddItem}
         onRemove={handleRemoveItem}
         onChange={handleItemChange}
@@ -49,7 +48,7 @@ const BodyshopTab = ({ formData, setFormData }) => {
         ]}
         itemName="Bodyshop"
         notesField="bodyshopNotes"
-        notesValue={formData.bodyshopNotes}
+        notesValue={data.bodyshopNotes}
         onNotesChange={handleNotesChange}
       />
     </Box>

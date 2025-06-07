@@ -5,10 +5,10 @@ const initialState = {
   stages: {
     Purchased: [],
     Transport: [],
-    NeedsParts: [],
+    Parts: [],
     Mechanic: [],
     Bodyshop: [],
-    Detail: [],
+    Misc: [],
     Available: [],
     Sold: []
   },

@@ -3,10 +3,10 @@ import { Box, Typography, Grid, TextField } from '@mui/material';
 import DatePickerField from '../shared/DatePickerField';
 import MoneyField from '../shared/MoneyField';
 
-const TransportTab = ({ formData, setFormData }) => {
+const TransportTab = ({ data, onChange }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    onChange({ ...data, [name]: value });
   };
 
   const handlePhoneChange = (e) => {
@@ -23,7 +23,7 @@ const TransportTab = ({ formData, setFormData }) => {
       formattedInput += ` - ${input.substring(6, 10)}`;
     }
 
-    setFormData((prev) => ({ ...prev, phone: formattedInput }));
+    onChange({ ...data, transporterPhone: formattedInput });
   };
 
   return (
@@ -31,12 +31,13 @@ const TransportTab = ({ formData, setFormData }) => {
       <Typography variant="h6" sx={{ mb: 2 }}>
         Transport Details
       </Typography>
+
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6}>
           <TextField
             label="Transporter Name"
             name="transporterName"
-            value={formData.transporterName}
+            value={data.transporterName}
             onChange={handleChange}
             fullWidth
             variant="standard"
@@ -45,45 +46,48 @@ const TransportTab = ({ formData, setFormData }) => {
         <Grid item xs={12} sm={6}>
           <TextField
             label="Phone"
-            name="phone"
-            value={formData.phone}
+            name="transporterPhone"
+            value={data.transporterPhone}
             onChange={handlePhoneChange}
             fullWidth
             variant="standard"
           />
         </Grid>
       </Grid>
+
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6}>
           <DatePickerField
             label="Pickup Date"
-            value={formData.pickupDate}
-            onChange={(date) => setFormData((prev) => ({ ...prev, pickupDate: date }))}
+            value={data.pickupDate}
+            onChange={(date) => onChange({ ...data, pickupDate: date })}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
           <DatePickerField
             label="Delivery Date"
-            value={formData.deliveryDate}
-            onChange={(date) => setFormData((prev) => ({ ...prev, deliveryDate: date }))}
+            value={data.deliveryDate}
+            onChange={(date) => onChange({ ...data, deliveryDate: date })}
           />
         </Grid>
       </Grid>
+
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6}>
           <MoneyField
             label="Cost"
             name="cost"
-            value={formData.cost}
+            value={data.cost}
             onChange={handleChange}
           />
         </Grid>
       </Grid>
+
       <Box sx={{ width: '100%', mt: 2 }}>
         <TextField
           label="Notes"
-          name="transportNotes"
-          value={formData.transportNotes}
+          name="transporterNotes"
+          value={data.transporterNotes}
           onChange={handleChange}
           fullWidth
           margin="normal"
