@@ -1,16 +1,24 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Box, Typography, Card, CardContent } from "@mui/material";
 import { moveCarBetweenStages } from "./store";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
 import InvoiceModal from "./InvoiceModal"; // Adjust the path if needed
+import ViewModal from "./ViewModal";
 
 
 function Pipeline() {
     const dispatch = useDispatch();
     const [selectedCar, setSelectedCar] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [viewCar, setViewCar] = useState(null);
+
+    const handleViewClick = (car) => {
+        setViewCar(car);
+        setIsViewModalOpen(true);
+    };
 
     const handleEditClick = (car) => {
         setSelectedCar(car);
@@ -178,7 +186,7 @@ function Pipeline() {
                                                                 color: "#757575",
                                                                 "&:hover": { color: "#000" },
                                                             }}
-                                                            onClick={() => console.log("View", car.id)} // Replace with actual view logic
+                                                            onClick={() => handleViewClick(car)}
                                                         />
                                                         <Edit
                                                             sx={{
@@ -216,6 +224,15 @@ function Pipeline() {
                 car={selectedCar}
                 onSave={handleSave}
             />
+            <ViewModal
+                open={isViewModalOpen}
+                onClose={() => {
+                    setIsViewModalOpen(false);
+                    setViewCar(null);
+                }}
+                car={viewCar}
+            />
+
 
         </Box>
 
