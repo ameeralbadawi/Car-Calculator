@@ -21,25 +21,26 @@ const pipelineSlice = createSlice({
     moveCarBetweenStages: (state, action) => {
       const { sourceStage, destinationStage, carId } = action.payload;
       const carIndex = state.stages[sourceStage].findIndex((car) => car.id === carId);
-      if (carIndex === -1) return; // Car not found
-
-      // Update car status
+      if (carIndex === -1) return;
       const car = state.stages[sourceStage][carIndex];
-      car.status = destinationStage; // Update the car's status property
-
-      // Move car between stages
-      state.stages[sourceStage].splice(carIndex, 1); // Remove from source
-      state.stages[destinationStage].push(car); // Add to destination
+      car.status = destinationStage;
+      state.stages[sourceStage].splice(carIndex, 1);
+      state.stages[destinationStage].push(car);
     },
     addCarToStage: (state, action) => {
       const { stage, car } = action.payload;
-      car.status = stage; // Set the initial status when adding a car
-      state.stages[stage].push(car); // Add car to the specified stage
+      car.status = stage;
+      state.stages[stage].push(car);
     },
+    deleteCarFromStage: (state, action) => {
+      const { stage, carId } = action.payload;
+      state.stages[stage] = state.stages[stage].filter((car) => car.id !== carId);
+    }
   },
 });
 
-export const { moveCarBetweenStages, addCarToStage } = pipelineSlice.actions;
+
+export const { moveCarBetweenStages, addCarToStage, deleteCarFromStage } = pipelineSlice.actions;
 
 const store = configureStore({
   reducer: {

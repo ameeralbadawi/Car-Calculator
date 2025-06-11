@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Box, Typography, Card, CardContent } from "@mui/material";
-import { moveCarBetweenStages } from "./store";
+import { Box, Typography, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
+import { moveCarBetweenStages, deleteCarFromStage } from "./store";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
 import InvoiceModal from "./InvoiceModal"; // Adjust the path if needed
 import ViewModal from "./ViewModal";
@@ -14,6 +14,9 @@ function Pipeline() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [viewCar, setViewCar] = useState(null);
+    const [carToDelete, setCarToDelete] = useState(null);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
 
     const handleViewClick = (car) => {
         setViewCar(car);
@@ -204,8 +207,12 @@ function Pipeline() {
                                                                 color: "#757575",
                                                                 "&:hover": { color: "#000" },
                                                             }}
-                                                            onClick={() => console.log("Delete", car.id)} // Replace with actual delete logic
+                                                            onClick={() => {
+                                                                setCarToDelete(car);
+                                                                setIsDeleteDialogOpen(true);
+                                                            }}
                                                         />
+
                                                     </Box>
                                                 </CardContent>
                                             </Card>
@@ -232,6 +239,35 @@ function Pipeline() {
                 }}
                 car={viewCar}
             />
+
+            <Dialog open={isDeleteDialogOpen} onClose={() => setIsDeleteDialogOpen(false)}>
+                <DialogTitle>Confirm Deletion</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Are you sure you want to delete{" "}
+                        <strong>
+                            {carToDelete?.year} {carToDelete?.make} {carToDelete?.model}
+                        </strong>
+                        ?
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
+                    <Button
+                        onClick={() => {
+                            if (carToDelete) {
+                                dispatch(deleteCarFromStage({ stage: carToDelete.status, carId: carToDelete.id }));
+                                setIsDeleteDialogOpen(false);
+                                setCarToDelete(null);
+                            }
+                        }}
+                        color="error"
+                        variant="contained"
+                    >
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
 
         </Box>
