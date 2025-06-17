@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import VehicleFormModal from './VehicleFormModal';
 import { formatCurrency } from './utils';
 import TabbedTable from './TabbedTable';
-import { IconButton, Menu, MenuItem } from '@mui/material';
+import { IconButton, Menu, MenuItem, Tooltip, Box } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { useDispatch } from 'react-redux'; // For dispatching actions to the store
-import { addCarToStage } from './store'; // Import the action to add car to stages
+import { useDispatch } from 'react-redux';
+import { addCarToStage } from './store';
 
 const formatMake = (make) => {
   if (!make || typeof make !== 'string') return 'N/A';
@@ -13,30 +13,28 @@ const formatMake = (make) => {
 };
 
 function App() {
-  const [open, setOpen] = useState(false);  // Modal open state
+  const [open, setOpen] = useState(false);
   const [vin, setVin] = useState('');
   const [mmr, setMmr] = useState('');
   const [transport, setTransport] = useState('');
   const [repair, setRepair] = useState('');
-  const [carfaxStatus, setCarfaxStatus] = useState('');
-  const [profit, setProfit] = useState('');
+  const [carfaxStatuses, setCarfaxStatuses] = useState([]);
+  const [autocheckStatuses, setAutocheckStatuses] = useState([]);
+  const [profit, setProfit] = useState(0);
   const [rows, setRows] = useState([]);
   const [cars, setCars] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCar, setSelectedCar] = useState(null);
   const [pipelineCars, setPipelineCars] = useState([]);
-  
-  const dispatch = useDispatch();  // Initialize dispatch
 
-  // Open the modal
+  const dispatch = useDispatch();
+
   const handleOpen = () => setOpen(true);
-  
-  // Close the modal
   const handleClose = () => setOpen(false);
 
   const handleMenuOpen = (event, car) => {
     setAnchorEl(event.currentTarget);
-    setSelectedCar(car); // Save the selected car's details
+    setSelectedCar(car);
   };
 
   const handleMenuClose = () => {
@@ -45,82 +43,111 @@ function App() {
   };
 
   const handlePurchased = () => {
-    // Move car to the Pipeline "Purchased" stage
-    moveToPurchased(selectedCar);
+    if (!selectedCar) return;
+    
+    // Create a new car object with status (only for purchased cars)
+    const purchasedCar = {
+      ...selectedCar,
+      status: 'Purchased' // Adding status only here
+    };
+
+    // Update the rows state (keeping original rows)
+    setRows(rows.filter(row => row.id !== selectedCar.id));
+    
+    // Update the cars state
+    setCars(cars.map(car => 
+      car.id === selectedCar.id ? purchasedCar : car
+    ));
+
+    // Add to pipeline
+    moveToPurchased(purchasedCar);
+    
+    // Dispatch to Redux
+    dispatch(addCarToStage({ stage: 'Purchased', car: purchasedCar }));
+    
     handleMenuClose();
   };
 
   const moveToPurchased = (car) => {
-    console.log("Moving to Purchased:", car);
-    setPipelineCars((prevCars) => {
-      const updatedPipelineCars = [...prevCars, car];
-      console.log("Updated Pipeline Cars:", updatedPipelineCars);
-      return updatedPipelineCars;
-    });
+    setPipelineCars((prevCars) => [...prevCars, car]);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async ({ 
+    vin, 
+    mmr, 
+    transport, 
+    repair, 
+    profit, 
+    fees, 
+    carfaxStatuses, 
+    autocheckStatuses 
+  }) => {
     const parsedMmr = parseFloat(mmr) || 0;
     const parsedProfit = parseFloat(profit) || 0;
     const parsedTransport = parseFloat(transport) || 0;
     const parsedRepair = parseFloat(repair) || 0;
-  
-    const fees = (parsedMmr - parsedProfit - parsedTransport - parsedRepair) * 0.05;
-    const maxBid = parsedMmr - parsedProfit - parsedTransport - parsedRepair - fees;
-  
+    const parsedFees = parseFloat(fees) || 0;
+
+    const maxBid = parsedMmr - parsedProfit - parsedTransport - parsedRepair - parsedFees;
+
     const vehicleDetails = await fetchVehicleDetails(vin);
-  
+
     const newCar = {
-      id: Date.now(), // Generate a unique ID
+      id: Date.now(),
       vin,
-      mmr,
-      transport,
-      repair,
-      fees,
+      mmr: parsedMmr,
+      transport: parsedTransport,
+      repair: parsedRepair,
+      fees: parsedFees,
       maxBid,
-      carfaxStatus,
-      profit,
-      ...vehicleDetails,
-      status: 'Purchased', // Default status
+      profit: parsedProfit,
+      carfaxStatuses,
+      autocheckStatuses,
+      ...vehicleDetails
+      // No status property here
     };
-  
+
     setRows([...rows, newCar]);
     setCars([...cars, newCar]);
-  
-    dispatch(addCarToStage({ stage: 'Purchased', car: newCar })); // Dispatch to Redux
-  
-    setVin('');
-    setMmr('');
-    setTransport('');
-    setRepair('');
-    setCarfaxStatus('');
-    setProfit('');
     handleClose();
   };
-  
 
   const fetchVehicleDetails = async (vin) => {
     try {
-        const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVIN/${vin}?format=json`);
-        const data = await response.json();
-        return {
-            make: formatMake(data.Results.find(result => result.Variable === 'Make')?.Value || 'N/A'),
-            model: data.Results.find(result => result.Variable === 'Model')?.Value || 'N/A',
-            year: data.Results.find(result => result.Variable === 'Model Year')?.Value || 'N/A',
-        };
+      const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVIN/${vin}?format=json`);
+      const data = await response.json();
+      return {
+        make: formatMake(data.Results.find(result => result.Variable === 'Make')?.Value || 'N/A'),
+        model: data.Results.find(result => result.Variable === 'Model')?.Value || 'N/A',
+        year: data.Results.find(result => result.Variable === 'Model Year')?.Value || 'N/A',
+      };
     } catch (error) {
-        console.error("Error fetching vehicle details:", error);
-        return { make: 'N/A', model: 'N/A', year: 'N/A' };
+      console.error("Error fetching vehicle details:", error);
+      return { make: 'N/A', model: 'N/A', year: 'N/A' };
     }
-};
-
+  };
 
   const columns = [
     { accessorKey: 'year', header: 'Year' },
     { accessorKey: 'make', header: 'Make' },
     { accessorKey: 'model', header: 'Model' },
     { accessorKey: 'vin', header: 'VIN' },
-    { accessorKey: 'mmr', header: 'MMR', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
+    { 
+      accessorKey: 'mmr', 
+      header: 'MMR', 
+      Cell: ({ cell }) => formatCurrency(cell.getValue()) 
+    },
+    { 
+      accessorKey: 'profit',
+      header: 'Profit',
+      Cell: ({ cell }) => formatCurrency(cell.getValue()),
+      muiTableBodyCellProps: {
+        sx: {
+          color: 'success.main',
+          fontWeight: 'bold'
+        }
+      }
+    },
     { accessorKey: 'transport', header: 'Transport', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
     { accessorKey: 'repair', header: 'Repair', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
     { accessorKey: 'fees', header: 'Fees', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
@@ -134,7 +161,63 @@ function App() {
       },
       Cell: ({ cell }) => formatCurrency(cell.getValue()),
     },
-    { accessorKey: 'carfaxStatus', header: 'Carfax' },
+    { 
+      accessorKey: 'carfaxStatuses', 
+      header: 'Carfax',
+      Cell: ({ cell }) => {
+        const statuses = cell.getValue();
+        if (!statuses || statuses.length === 0) return 'N/A';
+        
+        return (
+          <Tooltip 
+            title={statuses.join(', ')} 
+            placement="top" 
+            arrow
+            disableInteractive
+          >
+            <Box sx={{ 
+              maxWidth: '150px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
+              {statuses.length > 2 
+                ? `${statuses.slice(0, 2).join(', ')}...` 
+                : statuses.join(', ')}
+            </Box>
+          </Tooltip>
+        );
+      }
+    },
+    { 
+      accessorKey: 'autocheckStatuses', 
+      header: 'Autocheck',
+      Cell: ({ cell }) => {
+        const statuses = cell.getValue();
+        if (!statuses || statuses.length === 0) return 'N/A';
+        
+        return (
+          <Tooltip 
+            title={statuses.join(', ')} 
+            placement="top" 
+            arrow
+            disableInteractive
+          >
+            <Box sx={{ 
+              maxWidth: '150px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              cursor: 'pointer'
+            }}>
+              {statuses.length > 2 
+                ? `${statuses.slice(0, 2).join(', ')}...` 
+                : statuses.join(', ')}
+            </Box>
+          </Tooltip>
+        );
+      }
+    },
     {
       accessorKey: 'actionsMenu',
       header: 'Actions',
@@ -148,17 +231,24 @@ function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '20px' }}>
-      <TabbedTable rows={rows} setRows={setRows} columns={columns} handleOpen={handleOpen} cars={cars} moveToPurchased={moveToPurchased} pipelineCars={pipelineCars}/>
+      <TabbedTable 
+        rows={rows} 
+        setRows={setRows} 
+        columns={columns} 
+        handleOpen={handleOpen} 
+        cars={cars} 
+        moveToPurchased={moveToPurchased} 
+        pipelineCars={pipelineCars} 
+      />
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem onClick={handlePurchased}>Purchased</MenuItem>
-        {/* Add more menu items as needed */}
+        <MenuItem onClick={handlePurchased}>PURCHASED</MenuItem>
       </Menu>
       <VehicleFormModal
-        open={open}  // Ensure this is passed to control modal visibility
+        open={open}
         handleClose={handleClose}
         vin={vin}
         setVin={setVin}
@@ -168,8 +258,10 @@ function App() {
         setTransport={setTransport}
         repair={repair}
         setRepair={setRepair}
-        carfaxStatus={carfaxStatus}
-        setCarfaxStatus={setCarfaxStatus}
+        carfaxStatuses={carfaxStatuses}
+        setCarfaxStatuses={setCarfaxStatuses}
+        autocheckStatuses={autocheckStatuses}
+        setAutocheckStatuses={setAutocheckStatuses}
         profit={profit}
         setProfit={setProfit}
         handleSubmit={handleSubmit}
