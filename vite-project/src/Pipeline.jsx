@@ -174,6 +174,27 @@ function Pipeline() {
                                                     </Typography>
                                                     {/* Icons Section */}
                                                     <Box
+                                                    sx={{
+                                                        display: "flex",
+                                                        gap: "2px",
+                                                        position: "absolute",
+                                                        bottom: "1px",
+                                                        left: "5px",
+                                                    }}>
+                                                        <Typography
+                                                        variant="body2"
+                                                        fontSize="12px"
+                                                        sx={{
+                                                            marginTop: "4px",
+                                                            color: "#666", // Subtle color for secondary text
+                                                            overflow: "hidden",
+                                                            whiteSpace: "nowrap",
+                                                            textOverflow: "ellipsis",
+                                                        }}>
+                                                            COST: {car.cost}
+                                                        </Typography>
+                                                    </Box>
+                                                    <Box
                                                         sx={{
                                                             display: "flex",
                                                             gap: "2px",

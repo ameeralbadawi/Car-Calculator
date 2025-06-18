@@ -4,6 +4,7 @@ import { formatCurrency } from './utils';
 import TabbedTable from './TabbedTable';
 import { IconButton, Menu, MenuItem, Tooltip, Box } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch } from 'react-redux';
 import { addCarToSheet, addCarToStage, deleteCarFromSheet } from './store';
 
@@ -137,6 +138,19 @@ function App() {
     }
   };
 
+  const handleDelete = () => {
+    if (!selectedCar) return;
+    
+    // Update local state
+    setRows(rows.filter(row => row.id !== selectedCar.id));
+    setCars(cars.filter(car => car.id !== selectedCar.id));
+    
+    // Dispatch to Redux
+    dispatch(deleteCarFromSheet({ carId: selectedCar.id }));
+    
+    handleMenuClose();
+  };
+
   const columns = [
     { accessorKey: 'year', header: 'Year' },
     { accessorKey: 'make', header: 'Make' },
@@ -251,13 +265,43 @@ function App() {
         moveToPurchased={moveToPurchased} 
         pipelineCars={pipelineCars} 
       />
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={handlePurchased}>PURCHASED</MenuItem>
-      </Menu>
+     <Menu
+  anchorEl={anchorEl}
+  open={Boolean(anchorEl)}
+  onClose={handleMenuClose}
+  PaperProps={{
+    sx: {
+      minWidth: '200px', // Set a minimum width for the menu
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center', // This centers the menu items
+      justifyContent: 'center',
+    }
+  }}
+>
+  <MenuItem 
+    onClick={handlePurchased}
+    sx={{
+      width: '100%',
+      justifyContent: 'center',
+      fontSize: '0.875rem', // Smaller font size
+      fontWeight: 'bold',   // Bold text
+    }}
+  >
+    PURCHASED
+  </MenuItem>
+  <MenuItem 
+    onClick={handleDelete}
+    sx={{
+      width: '100%',
+      justifyContent: 'center',
+    }}
+  >
+    <IconButton size="small">
+      <DeleteIcon fontSize="small" />
+    </IconButton>
+  </MenuItem>
+</Menu>
       <VehicleFormModal
         open={open}
         handleClose={handleClose}

@@ -101,6 +101,7 @@ function CarTable({ columns, rows, setRows, handleMenuOpen }) {
           initialState={{
             density: 'compact',
             columnVisibility: {
+              year: false,
               make: false,
               profit: false,
               transport: false,
