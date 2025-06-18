@@ -1,7 +1,7 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit';
 
-// Initial state with the simplified stages
-const initialState = {
+// Initial state for pipeline
+const initialPipelineState = {
   stages: {
     Purchased: [],
     Transport: [],
@@ -14,9 +14,18 @@ const initialState = {
   },
 };
 
+// Initial state for sheets
+const initialSheetsState = {
+  sheets: [
+    { id: 1, name: 'Sheet 1', data: [] },
+    { id: 2, name: 'Sheet 2', data: [] }
+  ],
+  activeSheetId: 1
+};
+
 const pipelineSlice = createSlice({
   name: 'pipeline',
-  initialState,
+  initialState: initialPipelineState,
   reducers: {
     moveCarBetweenStages: (state, action) => {
       const { sourceStage, destinationStage, carId } = action.payload;
@@ -39,13 +48,42 @@ const pipelineSlice = createSlice({
   },
 });
 
+const sheetsSlice = createSlice({
+  name: 'sheets',
+  initialState: initialSheetsState,
+  reducers: {
+    addSheet: (state) => {
+      const newId = state.sheets.length > 0 ? Math.max(...state.sheets.map(s => s.id)) + 1 : 1;
+      state.sheets.push({ id: newId, name: `Sheet ${newId}`, data: [] });
+    },
+    renameSheet: (state, action) => {
+      const { id, newName } = action.payload;
+      const sheet = state.sheets.find(s => s.id === id);
+      if (sheet) {
+        sheet.name = newName;
+      }
+    },
+    setActiveSheet: (state, action) => {
+      state.activeSheetId = action.payload;
+    },
+    addCarToSheet: (state, action) => {
+      const { car } = action.payload;
+      const activeSheet = state.sheets.find(sheet => sheet.id === state.activeSheetId);
+      if (activeSheet) {
+        activeSheet.data.push(car);
+      }
+    }
+  }
+});
 
 export const { moveCarBetweenStages, addCarToStage, deleteCarFromStage } = pipelineSlice.actions;
+export const { addSheet, renameSheet, setActiveSheet, addCarToSheet } = sheetsSlice.actions;
 
 const store = configureStore({
   reducer: {
     pipeline: pipelineSlice.reducer,
+    sheets: sheetsSlice.reducer,
   },
 });
 
-export default store; // Ensure default export
+export default store;

@@ -5,7 +5,7 @@ import TabbedTable from './TabbedTable';
 import { IconButton, Menu, MenuItem, Tooltip, Box } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useDispatch } from 'react-redux';
-import { addCarToStage } from './store';
+import { addCarToSheet, addCarToStage } from './store';
 
 const formatMake = (make) => {
   if (!make || typeof make !== 'string') return 'N/A';
@@ -87,11 +87,11 @@ function App() {
     const parsedTransport = parseFloat(transport) || 0;
     const parsedRepair = parseFloat(repair) || 0;
     const parsedFees = parseFloat(fees) || 0;
-
+  
     const maxBid = parsedMmr - parsedProfit - parsedTransport - parsedRepair - parsedFees;
-
+  
     const vehicleDetails = await fetchVehicleDetails(vin);
-
+  
     const newCar = {
       id: Date.now(),
       vin,
@@ -106,7 +106,14 @@ function App() {
       ...vehicleDetails
       // No status property here
     };
-
+  
+    // Dispatch to add to the active sheet in Redux
+    dispatch(addCarToSheet({ car: newCar }));
+    
+    // // Dispatch to add to the Purchased stage in pipeline
+    // dispatch(addCarToStage({ stage: 'Purchased', car: newCar }));
+  
+    // Update local state if still needed
     setRows([...rows, newCar]);
     setCars([...cars, newCar]);
     handleClose();

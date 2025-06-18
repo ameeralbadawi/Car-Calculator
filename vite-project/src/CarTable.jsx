@@ -2,67 +2,67 @@ import React, { useState } from 'react';
 import { MaterialReactTable } from 'material-react-table';
 import { Tabs, Tab, Box, IconButton, TextField } from '@mui/material';
 import { Add, Edit } from '@mui/icons-material';
+import { useSelector, useDispatch } from 'react-redux';
+import { addSheet, renameSheet, setActiveSheet, addCarToSheet } from './store';
 
-function CarTable({ columns, data, onAddCar }) {
-  const [watchlists, setWatchlists] = useState([
-    { id: 1, name: 'Sheet 1', data: [] },
-    { id: 2, name: 'Sheet 2', data: [] }
-  ]);
-  const [activeTab, setActiveTab] = useState(0);
+function CarTable({ columns, onAddCar }) {
+  const dispatch = useDispatch();
+  const { sheets, activeSheetId } = useSelector((state) => state.sheets);
   const [editingTab, setEditingTab] = useState(null);
   const [editValue, setEditValue] = useState('');
 
   const handleAddSheet = () => {
-    const newId = watchlists.length > 0 ? Math.max(...watchlists.map(w => w.id)) + 1 : 1;
-    setWatchlists([...watchlists, { id: newId, name: `Sheet ${newId}`, data: [] }]);
-    setActiveTab(watchlists.length);
+    dispatch(addSheet());
   };
 
   const handleRenameStart = (index) => {
     setEditingTab(index);
-    setEditValue(watchlists[index].name);
+    setEditValue(sheets[index].name);
   };
 
-  const handleRenameSave = () => {
-    const updated = [...watchlists];
-    updated[editingTab].name = editValue;
-    setWatchlists(updated);
+  const handleRenameSave = (id) => {
+    dispatch(renameSheet({ id, newName: editValue }));
     setEditingTab(null);
   };
 
+  const handleTabChange = (_, index) => {
+    const sheetId = sheets[index].id;
+    dispatch(setActiveSheet(sheetId));
+  };
+
   const handleAddCarToWatchlist = (newCar) => {
-    const updated = [...watchlists];
-    updated[activeTab].data = [...updated[activeTab].data, newCar];
-    setWatchlists(updated);
+    dispatch(addCarToSheet({ car: newCar }));
     if (onAddCar) onAddCar(newCar);
   };
+
+  const activeTabIndex = sheets.findIndex(sheet => sheet.id === activeSheetId);
 
   return (
     <div style={{ width: '90%', paddingTop: '20px' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex' }}>
         <Tabs 
-          value={activeTab} 
-          onChange={(_, newValue) => setActiveTab(newValue)}
+          value={activeTabIndex} 
+          onChange={handleTabChange}
           variant="scrollable"
           scrollButtons="auto"
         >
-          {watchlists.map((watchlist, index) => (
+          {sheets.map((sheet, index) => (
             <Tab
-              key={watchlist.id}
+              key={sheet.id}
               label={
                 editingTab === index ? (
                   <TextField
                     value={editValue}
                     onChange={(e) => setEditValue(e.target.value)}
-                    onBlur={handleRenameSave}
-                    onKeyPress={(e) => e.key === 'Enter' && handleRenameSave()}
+                    onBlur={() => handleRenameSave(sheet.id)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleRenameSave(sheet.id)}
                     autoFocus
                     size="small"
                     sx={{ width: '100px' }}
                   />
                 ) : (
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {watchlist.name}
+                    {sheet.name}
                     <IconButton
                       size="small"
                       onClick={(e) => {
@@ -84,17 +84,17 @@ function CarTable({ columns, data, onAddCar }) {
         </IconButton>
       </Box>
 
-      {watchlists.map((watchlist, index) => (
+      {sheets.map((sheet, index) => (
         <div
-          key={watchlist.id}
+          key={sheet.id}
           role="tabpanel"
-          hidden={activeTab !== index}
+          hidden={activeTabIndex !== index}
           style={{ marginTop: '16px' }}
         >
-          {activeTab === index && (
+          {activeTabIndex === index && (
             <MaterialReactTable
               columns={columns}
-              data={watchlist.data}
+              data={sheet.data}
               initialState={{
                 density: 'compact',
                 columnVisibility: {
