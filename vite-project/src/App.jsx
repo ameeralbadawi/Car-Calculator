@@ -75,6 +75,7 @@ function App() {
 
   const handleSubmit = async ({ 
     vin, 
+    runNumber,
     mmr, 
     transport, 
     repair, 
@@ -96,6 +97,7 @@ function App() {
     const newCar = {
       id: Date.now(),
       vin,
+      runNumber: runNumber || null,
       mmr: parsedMmr,
       transport: parsedTransport,
       repair: parsedRepair,
@@ -140,6 +142,7 @@ function App() {
     { accessorKey: 'make', header: 'Make' },
     { accessorKey: 'model', header: 'Model' },
     { accessorKey: 'vin', header: 'VIN' },
+    { accessorKey: 'runNumber', header: 'RUN #'},
     { 
       accessorKey: 'mmr', 
       header: 'MMR', 

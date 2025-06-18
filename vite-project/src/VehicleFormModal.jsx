@@ -36,6 +36,7 @@ function VehicleFormModal({
     const [autocheckStatuses, setAutocheckStatuses] = useState([]);
     const [feeAmountTouched, setFeeAmountTouched] = useState(false);
     const [feePercentageTouched, setFeePercentageTouched] = useState(false);
+    const [runNumber, setRunNumber] = useState('');
 
     const carfaxOptions = [
         "Minor", "Moderate", "Severe", "Total Loss", "Structural Dmg", "Airbags Deployed",
@@ -53,6 +54,7 @@ function VehicleFormModal({
 
     const resetForm = () => {
         setVin('');
+        setRunNumber('');
         setMmr(0);
         setLocalMmr(0);
         setProfitAmount('2000');
@@ -197,6 +199,7 @@ function VehicleFormModal({
     const handleSubmitForm = () => {
         handleSubmit({
             vin,
+            runNumber,
             mmr: parseFloat(localMmr),
             transport,
             repair,
@@ -226,7 +229,26 @@ function VehicleFormModal({
             }}>
                 <Typography variant="h6" align="center" gutterBottom>Vehicle Details</Typography>
 
-                <TextField label="VIN" fullWidth margin="normal" value={vin} onChange={(e) => setVin(e.target.value)} />
+                <Box sx={{ display: 'flex', gap: 2, marginBottom: 2 }}>
+                    <TextField
+                        label="VIN"
+                        fullWidth
+                        margin="normal"
+                        value={vin}
+                        onChange={(e) => setVin(e.target.value)}
+                        sx={{ flex: 3 }}  // Gives more space to VIN field
+                    />
+                    <TextField
+                        label="Run#"
+                        fullWidth
+                        margin="normal"
+                        type="string"
+                        value={runNumber}
+                        onChange={(e) => setRunNumber(e.target.value)}
+                        inputProps={{ min: 0 }}
+                        sx={{ flex: 1 }}  // Gives less space to Run# field
+                    />
+                </Box>
                 <TextField
                     label="MMR"
                     fullWidth
@@ -309,70 +331,71 @@ function VehicleFormModal({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        width: '56px' }}>
-                            <IconButton
-                                onClick={resetFeeCalculation}
-                                title="Reset fees to auto calculation"
-                                sx={{ 
-                                    height: '56px',
-                                    width: '56px',
-                                    mt: '-20px' // This lifts the button up by 10px
-                                  }}
-                            >
-                                <RefreshIcon />
-                            </IconButton>
+                        width: '56px'
+                    }}>
+                        <IconButton
+                            onClick={resetFeeCalculation}
+                            title="Reset fees to auto calculation"
+                            sx={{
+                                height: '56px',
+                                width: '56px',
+                                mt: '-20px' // This lifts the button up by 10px
+                            }}
+                        >
+                            <RefreshIcon />
+                        </IconButton>
                     </Box>
-            </Box>
-
-            <TextField
-                label="Max Bid (Calculated)"
-                fullWidth
-                margin="normal"
-                value={maxBid}
-                InputProps={{ readOnly: true }}
-            />
-
-            <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-                <Box sx={{ flex: 1, maxHeight: 200, overflowY: 'auto', border: '1px solid #ccc', p: 1, borderRadius: 1 }}>
-                    <Typography variant="subtitle1" align="center">Carfax</Typography>
-                    <FormGroup>
-                        {carfaxOptions.map((option) => (
-                            <FormControlLabel
-                                key={option}
-                                control={
-                                    <Checkbox
-                                        checked={carfaxStatuses.includes(option)}
-                                        onChange={() => handleCheckboxToggle(option, carfaxStatuses, setCarfaxStatuses)}
-                                    />
-                                }
-                                label={option}
-                            />
-                        ))}
-                    </FormGroup>
                 </Box>
-                <Box sx={{ flex: 1, maxHeight: 200, overflowY: 'auto', border: '1px solid #ccc', p: 1, borderRadius: 1 }}>
-                    <Typography variant="subtitle1" align="center">Autocheck</Typography>
-                    <FormGroup>
-                        {autocheckOptions.map((option) => (
-                            <FormControlLabel
-                                key={option}
-                                control={
-                                    <Checkbox
-                                        checked={autocheckStatuses.includes(option)}
-                                        onChange={() => handleCheckboxToggle(option, autocheckStatuses, setAutocheckStatuses)}
-                                    />
-                                }
-                                label={option}
-                            />
-                        ))}
-                    </FormGroup>
-                </Box>
-            </Box>
 
-            <Button variant="contained" onClick={handleSubmitForm} sx={{ mt: 3, display: 'block', mx: 'auto' }}>
-                Submit
-            </Button>
-        </Box>
+                <TextField
+                    label="Max Bid (Calculated)"
+                    fullWidth
+                    margin="normal"
+                    value={maxBid}
+                    InputProps={{ readOnly: true }}
+                />
+
+                <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
+                    <Box sx={{ flex: 1, maxHeight: 200, overflowY: 'auto', border: '1px solid #ccc', p: 1, borderRadius: 1 }}>
+                        <Typography variant="subtitle1" align="center">Carfax</Typography>
+                        <FormGroup>
+                            {carfaxOptions.map((option) => (
+                                <FormControlLabel
+                                    key={option}
+                                    control={
+                                        <Checkbox
+                                            checked={carfaxStatuses.includes(option)}
+                                            onChange={() => handleCheckboxToggle(option, carfaxStatuses, setCarfaxStatuses)}
+                                        />
+                                    }
+                                    label={option}
+                                />
+                            ))}
+                        </FormGroup>
+                    </Box>
+                    <Box sx={{ flex: 1, maxHeight: 200, overflowY: 'auto', border: '1px solid #ccc', p: 1, borderRadius: 1 }}>
+                        <Typography variant="subtitle1" align="center">Autocheck</Typography>
+                        <FormGroup>
+                            {autocheckOptions.map((option) => (
+                                <FormControlLabel
+                                    key={option}
+                                    control={
+                                        <Checkbox
+                                            checked={autocheckStatuses.includes(option)}
+                                            onChange={() => handleCheckboxToggle(option, autocheckStatuses, setAutocheckStatuses)}
+                                        />
+                                    }
+                                    label={option}
+                                />
+                            ))}
+                        </FormGroup>
+                    </Box>
+                </Box>
+
+                <Button variant="contained" onClick={handleSubmitForm} sx={{ mt: 3, display: 'block', mx: 'auto' }}>
+                    Submit
+                </Button>
+            </Box>
         </Modal >
     );
 }
