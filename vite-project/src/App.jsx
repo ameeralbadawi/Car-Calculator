@@ -5,7 +5,7 @@ import TabbedTable from './TabbedTable';
 import { IconButton, Menu, MenuItem, Tooltip, Box } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useDispatch } from 'react-redux';
-import { addCarToSheet, addCarToStage } from './store';
+import { addCarToSheet, addCarToStage, deleteCarFromSheet } from './store';
 
 const formatMake = (make) => {
   if (!make || typeof make !== 'string') return 'N/A';
@@ -63,6 +63,7 @@ function App() {
     moveToPurchased(purchasedCar);
     
     // Dispatch to Redux
+    dispatch(deleteCarFromSheet({ carId: selectedCar.id })); // Remove from sheet
     dispatch(addCarToStage({ stage: 'Purchased', car: purchasedCar }));
     
     handleMenuClose();

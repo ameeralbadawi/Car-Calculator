@@ -72,12 +72,29 @@ const sheetsSlice = createSlice({
       if (activeSheet) {
         activeSheet.data.push(car);
       }
+    },
+    deleteSheet: (state, action) => {
+      const sheetId = action.payload;
+      // Don't allow deleting the last sheet
+      if (state.sheets.length > 1) {
+        state.sheets = state.sheets.filter(sheet => sheet.id !== sheetId);
+        // If we deleted the active sheet, set first sheet as active
+        if (state.activeSheetId === sheetId) {
+          state.activeSheetId = state.sheets[0].id;
+        }
+      }
+    },
+    deleteCarFromSheet: (state, action) => {
+      const { carId } = action.payload;
+      state.sheets.forEach(sheet => {
+        sheet.data = sheet.data.filter(car => car.id !== carId);
+      });
     }
   }
 });
 
 export const { moveCarBetweenStages, addCarToStage, deleteCarFromStage } = pipelineSlice.actions;
-export const { addSheet, renameSheet, setActiveSheet, addCarToSheet } = sheetsSlice.actions;
+export const { addSheet, renameSheet, setActiveSheet, addCarToSheet, deleteSheet, deleteCarFromSheet } = sheetsSlice.actions;
 
 const store = configureStore({
   reducer: {

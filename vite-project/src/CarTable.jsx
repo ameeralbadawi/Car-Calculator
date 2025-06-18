@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { MaterialReactTable } from 'material-react-table';
 import { Tabs, Tab, Box, IconButton, TextField } from '@mui/material';
-import { Add, Edit } from '@mui/icons-material';
+import { Add, Edit, Delete as DeleteIcon } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
-import { addSheet, renameSheet, setActiveSheet, addCarToSheet } from './store';
+import { addSheet, renameSheet, setActiveSheet, deleteSheet, deleteCarFromSheet } from './store';
 
-function CarTable({ columns, onAddCar }) {
+function CarTable({ columns, rows, setRows, handleMenuOpen }) {
   const dispatch = useDispatch();
   const { sheets, activeSheetId } = useSelector((state) => state.sheets);
   const [editingTab, setEditingTab] = useState(null);
@@ -30,12 +30,8 @@ function CarTable({ columns, onAddCar }) {
     dispatch(setActiveSheet(sheetId));
   };
 
-  const handleAddCarToWatchlist = (newCar) => {
-    dispatch(addCarToSheet({ car: newCar }));
-    if (onAddCar) onAddCar(newCar);
-  };
-
   const activeTabIndex = sheets.findIndex(sheet => sheet.id === activeSheetId);
+  const activeSheetData = sheets.find(sheet => sheet.id === activeSheetId)?.data || [];
 
   return (
     <div style={{ width: '90%', paddingTop: '20px' }}>
@@ -50,31 +46,45 @@ function CarTable({ columns, onAddCar }) {
             <Tab
               key={sheet.id}
               label={
-                editingTab === index ? (
-                  <TextField
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                    onBlur={() => handleRenameSave(sheet.id)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleRenameSave(sheet.id)}
-                    autoFocus
-                    size="small"
-                    sx={{ width: '100px' }}
-                  />
-                ) : (
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {sheet.name}
-                    <IconButton
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {editingTab === index ? (
+                    <TextField
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      onBlur={() => handleRenameSave(sheet.id)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleRenameSave(sheet.id)}
+                      autoFocus
                       size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRenameStart(index);
-                      }}
-                      sx={{ ml: 0.5 }}
-                    >
-                      <Edit fontSize="small" />
-                    </IconButton>
-                  </Box>
-                )
+                      sx={{ width: '100px' }}
+                    />
+                  ) : (
+                    <>
+                      {sheet.name}
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRenameStart(index);
+                        }}
+                        sx={{ ml: 0.5 }}
+                      >
+                        <Edit fontSize="small" />
+                      </IconButton>
+                      {sheets.length > 1 && (
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            dispatch(deleteSheet(sheet.id));
+                          }}
+                          sx={{ ml: 0.5 }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                    </>
+                  )}
+                </Box>
               }
             />
           ))}
@@ -84,34 +94,25 @@ function CarTable({ columns, onAddCar }) {
         </IconButton>
       </Box>
 
-      {sheets.map((sheet, index) => (
-        <div
-          key={sheet.id}
-          role="tabpanel"
-          hidden={activeTabIndex !== index}
-          style={{ marginTop: '16px' }}
-        >
-          {activeTabIndex === index && (
-            <MaterialReactTable
-              columns={columns}
-              data={sheet.data}
-              initialState={{
-                density: 'compact',
-                columnVisibility: {
-                  make: false,
-                  profit: false,
-                  transport: false,
-                  repair: false,
-                  fees: false,
-                  carfaxStatuses: false,
-                  autocheckStatuses: false,
-                }
-              }}
-              enableDensityToggle={true}
-            />
-          )}
-        </div>
-      ))}
+      <div style={{ marginTop: '16px' }}>
+        <MaterialReactTable
+          columns={columns}
+          data={activeSheetData}
+          initialState={{
+            density: 'compact',
+            columnVisibility: {
+              make: false,
+              profit: false,
+              transport: false,
+              repair: false,
+              fees: false,
+              carfaxStatuses: false,
+              autocheckStatuses: false,
+            }
+          }}
+          enableDensityToggle={true}
+        />
+      </div>
     </div>
   );
 }
