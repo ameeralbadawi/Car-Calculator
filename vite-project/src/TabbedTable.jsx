@@ -15,6 +15,7 @@ import Settings from './Settings';
 import Pipeline from './Pipeline';
 import InventoryTable from './InventoryTable';
 import SoldTable from './SoldTable';
+import VinField from './VinField';
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -113,6 +114,7 @@ function TabbedTable({ rows, setRows, columns, handleOpen, cars, moveToPurchased
 
             <TabPanel value={value} index={2}>
                 {/* Pipeline Tab Content */}
+                <VinField/>
                 <Pipeline rows={pipelineCars} setRows={setRows} cars={cars} moveToPurchased={moveToPurchased} />
             </TabPanel>
 
