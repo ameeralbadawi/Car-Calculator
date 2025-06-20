@@ -1,14 +1,27 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Box, Typography, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
-import { moveCarBetweenStages, deleteCarFromStage } from "./store";
+import { 
+  Box, 
+  Typography, 
+  Card, 
+  CardContent, 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
+  Button, 
+  IconButton, 
+  Tooltip, 
+  useTheme 
+} from "@mui/material";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
-import InvoiceModal from "./InvoiceModal"; // Adjust the path if needed
+import { moveCarBetweenStages, deleteCarFromStage, updateCarInStage } from "./store";
+import InvoiceModal from "./InvoiceModal";
 import ViewModal from "./ViewModal";
 
-
 function Pipeline() {
+    const theme = useTheme();
     const dispatch = useDispatch();
     const [selectedCar, setSelectedCar] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,6 +30,7 @@ function Pipeline() {
     const [carToDelete, setCarToDelete] = useState(null);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+    const stages = useSelector((state) => state.pipeline.stages);
 
     const handleViewClick = (car) => {
         setViewCar(car);
@@ -34,246 +48,283 @@ function Pipeline() {
     };
 
     const handleSave = (updatedCar) => {
-        console.log("Updated car:", updatedCar);
-        // Dispatch or update the car details in the Redux store
+        if (!selectedCar) return;
+        
+        const currentStage = Object.keys(stages).find(stage => 
+            stages[stage].some(car => car.id === selectedCar.id)
+        );
+        
+        if (currentStage) {
+            dispatch(updateCarInStage({ 
+                stage: currentStage, 
+                car: updatedCar 
+            }));
+        }
+        
+        handleModalClose();
     };
-
-
-    // Get the stages from the Redux store
-    const stages = useSelector((state) => state.pipeline.stages);
 
     const onDragEnd = (result) => {
         const { source, destination, draggableId } = result;
 
-        if (!destination) return; // If dropped outside a droppable area, do nothing
-
-        const sourceStage = source.droppableId;
-        const destinationStage = destination.droppableId;
-
-        if (sourceStage === destinationStage && source.index === destination.index)
-            return; // If dropped in the same position, do nothing
+        if (!destination) return;
+        if (source.droppableId === destination.droppableId && source.index === destination.index) return;
 
         dispatch(
             moveCarBetweenStages({
-                sourceStage,
-                destinationStage,
-                carId: parseInt(draggableId), // Convert draggableId back to a number if necessary
+                sourceStage: source.droppableId,
+                destinationStage: destination.droppableId,
+                carId: parseInt(draggableId),
             })
         );
     };
 
-    return (
-        <Box
-            sx={{
-                display: "grid",
-                gridTemplateColumns: `repeat(${Object.keys(stages).length}, 1fr)`,
-                width: "100%",
-                height: "calc(100vh - 80px)",
-                backgroundColor: "#f8f9fa",
-                border: "1px solid #e0e0e0",
-                borderRadius: "10px",
-                overflow: "hidden",
-                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-            }}
-        >
-            <DragDropContext onDragEnd={onDragEnd}>
-                {Object.keys(stages).map((stage) => (
-                    <Droppable droppableId={stage} key={stage}>
-                        {(provided) => (
-                            <Box
-                                ref={provided.innerRef}
-                                {...provided.droppableProps}
-                                sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    borderRight: "1px solid #e0e0e0",
-                                    "&:last-child": { borderRight: "none" },
-                                    overflowY: "auto",
-                                    backgroundColor: "#ffffff",
-                                }}
-                            >
-                                <Typography
-                                    variant="h6"
+        // ... (keep all your handler functions exactly the same)
+
+        return (
+            <Box
+                sx={{
+                    display: "grid",
+                    gridTemplateColumns: `repeat(${Object.keys(stages).length}, 1fr)`,
+                    width: "100%",
+                    height: "calc(100vh - 80px)",
+                    backgroundColor: theme.palette.grey[50],
+                    border: `1px solid ${theme.palette.grey[200]}`,
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                    boxShadow: theme.shadows[2],
+                }}
+            >
+                <DragDropContext onDragEnd={onDragEnd}>
+                    {Object.keys(stages).map((stage) => (
+                        <Droppable droppableId={stage} key={stage}>
+                            {(provided) => (
+                                <Box
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
                                     sx={{
-                                        backgroundColor: "#232c31", // Replace with your desired color (e.g., teal-blue)
-                                        color: "#ffffff", // White text for better contrast
-                                        padding: "8px",
-                                        textTransform: "uppercase", // Optional: Make the text uppercase for a modern look
-                                        textAlign: "center",
-                                        fontWeight: "bold",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        borderRight: `1px solid ${theme.palette.grey[200]}`,
+                                        "&:last-child": { borderRight: "none" },
+                                        overflowY: "auto",
+                                        backgroundColor: theme.palette.background.paper,
+                                        padding: "0 4px", // Added horizontal padding to column
                                     }}
                                 >
-                                    {stage}
-                                </Typography>
-                                {stages[stage].map((car, index) => (
-                                    <Draggable draggableId={String(car.id)} index={index} key={car.id}>
-                                        {(provided) => (
-                                            <Card
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                                sx={{
-                                                    width: "100%",
-                                                    margin: 0,
-                                                    padding: "8px",
-                                                    backgroundColor: "#f9f9f9",
-                                                    border: "1px solid #ddd",
-                                                    borderRadius: "0",
-                                                    display: "flex",
-                                                    flexDirection: "column",
-                                                    position: "relative", // Ensure icons are positioned relative to the card
-                                                    boxShadow: "none",
-                                                    transition: "background-color 0.2s ease",
-                                                    "&:hover": {
-                                                        backgroundColor: "#f1f1f1",
-                                                    },
-                                                }}
-                                            >
-                                                <CardContent
+                                    <Typography
+                                        variant="subtitle1"
+                                        sx={{
+                                            backgroundColor: "#778899",
+                                            color: theme.palette.primary.contrastText,
+                                            padding: "10px",
+                                            textTransform: "uppercase",
+                                            textAlign: "center",
+                                            fontWeight: "bold",
+                                            position: "sticky",
+                                            top: 0,
+                                            zIndex: 1,
+                                            letterSpacing: "1px",
+                                            fontSize: "0.85rem",
+                                            borderBottom: `1px solid #a9a9a9`,
+                                            mx: -0.5, // Adjusts header to account for column padding
+                                        }}
+                                    >
+                                        {stage}
+                                    </Typography>
+                                    {stages[stage].map((car, index) => (
+                                        <Draggable draggableId={String(car.id)} index={index} key={car.id}>
+                                            {(provided) => (
+                                                <Card
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
                                                     sx={{
-                                                        padding: "8px", // Keep padding minimal
+                                                        width: "calc(100% - 8px)", // Ensures card is always smaller than column
+                                                        margin: "4px 0", // Vertical margin only
+                                                        padding: "4px",
+                                                        backgroundColor: theme.palette.grey[50],
+                                                        border: `1px solid ${theme.palette.grey[200]}`,
+                                                        borderRadius: "4px",
                                                         display: "flex",
                                                         flexDirection: "column",
-                                                        width: "100%", // Ensure content spans the card's full width
+                                                        boxShadow: "none",
+                                                        transition: "all 0.2s ease",
+                                                        "&:hover": {
+                                                            backgroundColor: theme.palette.grey[100],
+                                                            boxShadow: theme.shadows[1],
+                                                            transform: "translateY(-1px)",
+                                                            borderColor: theme.palette.primary.light
+                                                        },
                                                     }}
                                                 >
-                                                    <Typography
-                                                        variant="body1"
-                                                        sx={{
-                                                            fontWeight: "bold",
-                                                            color: "#333",
-                                                            overflow: "hidden",
-                                                            whiteSpace: "nowrap",
-                                                            textOverflow: "ellipsis",
-                                                            position: "relative",
-                                                            transition: "all 0.2s ease",
-                                                            "&:hover": {
-                                                                overflow: "visible",
-                                                                whiteSpace: "normal",
-                                                                textOverflow: "clip",
-                                                                backgroundColor: "#ffffff",
-                                                                zIndex: 1,
-                                                                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.3)", // Optional: Add a hover highlight
-                                                                padding: "4px", // Ensure proper padding for revealed text
-                                                            },
-                                                        }}
-                                                    >
-                                                        {`${car.year} ${car.make.charAt(0).toUpperCase()}${car.make.slice(1).toLowerCase()} ${car.model}`}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            marginTop: "4px",
-                                                            color: "#666", // Subtle color for secondary text
-                                                            overflow: "hidden",
-                                                            whiteSpace: "nowrap",
-                                                            textOverflow: "ellipsis",
-                                                        }}
-                                                    >
-                                                        {car.vin.slice(-8)} {/* Extract the last 8 characters */}
-                                                    </Typography>
-                                                    {/* Icons Section */}
-                                                    <Box
-                                                    sx={{
+                                                    <CardContent sx={{ 
+                                                        padding: "4px !important",
                                                         display: "flex",
-                                                        gap: "2px",
-                                                        position: "absolute",
-                                                        bottom: "1px",
-                                                        left: "5px",
+                                                        flexDirection: "column",
+                                                        width: "100%",
+                                                        gap: "2px"
                                                     }}>
                                                         <Typography
-                                                        variant="body2"
-                                                        fontSize="12px"
-                                                        sx={{
-                                                            marginTop: "4px",
-                                                            color: "#666", // Subtle color for secondary text
-                                                            overflow: "hidden",
-                                                            whiteSpace: "nowrap",
-                                                            textOverflow: "ellipsis",
-                                                        }}>
-                                                            COST: {car.cost}
+                                                            variant="body2"
+                                                            sx={{
+                                                                fontWeight: "600",
+                                                                color: theme.palette.text.primary,
+                                                                overflow: "hidden",
+                                                                whiteSpace: "nowrap",
+                                                                textOverflow: "ellipsis",
+                                                                fontSize: "0.8rem",
+                                                                lineHeight: 1.2,
+                                                            }}
+                                                        >
+                                                            {`${car.year} ${car.make.charAt(0).toUpperCase()}${car.make.slice(1).toLowerCase()} ${car.model.substring(0, 10)}${car.model.length > 10 ? '...' : ''}`}
                                                         </Typography>
-                                                    </Box>
-                                                    <Box
-                                                        sx={{
+                                                        
+                                                        <Box sx={{ 
                                                             display: "flex",
+                                                            justifyContent: "space-between",
+                                                            alignItems: "center",
+                                                            gap: "4px"
+                                                        }}>
+                                                            <Typography
+                                                                variant="caption"
+                                                                sx={{
+                                                                    color: theme.palette.text.secondary,
+                                                                    fontFamily: "'Roboto Mono', monospace",
+                                                                    backgroundColor: theme.palette.grey[100],
+                                                                    px: "3px",
+                                                                    py: "1px",
+                                                                    borderRadius: "2px",
+                                                                    fontSize: "0.7rem"
+                                                                }}
+                                                            >
+                                                                {car.vin.slice(-6)}
+                                                            </Typography>
+                                                            
+                                                            <Typography
+                                                                variant="caption"
+                                                                sx={{
+                                                                    color: theme.palette.text.primary,
+                                                                    fontWeight: "500",
+                                                                    backgroundColor: theme.palette.success.light,
+                                                                    px: "4px",
+                                                                    py: "1px",
+                                                                    borderRadius: "3px",
+                                                                    fontSize: "0.7rem"
+                                                                }}
+                                                            >
+                                                                ${car.cost}
+                                                            </Typography>
+                                                        </Box>
+                                                        
+                                                        <Box sx={{ 
+                                                            display: "flex", 
+                                                            justifyContent: "flex-end",
                                                             gap: "2px",
-                                                            position: "absolute",
-                                                            bottom: "1px",
-                                                            right: "15px",
-                                                        }}
-                                                    >
-                                                        <Visibility
-                                                            sx={{
-                                                                fontSize: "20px",
-                                                                cursor: "pointer",
-                                                                color: "#757575",
-                                                                "&:hover": { color: "#000" },
-                                                            }}
-                                                            onClick={() => handleViewClick(car)}
-                                                        />
-                                                        <Edit
-                                                            sx={{
-                                                                fontSize: "20px",
-                                                                cursor: "pointer",
-                                                                color: "#757575",
-                                                                "&:hover": { color: "#000" },
-                                                            }}
-                                                            onClick={() => handleEditClick(car)}
-                                                        />
-                                                        <Delete
-                                                            sx={{
-                                                                fontSize: "20px",
-                                                                cursor: "pointer",
-                                                                color: "#757575",
-                                                                "&:hover": { color: "#000" },
-                                                            }}
-                                                            onClick={() => {
-                                                                setCarToDelete(car);
-                                                                setIsDeleteDialogOpen(true);
-                                                            }}
-                                                        />
+                                                            "& .MuiIconButton-root": {
+                                                                width: "24px",
+                                                                height: "24px",
+                                                                padding: "4px",
+                                                                "& svg": {
+                                                                    fontSize: "16px"
+                                                                }
+                                                            }
+                                                        }}>
+                                                            <Tooltip title="View">
+                                                                <IconButton
+                                                                    onClick={() => handleViewClick(car)}
+                                                                    sx={{ color: theme.palette.primary.main }}
+                                                                >
+                                                                    <Visibility />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip title="Edit">
+                                                                <IconButton
+                                                                    onClick={() => handleEditClick(car)}
+                                                                    sx={{ color: theme.palette.info.main }}
+                                                                >
+                                                                    <Edit />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip title="Delete">
+                                                                <IconButton
+                                                                    onClick={() => {
+                                                                        setCarToDelete(car);
+                                                                        setIsDeleteDialogOpen(true);
+                                                                    }}
+                                                                    sx={{ color: theme.palette.error.main }}
+                                                                >
+                                                                    <Delete />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
+                                                    </CardContent>
+                                                </Card>
+                                            )}
+                                        </Draggable>
+                                    ))}
+                                    {provided.placeholder}
+                                </Box>
+                            )}
+                        </Droppable>
+                    ))}
+                </DragDropContext>
 
-                                                    </Box>
-                                                </CardContent>
-                                            </Card>
-                                        )}
-                                    </Draggable>
-                                ))}
-                                {provided.placeholder}
-                            </Box>
-                        )}
-                    </Droppable>
-                ))}
-            </DragDropContext>
             <InvoiceModal
                 open={isModalOpen}
                 onClose={handleModalClose}
                 car={selectedCar}
                 onSave={handleSave}
             />
+            
             <ViewModal
                 open={isViewModalOpen}
-                onClose={() => {
-                    setIsViewModalOpen(false);
-                    setViewCar(null);
-                }}
+                onClose={() => setIsViewModalOpen(false)}
                 car={viewCar}
             />
 
-            <Dialog open={isDeleteDialogOpen} onClose={() => setIsDeleteDialogOpen(false)}>
-                <DialogTitle>Confirm Deletion</DialogTitle>
-                <DialogContent>
+            <Dialog 
+                open={isDeleteDialogOpen} 
+                onClose={() => setIsDeleteDialogOpen(false)}
+                PaperProps={{
+                    sx: {
+                        borderRadius: "12px",
+                        padding: "16px",
+                        minWidth: "400px"
+                    }
+                }}
+            >
+                <DialogTitle sx={{ 
+                    fontWeight: "bold", 
+                    padding: "16px 16px 8px",
+                    backgroundColor: theme.palette.grey[50],
+                    borderBottom: `1px solid ${theme.palette.grey[200]}`
+                }}>
+                    Confirm Deletion
+                </DialogTitle>
+                <DialogContent sx={{ padding: "16px" }}>
                     <Typography>
                         Are you sure you want to delete{" "}
-                        <strong>
+                        <Box component="span" fontWeight="bold" color={theme.palette.error.main}>
                             {carToDelete?.year} {carToDelete?.make} {carToDelete?.model}
-                        </strong>
-                        ?
+                        </Box>?
                     </Typography>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
+                <DialogActions sx={{ 
+                    padding: "8px 16px 16px",
+                    borderTop: `1px solid ${theme.palette.grey[200]}`
+                }}>
+                    <Button 
+                        onClick={() => setIsDeleteDialogOpen(false)}
+                        sx={{ 
+                            color: theme.palette.text.secondary,
+                            "&:hover": { 
+                                backgroundColor: theme.palette.grey[100] 
+                            }
+                        }}
+                    >
+                        Cancel
+                    </Button>
                     <Button
                         onClick={() => {
                             if (carToDelete) {
@@ -282,17 +333,19 @@ function Pipeline() {
                                 setCarToDelete(null);
                             }
                         }}
-                        color="error"
                         variant="contained"
+                        sx={{
+                            backgroundColor: theme.palette.error.main,
+                            "&:hover": { 
+                                backgroundColor: theme.palette.error.dark 
+                            }
+                        }}
                     >
                         Delete
                     </Button>
                 </DialogActions>
             </Dialog>
-
-
         </Box>
-
     );
 }
 

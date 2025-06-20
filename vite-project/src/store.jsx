@@ -46,6 +46,13 @@ const pipelineSlice = createSlice({
       state.stages[stage] = state.stages[stage].filter((car) => car.id !== carId);
     }
   },
+  updateCarInStage: (state, action) => {
+    const { stage, car: updatedCar } = action.payload;
+    const stageIndex = state.stages[stage].findIndex(car => car.id === updatedCar.id);
+    if (stageIndex !== -1) {
+      state.stages[stage][stageIndex] = updatedCar;
+    }
+  }
 });
 
 const sheetsSlice = createSlice({
@@ -93,7 +100,7 @@ const sheetsSlice = createSlice({
   }
 });
 
-export const { moveCarBetweenStages, addCarToStage, deleteCarFromStage } = pipelineSlice.actions;
+export const { moveCarBetweenStages, addCarToStage, deleteCarFromStage, updateCarInStage } = pipelineSlice.actions;
 export const { addSheet, renameSheet, setActiveSheet, addCarToSheet, deleteSheet, deleteCarFromSheet } = sheetsSlice.actions;
 
 const store = configureStore({
