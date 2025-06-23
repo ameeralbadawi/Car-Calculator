@@ -230,6 +230,20 @@ function Pipeline() {
                                                                 }
                                                             }
                                                         }}>
+                                                            <Typography 
+                                                            sx={{
+                                                                color: theme.palette.text.primary,
+                                                                fontWeight: "500",
+                                                                backgroundColor: "yellow",
+                                                                px: "4px",
+                                                                py: "1px",
+                                                                borderRadius: "3px",
+                                                                fontSize: "0.7rem",
+                                                                textAlign: "left",
+                                                                justifyContent: "left"
+                                                            }}>
+                                                                0 Days
+                                                            </Typography>
                                                             <Tooltip title="View">
                                                                 <IconButton
                                                                     onClick={() => handleViewClick(car)}

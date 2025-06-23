@@ -74,7 +74,14 @@ const VinField = () => {
   };
 
   return (
-    <Box sx={{ mb: 3, width: '100%' }}>
+    <Box sx={{ 
+        mb: 3, 
+        width: '60%', // Reduced width
+        minWidth: '400px', // Minimum width to prevent becoming too narrow
+        maxWidth: '600px', // Maximum width
+        mr: 'auto', // This will push it to the left
+        ml: 0 // Explicitly set left margin to 0
+      }}>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} sm={8} md={9}>
@@ -89,7 +96,6 @@ const VinField = () => {
                 maxLength: 17,
                 style: { textTransform: 'uppercase' }
               }}
-              placeholder="1HGCM82633A123456"
             />
           </Grid>
           <Grid item xs={12} sm={4} md={3}>
@@ -99,8 +105,8 @@ const VinField = () => {
               variant="contained"
               color="primary"
               size="large"
-              disabled={loading || !vin.trim()}
-              sx={{ height: '56px', backgroundColor: "#778899" }}
+              disabled={loading || vin.length !== 17}
+              sx={{ height: '56px', backgroundColor: "#778899", fontSize: "13px", fontFamily: "'Helvetica'", fontWeight: "bold" }}
             >
               {loading ? <CircularProgress size={24} /> : 'Add Vehicle'}
             </Button>

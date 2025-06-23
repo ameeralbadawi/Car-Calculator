@@ -89,6 +89,8 @@ const InvoicePDF = ({ formData }) => {
           <View style={styles.row}>
             {CarDetails.vin && <Text>VIN: {CarDetails.vin}</Text>}
             {PurchaseDetails.mileage && <Text>Mileage: {PurchaseDetails.mileage}</Text>}
+            {PurchaseDetails.color && <Text>Color: {PurchaseDetails.color}</Text>}
+            {PurchaseDetails.stockNumber && <Text>Stock#: {PurchaseDetails.stockNumber}</Text>}
           </View>
           <Text style={styles.sectionHeader}>Estimate Details</Text>
           <View style={styles.row}>

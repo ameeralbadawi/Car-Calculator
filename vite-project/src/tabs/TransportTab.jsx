@@ -61,6 +61,14 @@ const TransportTab = ({ data, onChange }) => {
             label="Pickup Date"
             value={data.pickupDate}
             onChange={(date) => onChange({ ...data, pickupDate: date })}
+            PopperProps={{
+              sx: {
+                zIndex: 9999, // Ensure it appears above modal
+                '& .MuiPaper-root': {
+                  boxShadow: 3,
+                },
+              },
+            }}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -68,6 +76,14 @@ const TransportTab = ({ data, onChange }) => {
             label="Delivery Date"
             value={data.deliveryDate}
             onChange={(date) => onChange({ ...data, deliveryDate: date })}
+            PopperProps={{
+              sx: {
+                zIndex: 9999, // Ensure it appears above modal
+                '& .MuiPaper-root': {
+                  boxShadow: 3,
+                },
+              },
+            }}
           />
         </Grid>
       </Grid>

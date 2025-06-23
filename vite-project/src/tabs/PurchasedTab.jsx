@@ -53,6 +53,28 @@ const PurchasedTab = ({ data, onChange }) => {
 
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6}>
+          <TextField
+            label="Color"
+            name="color"
+            value={data.color}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            variant="standard"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            label="Stock #"
+            name="stockNumber"
+            value={data.stockNumber}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            variant="standard"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
           <MoneyField
             label="Winning Bid"
             name="winningBid"

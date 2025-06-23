@@ -30,8 +30,16 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
             repair: car.repair || '',
             fees: car.fees || '',
             maxBid: car.maxBid || '',
-            carfaxStatus: car.carfaxStatus || '',
-            autocheckStatus: car.autocheckStatus || '',
+            carfaxStatuses: car.carfaxStatuses
+              ? [...car.carfaxStatuses]
+              : car.carfaxStatus
+                ? [car.carfaxStatus]
+                : [''],
+            autocheckStatuses: car.autocheckStatuses
+              ? [...car.autocheckStatuses]
+              : car.autocheckStatus
+                ? [car.autocheckStatus]
+                : [''],
           },
           PurchaseDetails: {
             purchaseDate: car.purchaseDate || '',
@@ -41,6 +49,8 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
             winningBid: car.winningBid || '',
             amountPaid: parseFloat(car.amountPaid) || 0,
             buyerName: car.buyerName || '',
+            stockNumber: car.stockNumber || '',
+            color: car.color || '',
             purchaseNotes: car.purchaseNotes || '',
           },
           TransportDetails: {
