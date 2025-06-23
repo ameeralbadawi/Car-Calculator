@@ -1,5 +1,4 @@
-// TabbedTable.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Tabs, Tab, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 import CarTable from './CarTable';
@@ -16,18 +15,13 @@ import Pipeline from './Pipeline';
 import InventoryTable from './InventoryTable';
 import SoldTable from './SoldTable';
 import VinField from './VinField';
+import InvoiceModal from './InvoiceModal';
+import ViewModal from './ViewModal';
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
-
     return (
-        <div
-            role="tabpanel"
-            hidden={value !== index}
-            id={`tabpanel-${index}`}
-            aria-labelledby={`tab-${index}`}
-            {...other}
-        >
+        <div role="tabpanel" hidden={value !== index} {...other}>
             {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
         </div>
     );
@@ -39,105 +33,123 @@ TabPanel.propTypes = {
     value: PropTypes.number.isRequired,
 };
 
-function TabbedTable({ rows, setRows, columns, handleOpen, cars, moveToPurchased, pipelineCars}) {
-    const [value, setValue] = React.useState(0);
+function TabbedTable({ rows, setRows, columns, handleOpen }) {
+    const [value, setValue] = useState(0);
+    const [selectedCar, setSelectedCar] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [viewCar, setViewCar] = useState(null);
 
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
+    const handleChange = (event, newValue) => setValue(newValue);
+
+    const handleViewCar = (car) => {
+        setViewCar(car);
+        setIsViewModalOpen(true);
+    };
+
+    const handleEditCar = (car) => {
+        setSelectedCar(car);
+        setIsModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        setSelectedCar(null);
+    };
+
+    const handleSave = (updatedCar) => {
+        // Save logic would go here
+        handleModalClose();
     };
 
     return (
         <Box sx={{ width: '100%' }}>
-            <Tabs value={value} onChange={handleChange} aria-label="car management tabs" sx={{
-                '& .MuiTabs-indicator': { backgroundColor: 'black' }, // indicator color
-                borderBottom: '2px solid black', // Outline at the bottom
+            <Tabs value={value} onChange={handleChange} sx={{
+                '& .MuiTabs-indicator': { backgroundColor: 'black' },
+                borderBottom: '2px solid black',
             }}>
-                <Tab icon={<HomeIcon />} label="Home" sx={{
-                    color: 'black', // default color
-                    '&.Mui-selected': { color: 'black', fontWeight: 'bold' }, // color when selected
-                }} />
-                <Tab icon={<RemoveRedEyeOutlinedIcon />} label="Watchlist" sx={{
-                    color: 'white', // Text color
-                    backgroundColor: 'white', // Tab background color
-                    // border: '1px solid black', // Tab outline
-                    borderBottom: 'none', // Remove bottom border to connect with indicator
-                    // fontWeight: 'bold',
-                    '-webkit-text-stroke': '0.6px black', // Text outline
-                    '& .MuiSvgIcon-root': {
-                        color: 'black', // Style the icon color
-                    },
-                    '&.Mui-selected': {
-                        '-webkit-text-stroke': '1.2px black', // Text outline
-                        color: 'white', // Selected text color (if needed for contrast)
-                        fontWeight: 'bold',
-                    },
-                }} />
-                <Tab icon={<CallMergeOutlinedIcon />} label="Pipeline" sx={{
-                    color: 'black', // default color
-                    '&.Mui-selected': { color: 'black', fontWeight: 'bold' }, // color when selected
-                }} />
-                <Tab icon={<DirectionsCarFilledIcon />} label="Inventory" sx={{
-                    color: 'red', // default color
-                    '&.Mui-selected': { color: 'red', fontWeight: 'bold' }, // color when selected
-                }} />
-                <Tab icon={<AttachMoneyIcon />} label="Sold" sx={{
-                    color: 'green', // default color
-                    '&.Mui-selected': { color: 'green', fontWeight: 'bold' }, // color when selected
-                }} />
-                <Tab icon={<LeaderboardIcon />} label="Reports" sx={{
-                    color: 'grey', // default color
-                    '&.Mui-selected': { color: 'grey', fontWeight: 'bold' }, // color when selected
-                }} />
-                <Tab icon={<SettingsIcon />} label="Settings" sx={{
-                    color: 'black', // default color
-                    '&.Mui-selected': { color: 'black', fontWeight: 'bold' }, // color when selected
-                }} />
+                {/* Tab definitions remain the same */}
+                <Tab icon={<HomeIcon />} label="Home" sx={tabStyle('black')} />
+                <Tab icon={<RemoveRedEyeOutlinedIcon />} label="Watchlist" sx={watchlistTabStyle} />
+                <Tab icon={<CallMergeOutlinedIcon />} label="Pipeline" sx={tabStyle('black')} />
+                <Tab icon={<DirectionsCarFilledIcon />} label="Inventory" sx={tabStyle('red')} />
+                <Tab icon={<AttachMoneyIcon />} label="Sold" sx={tabStyle('green')} />
+                <Tab icon={<LeaderboardIcon />} label="Reports" sx={tabStyle('grey')} />
+                <Tab icon={<SettingsIcon />} label="Settings" sx={tabStyle('black')} />
             </Tabs>
+
             <TabPanel value={value} index={0}>
-                <Typography>
-                    Coming Soon...
-                </Typography>
+                <Typography>Coming Soon...</Typography>
             </TabPanel>
 
             <TabPanel value={value} index={1}>
-                <Box sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center', // centers children horizontally
-                    gap: 2, // adds spacing between button and table
-                }}>
-                    {/* Watchlist Tab Content */}
-                    <AddCarButton handleOpen={handleOpen} />  {/* Add Car Button */}
-                    <CarTable data={rows} columns={columns} />  {/* Car Table */}
+                <Box sx={tabContentStyle}>
+                    <AddCarButton handleOpen={handleOpen} />
+                    <CarTable data={rows} columns={columns} />
                 </Box>
             </TabPanel>
 
             <TabPanel value={value} index={2}>
-                {/* Pipeline Tab Content */}
-                <VinField/>
-                <Pipeline rows={pipelineCars} setRows={setRows} cars={cars} moveToPurchased={moveToPurchased} />
+                <VinField />
+                <Pipeline onViewCar={handleViewCar} onEditCar={handleEditCar} />
             </TabPanel>
 
             <TabPanel value={value} index={3}>
-                {/* Inventory Tab Content */}
-                <InventoryTable pipelineData={pipelineCars}/>
+                <InventoryTable onViewCar={handleViewCar} onEditCar={handleEditCar} />
             </TabPanel>
+
             <TabPanel value={value} index={4}>
-                {/* Sold Tab Content */}
-                <SoldTable pipelineData={pipelineCars}/>
+                <SoldTable onViewCar={handleViewCar} onEditCar={handleEditCar}/>
             </TabPanel>
+
             <TabPanel value={value} index={5}>
-                {/* Reports Tab Content, create Reports.jsx */}
-                <Typography>
-                    Coming Soon...
-                </Typography>
+                <Typography>Coming Soon...</Typography>
             </TabPanel>
+
             <TabPanel value={value} index={6}>
-                {/* Settings Tab Content */}
                 <Settings />
             </TabPanel>
+
+            <InvoiceModal
+                open={isModalOpen}
+                onClose={handleModalClose}
+                car={selectedCar}
+                onSave={handleSave}
+            />
+            
+            <ViewModal
+                open={isViewModalOpen}
+                onClose={() => setIsViewModalOpen(false)}
+                car={viewCar}
+            />
         </Box>
     );
 }
+
+// Style helper functions
+const tabStyle = (color) => ({
+    color,
+    '&.Mui-selected': { color, fontWeight: 'bold' },
+});
+
+const watchlistTabStyle = {
+    color: 'white',
+    backgroundColor: 'white',
+    borderBottom: 'none',
+    '-webkit-text-stroke': '0.6px black',
+    '& .MuiSvgIcon-root': { color: 'black' },
+    '&.Mui-selected': {
+        '-webkit-text-stroke': '1.2px black',
+        color: 'white',
+        fontWeight: 'bold',
+    },
+};
+
+const tabContentStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 2,
+};
 
 export default TabbedTable;

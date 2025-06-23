@@ -1,18 +1,60 @@
-import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { MaterialReactTable } from "material-react-table";
-import { Chip } from "@mui/material";
+import { 
+  Chip, 
+  IconButton, 
+  Menu, 
+  MenuItem, 
+  ListItemIcon 
+} from "@mui/material";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { deleteCarFromStage } from "./store";
 
-function InventoryTable() {
-  // Retrieve data from Redux store
-  const stages = useSelector((state) => state.pipeline.stages);
+function InventoryTable({ onViewCar, onEditCar }) {
+  const dispatch = useDispatch();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedCar, setSelectedCar] = useState(null);
 
-  // Combine cars from all stages into a single array and filter out "Sold"
-  const pipelineData = useMemo(() => {
-    return Object.values(stages).flat().filter((car) => car.status !== "Sold");
-  }, [stages]);
+  // Get all non-sold cars from Redux (original data source)
+  const pipelineData = useSelector((state) => {
+    return Object.values(state.pipeline.stages).flat().filter((car) => car.status !== "Sold");
+  });
 
-  // Define a function to assign colors to each status
+  const handleMenuOpen = (event, car) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedCar(car);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedCar(null);
+  };
+
+  const handleView = () => {
+    onViewCar(selectedCar);
+    handleMenuClose();
+  };
+
+  const handleEdit = () => {
+    onEditCar(selectedCar);
+    handleMenuClose();
+  };
+
+  const handleDelete = () => {
+    if (selectedCar) {
+      dispatch(deleteCarFromStage({ 
+        stage: selectedCar.status, 
+        carId: selectedCar.id 
+      }));
+    }
+    handleMenuClose();
+  };
+
+  // Original status color mapping
   const getStatusColor = (status) => {
     switch (status) {
       case "Purchased":
@@ -34,50 +76,101 @@ function InventoryTable() {
     }
   };
 
-  // Define table columns
-  const columns = useMemo(
-    () => [
-      {
-        accessorKey: "year", // Accessor key for the data property
-        header: "Year",
-      },
-      {
-        accessorKey: "make",
-        header: "Make",
-      },
-      {
-        accessorKey: "model",
-        header: "Model",
-      },
-      {
-        accessorKey: "vin",
-        header: "VIN",
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-        Cell: ({ cell }) => (
-          <Chip
-            label={cell.getValue()} // Display the status text
-            style={{
-              backgroundColor: getStatusColor(cell.getValue()),
-              color: "white",
-              fontWeight: "bold",
-            }}
-          />
-        ),
-      },
-    ],
-    []
-  );
+  // Original column definitions
+  const columns = [
+    {
+      accessorKey: "year",
+      header: "Year",
+    },
+    {
+      accessorKey: "make",
+      header: "Make",
+    },
+    {
+      accessorKey: "model",
+      header: "Model",
+    },
+    {
+      accessorKey: "vin",
+      header: "VIN",
+    },
+    {
+      accessorKey: "cost",
+      header: "Cost",
+      Cell: ({ cell }) => `$${Number(cell.getValue()).toFixed(2)}`
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      Cell: ({ cell }) => (
+        <Chip
+          label={cell.getValue()}
+          style={{
+            backgroundColor: getStatusColor(cell.getValue()),
+            color: "white",
+            fontWeight: "bold",
+          }}
+        />
+      ),
+    },
+    {
+      accessorKey: 'actions',
+      header: 'Actions',
+      Cell: ({ row }) => (
+        <>
+          <IconButton onClick={(e) => handleMenuOpen(e, row.original)}>
+            <MoreVertIcon />
+          </IconButton>
+        </>
+      ),
+      enableSorting: false,
+      enableColumnFilter: false,
+    },
+  ];
 
   return (
-    <MaterialReactTable
-      columns={columns}
-      data={pipelineData}
-      enableSorting
-      enablePagination
-    />
+    <>
+      <MaterialReactTable
+        columns={columns}
+        data={pipelineData}
+        enableSorting
+        enablePagination
+      />
+      
+      {/* Original action menu styling */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <MenuItem onClick={handleView}>
+          <ListItemIcon>
+            <VisibilityIcon fontSize="small" />
+          </ListItemIcon>
+          View
+        </MenuItem>
+        <MenuItem onClick={handleEdit}>
+          <ListItemIcon>
+            <EditIcon fontSize="small" />
+          </ListItemIcon>
+          Edit
+        </MenuItem>
+        <MenuItem onClick={handleDelete}>
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" />
+          </ListItemIcon>
+          Delete
+        </MenuItem>
+      </Menu>
+    </>
   );
 }
 

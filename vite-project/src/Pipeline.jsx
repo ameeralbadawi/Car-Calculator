@@ -16,53 +16,14 @@ import {
   useTheme 
 } from "@mui/material";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
-import { moveCarBetweenStages, deleteCarFromStage, updateCarInStage } from "./store";
-import InvoiceModal from "./InvoiceModal";
-import ViewModal from "./ViewModal";
+import { moveCarBetweenStages, deleteCarFromStage } from "./store";
 
-function Pipeline() {
+function Pipeline({ onViewCar, onEditCar }) {
     const theme = useTheme();
     const dispatch = useDispatch();
-    const [selectedCar, setSelectedCar] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const [viewCar, setViewCar] = useState(null);
+    const stages = useSelector((state) => state.pipeline.stages);
     const [carToDelete, setCarToDelete] = useState(null);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
-    const stages = useSelector((state) => state.pipeline.stages);
-
-    const handleViewClick = (car) => {
-        setViewCar(car);
-        setIsViewModalOpen(true);
-    };
-
-    const handleEditClick = (car) => {
-        setSelectedCar(car);
-        setIsModalOpen(true);
-    };
-
-    const handleModalClose = () => {
-        setIsModalOpen(false);
-        setSelectedCar(null);
-    };
-
-    const handleSave = (updatedCar) => {
-        if (!selectedCar) return;
-        
-        const currentStage = Object.keys(stages).find(stage => 
-            stages[stage].some(car => car.id === selectedCar.id)
-        );
-        
-        if (currentStage) {
-            dispatch(updateCarInStage({ 
-                stage: currentStage, 
-                car: updatedCar 
-            }));
-        }
-        
-        handleModalClose();
-    };
 
     const onDragEnd = (result) => {
         const { source, destination, draggableId } = result;
@@ -79,9 +40,18 @@ function Pipeline() {
         );
     };
 
-        // ... (keep all your handler functions exactly the same)
+    const handleDeleteConfirm = () => {
+        if (carToDelete) {
+            dispatch(deleteCarFromStage({ 
+                stage: carToDelete.status, 
+                carId: carToDelete.id 
+            }));
+        }
+        setIsDeleteDialogOpen(false);
+    };
 
-        return (
+    return (
+        <>
             <Box
                 sx={{
                     display: "grid",
@@ -109,7 +79,7 @@ function Pipeline() {
                                         "&:last-child": { borderRight: "none" },
                                         overflowY: "auto",
                                         backgroundColor: theme.palette.background.paper,
-                                        padding: "0 4px", // Added horizontal padding to column
+                                        padding: "0 4px",
                                     }}
                                 >
                                     <Typography
@@ -127,7 +97,7 @@ function Pipeline() {
                                             letterSpacing: "1px",
                                             fontSize: "0.85rem",
                                             borderBottom: `1px solid #a9a9a9`,
-                                            mx: -0.5, // Adjusts header to account for column padding
+                                            mx: -0.5,
                                         }}
                                     >
                                         {stage}
@@ -140,8 +110,8 @@ function Pipeline() {
                                                     {...provided.draggableProps}
                                                     {...provided.dragHandleProps}
                                                     sx={{
-                                                        width: "calc(100% - 8px)", // Ensures card is always smaller than column
-                                                        margin: "4px 0", // Vertical margin only
+                                                        width: "calc(100% - 8px)",
+                                                        margin: "4px 0",
                                                         padding: "4px",
                                                         backgroundColor: theme.palette.grey[50],
                                                         border: `1px solid ${theme.palette.grey[200]}`,
@@ -246,7 +216,7 @@ function Pipeline() {
                                                             </Typography>
                                                             <Tooltip title="View">
                                                                 <IconButton
-                                                                    onClick={() => handleViewClick(car)}
+                                                                    onClick={() => onViewCar(car)}
                                                                     sx={{ color: theme.palette.primary.main }}
                                                                 >
                                                                     <Visibility />
@@ -254,7 +224,7 @@ function Pipeline() {
                                                             </Tooltip>
                                                             <Tooltip title="Edit">
                                                                 <IconButton
-                                                                    onClick={() => handleEditClick(car)}
+                                                                    onClick={() => onEditCar(car)}
                                                                     sx={{ color: theme.palette.info.main }}
                                                                 >
                                                                     <Edit />
@@ -283,19 +253,7 @@ function Pipeline() {
                         </Droppable>
                     ))}
                 </DragDropContext>
-
-            <InvoiceModal
-                open={isModalOpen}
-                onClose={handleModalClose}
-                car={selectedCar}
-                onSave={handleSave}
-            />
-            
-            <ViewModal
-                open={isViewModalOpen}
-                onClose={() => setIsViewModalOpen(false)}
-                car={viewCar}
-            />
+            </Box>
 
             <Dialog 
                 open={isDeleteDialogOpen} 
@@ -340,13 +298,7 @@ function Pipeline() {
                         Cancel
                     </Button>
                     <Button
-                        onClick={() => {
-                            if (carToDelete) {
-                                dispatch(deleteCarFromStage({ stage: carToDelete.status, carId: carToDelete.id }));
-                                setIsDeleteDialogOpen(false);
-                                setCarToDelete(null);
-                            }
-                        }}
+                        onClick={handleDeleteConfirm}
                         variant="contained"
                         sx={{
                             backgroundColor: theme.palette.error.main,
@@ -359,7 +311,7 @@ function Pipeline() {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Box>
+        </>
     );
 }
 
