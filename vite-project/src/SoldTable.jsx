@@ -1,7 +1,21 @@
 import React, { useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { MaterialReactTable } from "material-react-table";
-import { Chip, IconButton, Menu, MenuItem, ListItemIcon  } from "@mui/material";
+import { 
+  Chip, 
+  IconButton, 
+  Menu, 
+  MenuItem, 
+  ListItemIcon,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Box,
+  Typography,
+  useTheme
+} from "@mui/material";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
@@ -9,9 +23,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { deleteCarFromStage } from "./store";
 
 function SoldTable({ onViewCar, onEditCar }) {
+  const theme = useTheme();
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedCar, setSelectedCar] = useState(null);
+  const [carToDelete, setCarToDelete] = useState(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  
   // Get the stages from the Redux store
   const stages = useSelector((state) => state.pipeline.stages);
 
@@ -22,43 +39,38 @@ function SoldTable({ onViewCar, onEditCar }) {
 
   const handleMenuOpen = (event, car) => {
     setAnchorEl(event.currentTarget);
-    setSelectedCar(car);
+    setCarToDelete(car);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    setSelectedCar(null);
   };
 
   const handleView = () => {
-    onViewCar(selectedCar);
+    onViewCar(carToDelete);
     handleMenuClose();
   };
 
   const handleEdit = () => {
-    onEditCar(selectedCar);
+    onEditCar(carToDelete);
     handleMenuClose();
   };
 
-  const handleDelete = () => {
-    if (selectedCar) {
+  const handleDeleteClick = () => {
+    setIsDeleteDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const handleDeleteConfirm = () => {
+    if (carToDelete) {
       dispatch(deleteCarFromStage({ 
-        stage: selectedCar.status, 
-        carId: selectedCar.id 
+        stage: carToDelete.status, 
+        carId: carToDelete.id 
       }));
     }
-    handleMenuClose();
+    setIsDeleteDialogOpen(false);
+    setCarToDelete(null);
   };
-
-  // // Define a function to assign colors to each status
-  // const getStatusColor = (status) => {
-  //   switch (status) {
-  //     case "Sold":
-  //       return "red"; // Color for Sold status
-  //     default:
-  //       return "gray";
-  //   }
-  // };
 
   // Define table columns
   const columns = useMemo(
@@ -108,14 +120,14 @@ function SoldTable({ onViewCar, onEditCar }) {
 
   return (
     <>
-    <MaterialReactTable
-      columns={columns}
-      data={filteredData} // Display only the cars with the status "Sold"
-      enableSorting
-      enablePagination
-    />
+      <MaterialReactTable
+        columns={columns}
+        data={filteredData} // Display only the cars with the status "Sold"
+        enableSorting
+        enablePagination
+      />
 
-    <Menu
+      <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
@@ -132,22 +144,77 @@ function SoldTable({ onViewCar, onEditCar }) {
           <ListItemIcon>
             <VisibilityIcon fontSize="small" />
           </ListItemIcon>
-          View
         </MenuItem>
         <MenuItem onClick={handleEdit}>
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
-          Edit
         </MenuItem>
-        <MenuItem onClick={handleDelete}>
+        <MenuItem onClick={handleDeleteClick}>
           <ListItemIcon>
             <DeleteIcon fontSize="small" />
           </ListItemIcon>
-          Delete
         </MenuItem>
       </Menu>
-      </>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog 
+        open={isDeleteDialogOpen} 
+        onClose={() => setIsDeleteDialogOpen(false)}
+        PaperProps={{
+            sx: {
+                borderRadius: "12px",
+                padding: "16px",
+                minWidth: "400px"
+            }
+        }}
+      >
+        <DialogTitle sx={{ 
+            fontWeight: "bold", 
+            padding: "16px 16px 8px",
+            backgroundColor: theme.palette.grey[50],
+            borderBottom: `1px solid ${theme.palette.grey[200]}`
+        }}>
+            Confirm Deletion
+        </DialogTitle>
+        <DialogContent sx={{ padding: "16px" }}>
+            <Typography>
+                Are you sure you want to delete{" "}
+                <Box component="span" fontWeight="bold" color={theme.palette.error.main}>
+                    {carToDelete?.year} {carToDelete?.make} {carToDelete?.model}
+                </Box>?
+            </Typography>
+        </DialogContent>
+        <DialogActions sx={{ 
+            padding: "8px 16px 16px",
+            borderTop: `1px solid ${theme.palette.grey[200]}`
+        }}>
+            <Button 
+                onClick={() => setIsDeleteDialogOpen(false)}
+                sx={{ 
+                    color: theme.palette.text.secondary,
+                    "&:hover": { 
+                        backgroundColor: theme.palette.grey[100] 
+                    }
+                }}
+            >
+                Cancel
+            </Button>
+            <Button
+                onClick={handleDeleteConfirm}
+                variant="contained"
+                sx={{
+                    backgroundColor: theme.palette.error.main,
+                    "&:hover": { 
+                        backgroundColor: theme.palette.error.dark 
+                    }
+                }}
+            >
+                Delete
+            </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
 

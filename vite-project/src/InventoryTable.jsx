@@ -6,7 +6,15 @@ import {
   IconButton, 
   Menu, 
   MenuItem, 
-  ListItemIcon 
+  ListItemIcon,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Box,
+  Typography,
+  useTheme
 } from "@mui/material";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -15,9 +23,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { deleteCarFromStage } from "./store";
 
 function InventoryTable({ onViewCar, onEditCar }) {
+  const theme = useTheme();
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedCar, setSelectedCar] = useState(null);
+  const [carToDelete, setCarToDelete] = useState(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Get all non-sold cars from Redux (original data source)
   const pipelineData = useSelector((state) => {
@@ -26,32 +36,37 @@ function InventoryTable({ onViewCar, onEditCar }) {
 
   const handleMenuOpen = (event, car) => {
     setAnchorEl(event.currentTarget);
-    setSelectedCar(car);
+    setCarToDelete(car);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    setSelectedCar(null);
   };
 
   const handleView = () => {
-    onViewCar(selectedCar);
+    onViewCar(carToDelete);
     handleMenuClose();
   };
 
   const handleEdit = () => {
-    onEditCar(selectedCar);
+    onEditCar(carToDelete);
     handleMenuClose();
   };
 
-  const handleDelete = () => {
-    if (selectedCar) {
+  const handleDeleteClick = () => {
+    setIsDeleteDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const handleDeleteConfirm = () => {
+    if (carToDelete) {
       dispatch(deleteCarFromStage({ 
-        stage: selectedCar.status, 
-        carId: selectedCar.id 
+        stage: carToDelete.status, 
+        carId: carToDelete.id 
       }));
     }
-    handleMenuClose();
+    setIsDeleteDialogOpen(false);
+    setCarToDelete(null);
   };
 
   // Original status color mapping
@@ -61,7 +76,7 @@ function InventoryTable({ onViewCar, onEditCar }) {
         return "blue";
       case "Transport":
         return "orange";
-      case "Needs Parts":
+      case "Parts":
         return "purple";
       case "Mechanic":
         return "darkred";
@@ -137,7 +152,7 @@ function InventoryTable({ onViewCar, onEditCar }) {
         enablePagination
       />
       
-      {/* Original action menu styling */}
+      {/* Action menu */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -163,13 +178,71 @@ function InventoryTable({ onViewCar, onEditCar }) {
           </ListItemIcon>
           Edit
         </MenuItem>
-        <MenuItem onClick={handleDelete}>
+        <MenuItem onClick={handleDeleteClick}>
           <ListItemIcon>
             <DeleteIcon fontSize="small" />
           </ListItemIcon>
           Delete
         </MenuItem>
       </Menu>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog 
+        open={isDeleteDialogOpen} 
+        onClose={() => setIsDeleteDialogOpen(false)}
+        PaperProps={{
+            sx: {
+                borderRadius: "12px",
+                padding: "16px",
+                minWidth: "400px"
+            }
+        }}
+      >
+        <DialogTitle sx={{ 
+            fontWeight: "bold", 
+            padding: "16px 16px 8px",
+            backgroundColor: theme.palette.grey[50],
+            borderBottom: `1px solid ${theme.palette.grey[200]}`
+        }}>
+            Confirm Deletion
+        </DialogTitle>
+        <DialogContent sx={{ padding: "16px" }}>
+            <Typography>
+                Are you sure you want to delete{" "}
+                <Box component="span" fontWeight="bold" color={theme.palette.error.main}>
+                    {carToDelete?.year} {carToDelete?.make} {carToDelete?.model}
+                </Box>?
+            </Typography>
+        </DialogContent>
+        <DialogActions sx={{ 
+            padding: "8px 16px 16px",
+            borderTop: `1px solid ${theme.palette.grey[200]}`
+        }}>
+            <Button 
+                onClick={() => setIsDeleteDialogOpen(false)}
+                sx={{ 
+                    color: theme.palette.text.secondary,
+                    "&:hover": { 
+                        backgroundColor: theme.palette.grey[100] 
+                    }
+                }}
+            >
+                Cancel
+            </Button>
+            <Button
+                onClick={handleDeleteConfirm}
+                variant="contained"
+                sx={{
+                    backgroundColor: theme.palette.error.main,
+                    "&:hover": { 
+                        backgroundColor: theme.palette.error.dark 
+                    }
+                }}
+            >
+                Delete
+            </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

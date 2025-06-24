@@ -100,7 +100,7 @@ function Pipeline({ onViewCar, onEditCar }) {
                                             mx: -0.5,
                                         }}
                                     >
-                                        {stage}
+                                        {stage} ({stages[stage].length})
                                     </Typography>
                                     {stages[stage].map((car, index) => (
                                         <Draggable draggableId={String(car.id)} index={index} key={car.id}>
