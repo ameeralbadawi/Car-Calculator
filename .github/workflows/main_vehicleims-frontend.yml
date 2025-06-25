@@ -21,9 +21,11 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: ./vite-project
 
       - name: Build Vite app
         run: npm run build
+        working-directory: ./vite-project
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -35,9 +37,10 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'vehicleims-frontend'  # Replace with your Azure Web App name if different
+          app-name: 'vehicleims-frontend'
           slot-name: 'Production'
-          package: './dist'
+          package: './vite-project/dist'
+
 
 
           
