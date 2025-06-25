@@ -6,9 +6,16 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout repository
@@ -40,7 +47,3 @@ jobs:
           app-name: 'vehicleims-frontend'
           slot-name: 'Production'
           package: './vite-project/dist'
-
-
-
-          
