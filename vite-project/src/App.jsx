@@ -6,7 +6,9 @@ import { IconButton, Menu, MenuItem, Tooltip, Box } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch } from 'react-redux';
-import { addCarToSheet, addCarToStage, deleteCarFromSheet } from './store';
+import { addCarToSheet, deleteCarFromSheet } from './store';
+import { saveCarToBackend } from '@/pipelineThunks'; // update the path as needed
+
 
 const formatMake = (make) => {
   if (!make || typeof make !== 'string') return 'N/A';
@@ -65,7 +67,7 @@ function App() {
     
     // Dispatch to Redux
     dispatch(deleteCarFromSheet({ carId: selectedCar.id })); // Remove from sheet
-    dispatch(addCarToStage({ stage: 'Purchased', car: purchasedCar }));
+    dispatch(saveCarToBackend({ stage: 'Purchased', car: purchasedCar }));
     
     handleMenuClose();
   };

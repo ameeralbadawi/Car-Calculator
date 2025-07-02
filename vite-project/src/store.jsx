@@ -1,4 +1,5 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit';
+import { fetchCarsFromBackend } from './pipelineThunks'; // import the thunk
 
 // Initial state for pipeline
 const initialPipelineState = {
@@ -12,6 +13,8 @@ const initialPipelineState = {
     Available: [],
     Sold: []
   },
+  loading: false,
+  error: null,
 };
 
 // Initial state for sheets
@@ -38,21 +41,56 @@ const pipelineSlice = createSlice({
     },
     addCarToStage: (state, action) => {
       const { stage, car } = action.payload;
+      
+      // Set status on top-level for quick access
       car.status = stage;
+    
+      // Also set status inside nested car.data object
+      if (!car.data) {
+        car.data = {};
+      }
+      car.data.status = stage;
+    
+      // Add the car to the appropriate stage
       state.stages[stage].push(car);
-    },
+    },    
     deleteCarFromStage: (state, action) => {
       const { stage, carId } = action.payload;
       state.stages[stage] = state.stages[stage].filter((car) => car.id !== carId);
+    },
+    updateCarInStage: (state, action) => {
+      const { stage, car: updatedCar } = action.payload;
+      const stageIndex = state.stages[stage].findIndex(car => car.id === updatedCar.id);
+      if (stageIndex !== -1) {
+        state.stages[stage][stageIndex] = updatedCar;
+      }
     }
   },
-  updateCarInStage: (state, action) => {
-    const { stage, car: updatedCar } = action.payload;
-    const stageIndex = state.stages[stage].findIndex(car => car.id === updatedCar.id);
-    if (stageIndex !== -1) {
-      state.stages[stage][stageIndex] = updatedCar;
-    }
-  }
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchCarsFromBackend.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCarsFromBackend.fulfilled, (state, action) => {
+        state.loading = false;
+        // Reset stages to empty before loading new data
+        for (const key in state.stages) {
+          state.stages[key] = [];
+        }
+        // Distribute cars into stages based on nested status
+        action.payload.forEach(car => {
+          const stage = car.data?.status || 'Available';
+          car.status = stage;
+          if (!state.stages[stage]) state.stages[stage] = [];
+          state.stages[stage].push(car);
+        });
+      })
+      .addCase(fetchCarsFromBackend.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Error fetching cars';
+      });
+  }  
 });
 
 const sheetsSlice = createSlice({

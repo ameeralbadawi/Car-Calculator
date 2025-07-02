@@ -9,7 +9,8 @@ import {
   CircularProgress,
   Alert 
 } from '@mui/material';
-import { addCarToStage } from './store';
+import { saveCarToBackend } from '@/pipelineThunks'; // update the path as needed
+
 
 // Add formatMake function directly in the component file
 const formatMake = (make) => {
@@ -63,7 +64,7 @@ const VinField = () => {
         createdAt: new Date().toISOString()
       };
 
-      dispatch(addCarToStage({ stage: 'Purchased', car: newCar }));
+      dispatch(saveCarToBackend({ stage: 'Purchased', car: newCar }));
       setVin('');
     } catch (err) {
       setError('Failed to fetch vehicle details. Please check the VIN and try again.');
