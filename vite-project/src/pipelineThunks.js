@@ -3,6 +3,8 @@ import axios from 'axios';
 import { addCarToStage, deleteCarFromStage } from './store'; // adjust path if needed
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+console.log("Backend API:", BASE_URL);
+
 
 // POST /cars
 export const saveCarToBackend = createAsyncThunk(
@@ -43,15 +45,15 @@ export const deleteCarFromBackend = createAsyncThunk(
 
 // GET /cars
 export const fetchCarsFromBackend = createAsyncThunk(
-  'pipeline/fetchCars',
-  async (_, thunkAPI) => {
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/cars`);
-      return response.data; // array of cars from backend
-    } catch (error) {
-      // Return a rejected action with a custom error payload
-      return thunkAPI.rejectWithValue(error.response?.data || 'Failed to fetch cars');
+    'pipeline/fetchCars',
+    async (_, thunkAPI) => {
+      try {
+        const response = await axios.get(`${BASE_URL}/cars`);
+        return response.data; // array of cars from backend
+      } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data || 'Failed to fetch cars');
+      }
     }
-  }
-);
+  );
+  
 
