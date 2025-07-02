@@ -7,7 +7,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch } from 'react-redux';
 import { addCarToSheet, deleteCarFromSheet } from './store';
-import { saveCarToBackend } from '@/pipelineThunks'; // update the path as needed
+import { saveCarToBackend } from './pipelineThunks'; // update the path as needed
 
 
 const formatMake = (make) => {

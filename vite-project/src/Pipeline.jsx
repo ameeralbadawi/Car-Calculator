@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
 import { moveCarBetweenStages } from "./store";
-import { deleteCarFromBackend, fetchCarsFromBackend } from '@/pipelineThunks'; // update the path as needed
+import { deleteCarFromBackend, fetchCarsFromBackend } from './pipelineThunks'; // update the path as needed
 
 function Pipeline({ onViewCar, onEditCar }) {
   const theme = useTheme();
