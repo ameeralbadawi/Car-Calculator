@@ -48,7 +48,7 @@ export const fetchCarsFromBackend = createAsyncThunk(
     'pipeline/fetchCars',
     async (_, thunkAPI) => {
       try {
-        const response = await axios.get(`${BASE_URL}/cars`);
+        const response = await axios.get(`${BASE_URL}/cars/`);
         return response.data; // array of cars from backend
       } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.data || 'Failed to fetch cars');
