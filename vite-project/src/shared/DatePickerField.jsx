@@ -17,11 +17,18 @@ const DatePickerField = ({ label, value, onChange }) => {
     setOpen(false);
   };
 
+  // 🔐 Ensure the date is a Date object or null
+  const safeDate = React.useMemo(() => {
+    if (!value) return null;
+    const dateObj = new Date(value);
+    return isNaN(dateObj.getTime()) ? null : dateObj;
+  }, [value]);
+
   return (
     <>
       <TextField
         label={label}
-        value={value ? value.toLocaleDateString() : ''}
+        value={safeDate ? safeDate.toLocaleDateString() : ''}
         fullWidth
         margin="normal"
         variant="standard"
@@ -38,15 +45,15 @@ const DatePickerField = ({ label, value, onChange }) => {
           ),
         }}
       />
-      
+
       <Popper 
         open={open} 
         anchorEl={anchorEl} 
         placement="bottom-start"
-        style={{ zIndex: 9999 }}  // Ensure it appears above modal
+        style={{ zIndex: 9999 }}
       >
         <DatePicker
-          selected={value}
+          selected={safeDate}
           onChange={(date) => {
             onChange(date);
             handleClose();
