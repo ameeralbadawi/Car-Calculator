@@ -53,16 +53,73 @@ const VinField = () => {
       const vehicleDetails = await fetchVehicleDetails(vin);
       
       const newCar = {
-        id: Date.now(),
-        vin,
-        year: vehicleDetails.year,
-        make: vehicleDetails.make,
-        model: vehicleDetails.model,
         status: 'Purchased',
-        cost: 0,
-        notes: '',
-        createdAt: new Date().toISOString()
+        Car: {
+          CarDetails: {
+            vin,
+            year: vehicleDetails.year || '',
+            make: vehicleDetails.make || '',
+            model: vehicleDetails.model || '',
+          },
+          EstimateDetails: {
+            mmr: '',
+            profit: '',
+            transport: '',
+            repair: '',
+            fees: '',
+            maxBid: '',
+            carfaxStatuses: [''],
+            autocheckStatuses: ['']
+          },
+          PurchaseDetails: {
+            purchaseDate: '',
+            purchaseFrom: '',
+            purchaseLocation: '',
+            mileage: '',
+            winningBid: '',
+            amountPaid: 0,
+            buyerName: '',
+            stockNumber: '',
+            color: '',
+            purchaseNotes: ''
+          },
+          TransportDetails: {
+            transporterName: '',
+            transporterPhone: '',
+            pickupDate: '',
+            deliveryDate: '',
+            cost: 0,
+            transporterNotes: ''
+          },
+          PartsDetails: {
+            parts: [{ part: '', purchasedFrom: '', amount: 0 }],
+            partsNotes: ''
+          },
+          MechanicDetails: {
+            mechanicServices: [{ shop: '', service: '', amount: 0 }],
+            mechanicNotes: ''
+          },
+          BodyshopDetails: {
+            bodyshopServices: [{ shop: '', service: '', amount: 0 }],
+            bodyshopNotes: ''
+          },
+          MiscellaniousDetails: {
+            miscServices: [{ name: '', service: '', amount: 0 }],
+            miscNotes: ''
+          },
+          saleDetails: {
+            saleType: '',
+            saleDate: '',
+            saleAmount: 0,
+            sellerFees: 0,
+            soldTo: '',
+            salesmanName: '',
+            commission: 0,
+            saleNotes: ''
+          }
+        }
       };
+      
 
       dispatch(saveCarToBackend({ stage: 'Purchased', car: newCar }));
       setVin('');
