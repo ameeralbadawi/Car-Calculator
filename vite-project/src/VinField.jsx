@@ -54,6 +54,7 @@ const VinField = () => {
       
       const newCar = {
         status: 'Purchased',
+        vin,
         Car: {
           CarDetails: {
             vin,
