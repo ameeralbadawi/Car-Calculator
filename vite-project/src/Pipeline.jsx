@@ -45,7 +45,7 @@ function Pipeline({ onViewCar, onEditCar }) {
         const destinationStage = destination.droppableId;
         const carId = parseInt(draggableId);
       
-        const car = stages[sourceStage].find((c) => c.id === carId);
+        const car = stages[sourceStage].find((c) => c.vin === carId);
         if (!car) return;
       
         dispatch(
@@ -131,7 +131,7 @@ function Pipeline({ onViewCar, onEditCar }) {
                                         {stage} ({stages[stage].length})
                                     </Typography>
                                     {stages[stage].map((car, index) => (
-                                        <Draggable draggableId={String(car.id)} index={index} key={car.id}>
+                                        <Draggable draggableId={car.vin} index={index} key={car.vin}>
                                             {(provided) => (
                                                 <Card
                                                     ref={provided.innerRef}
