@@ -21,7 +21,7 @@ export const saveCarToBackend = createAsyncThunk(
             const normalizedCar = response.data;
 
             // Update local Redux store with flat car data
-            thunkAPI.dispatch(addCarToStage({ stage, car: normalizedCar }));
+            thunkAPI.dispatch(addCarToStage({ stage: normalizedCar.status, car: normalizedCar }));
 
             return normalizedCar;
         } catch (err) {
