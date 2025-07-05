@@ -80,7 +80,7 @@ const pipelineSlice = createSlice({
         }
         // Distribute cars into stages based on nested status
         action.payload.forEach(car => {
-          const stage = car.data?.status || 'Available';
+          const stage = car.status || 'Available';
           car.status = stage;
           if (!state.stages[stage]) state.stages[stage] = [];
           state.stages[stage].push(car);
