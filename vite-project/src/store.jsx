@@ -89,7 +89,29 @@ const pipelineSlice = createSlice({
       .addCase(fetchCarsFromBackend.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Error fetching cars';
-      });
+      })
+      .addCase(updateCarStageInBackend.fulfilled, (state, action) => {
+        const { vin, newStage } = action.payload;
+      
+        for (const stage in state.stages) {
+          const index = state.stages[stage].findIndex(car => car.vin === vin);
+          if (index !== -1) {
+            const car = state.stages[stage][index];
+      
+            // Remove from current stage
+            state.stages[stage].splice(index, 1);
+      
+            // Update both flat and nested status
+            car.status = newStage;
+            if (!car.data) car.data = {};
+            car.data.status = newStage;
+      
+            // Add to new stage
+            state.stages[newStage].push(car);
+            break;
+          }
+        }
+      });      
   }  
 });
 

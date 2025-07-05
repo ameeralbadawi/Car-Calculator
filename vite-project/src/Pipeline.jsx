@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
 import { moveCarBetweenStages } from "./store";
-import { deleteCarFromBackend, fetchCarsFromBackend } from './pipelineThunks'; // update the path as needed
+import { deleteCarFromBackend, fetchCarsFromBackend, updateCarStageInBackend } from './pipelineThunks'; // update the path as needed
 
 function Pipeline({ onViewCar, onEditCar }) {
     const theme = useTheme();
@@ -41,14 +41,28 @@ function Pipeline({ onViewCar, onEditCar }) {
         if (!destination) return;
         if (source.droppableId === destination.droppableId && source.index === destination.index) return;
 
+        const sourceStage = source.droppableId;
+        const destinationStage = destination.droppableId;
+        const carId = parseInt(draggableId);
+      
+        const car = stages[sourceStage].find((c) => c.id === carId);
+        if (!car) return;
+      
         dispatch(
-            moveCarBetweenStages({
-                sourceStage: source.droppableId,
-                destinationStage: destination.droppableId,
-                carId: parseInt(draggableId),
-            })
+          moveCarBetweenStages({
+            sourceStage,
+            destinationStage,
+            carId,
+          })
         );
-    };
+      
+        dispatch(
+          updateCarStageInBackend({
+            vin: car.vin,
+            newStage: destinationStage,
+          })
+        );
+      };
 
     const handleDeleteConfirm = () => {
         if (carToDelete) {
