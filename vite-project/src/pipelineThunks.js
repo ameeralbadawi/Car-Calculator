@@ -61,4 +61,21 @@ export const fetchCarsFromBackend = createAsyncThunk(
     }
 );
 
+// PATCH /cars/:vin - update only the stage/status
+export const updateCarStageInBackend = createAsyncThunk(
+    'pipeline/updateCarStage',
+    async ({ vin, newStage }, thunkAPI) => {
+      try {
+        await axios.patch(`${BASE_URL}/cars/${vin}`, {
+          status: newStage,
+        });
+  
+        // Return what the reducer needs to update local state
+        return { vin, newStage };
+      } catch (err) {
+        return thunkAPI.rejectWithValue(err.response?.data || err.message);
+      }
+    }
+  );
+  
 
