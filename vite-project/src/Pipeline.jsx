@@ -37,22 +37,27 @@ function Pipeline({ onViewCar, onEditCar }) {
 
     const onDragEnd = (result) => {
         const { source, destination, draggableId } = result;
-
+      
         if (!destination) return;
         if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-
+      
         const sourceStage = source.droppableId;
         const destinationStage = destination.droppableId;
-        const carId = parseInt(draggableId);
       
-        const car = stages[sourceStage].find((c) => c.vin === carId);
-        if (!car) return;
+        console.log("Dragged:", draggableId);
+        console.log("From:", sourceStage, "To:", destinationStage);
+      
+        const car = stages[sourceStage].find((c) => c.vin === draggableId); // or c.id === parseInt(draggableId)
+        if (!car) {
+          console.warn("Car not found for drag ID:", draggableId);
+          return;
+        }
       
         dispatch(
           moveCarBetweenStages({
             sourceStage,
             destinationStage,
-            carId,
+            carId: car.id,
           })
         );
       
@@ -62,7 +67,7 @@ function Pipeline({ onViewCar, onEditCar }) {
             newStage: destinationStage,
           })
         );
-      };
+      };      
 
     const handleDeleteConfirm = () => {
         if (carToDelete) {
