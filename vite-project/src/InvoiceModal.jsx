@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import InvoiceTabs from './InvoiceTabs';
 import { useDispatch } from 'react-redux';
-import { updateFullCarInBackend } from './pipelineThunks'; 
+import { updateCarInBackend } from './pipelineThunks'; 
 
 const dispatch = useDispatch();
 
@@ -137,7 +137,7 @@ const InvoiceModal = ({ open, onClose, car }) => {
     const { vin } = formData.Car.CarDetails || {};
     if (!vin) return;
   
-    dispatch(updateFullCarInBackend({ vin, data: enrichedFormData.Car }));
+    dispatch(updateCarInBackend({ vin, data: enrichedFormData.Car }));
     onClose();
   };
 
