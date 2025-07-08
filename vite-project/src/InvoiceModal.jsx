@@ -9,8 +9,12 @@ import {
   Typography,
 } from '@mui/material';
 import InvoiceTabs from './InvoiceTabs';
+import { useDispatch } from 'react-redux';
+import { updateFullCarInBackend } from './pipelineThunks'; 
 
-const InvoiceModal = ({ open, onClose, car, onSave }) => {
+const dispatch = useDispatch();
+
+const InvoiceModal = ({ open, onClose, car }) => {
   const [formData, setFormData] = useState({ Car: {} });
 
   useEffect(() => {
@@ -130,7 +134,10 @@ const InvoiceModal = ({ open, onClose, car, onSave }) => {
   }, [formData]);
 
   const handleSave = () => {
-    onSave(enrichedFormData);
+    const { vin } = formData.Car.CarDetails || {};
+    if (!vin) return;
+  
+    dispatch(updateFullCarInBackend({ vin, data: enrichedFormData.Car }));
     onClose();
   };
 

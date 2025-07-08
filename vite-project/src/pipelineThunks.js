@@ -80,6 +80,22 @@ export const updateCarStageInBackend = createAsyncThunk(
       }
     }
   );
+
+  export const updateCarInBackend = createAsyncThunk(
+    'pipeline/updateCar',
+    async ({ vin, data }, thunkAPI) => {
+      try {
+        const response = await axios.put(`${BASE_URL}/cars/${vin}`, {
+          vin,
+          data,
+        });
+  
+        return response.data; // Flat updated car object
+      } catch (err) {
+        return thunkAPI.rejectWithValue(err.response?.data || err.message);
+      }
+    }
+  );
   
   
 
