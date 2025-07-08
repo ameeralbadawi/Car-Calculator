@@ -93,22 +93,16 @@ const pipelineSlice = createSlice({
       .addCase(updateCarStageInBackend.fulfilled, (state, action) => {
         const { vin, newStage } = action.payload;
       
-        for (const stage in state.stages) {
-          const index = state.stages[stage].findIndex(car => car.vin === vin);
-          if (index !== -1) {
-            const car = state.stages[stage][index];
-      
-            // Remove from current stage
-            state.stages[stage].splice(index, 1);
-      
-            // Update both flat and nested status
-            car.status = newStage;
-            if (!car.data) car.data = {};
-            car.data.status = newStage;
-      
-            // Add to new stage
-            state.stages[newStage].push(car);
-            break;
+        // Find the car in all stages and update its stage
+      for (const [stage, cars] of Object.entries(state.stages)) {
+        const index = cars.findIndex(car => car.vin === vin);
+        if (index !== -1) {
+          const car = cars[index];
+          car.status = newStage;
+          state.stages[stage].splice(index, 1);
+          if (!state.stages[newStage]) state.stages[newStage] = [];
+          state.stages[newStage].push(car);
+          break;
           }
         }
       });      
