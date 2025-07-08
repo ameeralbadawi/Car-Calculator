@@ -12,9 +12,9 @@ import InvoiceTabs from './InvoiceTabs';
 import { useDispatch } from 'react-redux';
 import { updateCarInBackend } from './pipelineThunks'; 
 
-const dispatch = useDispatch();
 
 const InvoiceModal = ({ open, onClose, car }) => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({ Car: {} });
 
   useEffect(() => {
