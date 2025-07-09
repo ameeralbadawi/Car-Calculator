@@ -1,5 +1,5 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit';
-import { fetchCarsFromBackend, updateCarStageInBackend } from './pipelineThunks'; // import the thunk
+import { fetchCarsFromBackend, updateCarStageInBackend, updateCarInBackend} from './pipelineThunks'; // import the thunk
 
 // Initial state for pipeline
 const initialPipelineState = {
