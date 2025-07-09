@@ -85,17 +85,14 @@ export const updateCarStageInBackend = createAsyncThunk(
     'pipeline/updateCar',
     async ({ vin, data }, thunkAPI) => {
       try {
-        const response = await axios.put(`${BASE_URL}/cars/${vin}`, {
-          vin,
-          data,
-        });
-  
-        return response.data; // Flat updated car object
+        const response = await axios.put(`${BASE_URL}/cars/${vin}`, data); // send flat Car object directly
+        return response.data; // expect normalized flat car from backend
       } catch (err) {
         return thunkAPI.rejectWithValue(err.response?.data || err.message);
       }
     }
   );
+  
   
   
 
