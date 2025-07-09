@@ -92,6 +92,7 @@ const pipelineSlice = createSlice({
       })
       .addCase(updateCarStageInBackend.fulfilled, (state, action) => {
         const { vin, newStage } = action.payload;
+        
       
         // Find the car in all stages and update its stage
       for (const [stage, cars] of Object.entries(state.stages)) {
@@ -105,7 +106,14 @@ const pipelineSlice = createSlice({
           break;
           }
         }
-      });      
+      })
+      .addCase(updateCarInBackend.fulfilled, (state, action) => {
+        const updatedCar = action.payload;
+        const index = state.pipelineCars.findIndex(car => car.vin === updatedCar.vin);
+        if (index !== -1) {
+          state.pipelineCars[index] = updatedCar;
+        }
+      });     
   }  
 });
 
