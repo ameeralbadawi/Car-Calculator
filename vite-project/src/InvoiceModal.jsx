@@ -137,11 +137,17 @@ const InvoiceModal = ({ open, onClose, car }) => {
     const { vin } = formData.Car.CarDetails || {};
     if (!vin) return;
   
-    dispatch(updateCarInBackend({ vin, data: enrichedFormData.Car }));
-    await dispatch(fetchCarsFromBackend());
-
+    // Wait for update to complete before fetching
+    const resultAction = await dispatch(updateCarInBackend({ vin, data: enrichedFormData.Car }));
+  
+    // Only fetch if update succeeded
+    if (updateCarInBackend.fulfilled.match(resultAction)) {
+      await dispatch(fetchCarsFromBackend());
+    }
+  
     onClose();
   };
+  
 
   const { year, make, model, vin } = formData.Car.CarDetails || {};
 
