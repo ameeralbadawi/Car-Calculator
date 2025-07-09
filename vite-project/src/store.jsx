@@ -106,14 +106,7 @@ const pipelineSlice = createSlice({
           break;
           }
         }
-      })
-      .addCase(updateCarInBackend.fulfilled, (state, action) => {
-        const updatedCar = action.payload;
-        const index = state.pipelineCars.findIndex(car => car.vin === updatedCar.vin);
-        if (index !== -1) {
-          state.pipelineCars[index] = updatedCar;
-        }
-      });     
+      })   
   }  
 });
 

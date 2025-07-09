@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import InvoiceTabs from './InvoiceTabs';
 import { useDispatch } from 'react-redux';
-import { updateCarInBackend } from './pipelineThunks'; 
+import { updateCarInBackend, fetchCarsFromBackend } from './pipelineThunks'; 
 
 
 const InvoiceModal = ({ open, onClose, car }) => {
@@ -133,11 +133,13 @@ const InvoiceModal = ({ open, onClose, car }) => {
     };
   }, [formData]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const { vin } = formData.Car.CarDetails || {};
     if (!vin) return;
   
     dispatch(updateCarInBackend({ vin, data: enrichedFormData.Car }));
+    await dispatch(fetchCarsFromBackend());
+
     onClose();
   };
 
