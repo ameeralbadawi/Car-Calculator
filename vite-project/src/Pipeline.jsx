@@ -30,6 +30,20 @@ function Pipeline({ onViewCar, onEditCar }) {
     const [carToDelete, setCarToDelete] = useState(null);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+    const calculateTotalCost = (car) => {
+        const partsTotal = (car.parts || []).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+        const mechanicTotal = (car.mechanicServices || []).reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+        const bodyshopTotal = (car.bodyshopServices || []).reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+        const miscTotal = (car.miscServices || []).reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+
+        const amountPaid = parseFloat(car.amountPaid) || 0;
+        const transport = parseFloat(car.cost) || 0;
+        const sellerFees = parseFloat(car.sellerFees) || 0;
+
+        return amountPaid + transport + partsTotal + mechanicTotal + bodyshopTotal + miscTotal + sellerFees;
+    };
+
+
     // Fetch cars on component mount
     useEffect(() => {
         dispatch(fetchCarsFromBackend());
@@ -37,37 +51,37 @@ function Pipeline({ onViewCar, onEditCar }) {
 
     const onDragEnd = (result) => {
         const { source, destination, draggableId } = result;
-      
+
         if (!destination) return;
         if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-      
+
         const sourceStage = source.droppableId;
         const destinationStage = destination.droppableId;
-      
+
         console.log("Dragged:", draggableId);
         console.log("From:", sourceStage, "To:", destinationStage);
-      
+
         const car = stages[sourceStage].find((c) => c.vin === draggableId); // or c.id === parseInt(draggableId)
         if (!car) {
-          console.warn("Car not found for drag ID:", draggableId);
-          return;
+            console.warn("Car not found for drag ID:", draggableId);
+            return;
         }
-      
+
         dispatch(
-          moveCarBetweenStages({
-            sourceStage,
-            destinationStage,
-            carId: car.id,
-          })
+            moveCarBetweenStages({
+                sourceStage,
+                destinationStage,
+                carId: car.id,
+            })
         );
-      
+
         dispatch(
-          updateCarStageInBackend({
-            vin: car.vin,
-            newStage: destinationStage,
-          })
+            updateCarStageInBackend({
+                vin: car.vin,
+                newStage: destinationStage,
+            })
         );
-      };      
+    };
 
     const handleDeleteConfirm = () => {
         if (carToDelete) {
@@ -207,17 +221,20 @@ function Pipeline({ onViewCar, onEditCar }) {
                                                             <Typography
                                                                 variant="caption"
                                                                 sx={{
-                                                                    color: theme.palette.text.primary,
+                                                                    color: theme.palette.common.white,
                                                                     fontWeight: "500",
-                                                                    backgroundColor: theme.palette.success.light,
+                                                                    backgroundColor: car.status === 'Sold' ? theme.palette.success.main : theme.palette.error.main,
                                                                     px: "4px",
                                                                     py: "1px",
                                                                     borderRadius: "3px",
                                                                     fontSize: "0.7rem"
                                                                 }}
                                                             >
-                                                                ${car.totalCost}
+                                                                {car.status === 'Sold'
+                                                                    ? `$${parseFloat(car.saleAmount || 0).toLocaleString()}`
+                                                                    : `$${calculateTotalCost(car).toLocaleString()}`}
                                                             </Typography>
+
                                                         </Box>
 
                                                         <Box sx={{
