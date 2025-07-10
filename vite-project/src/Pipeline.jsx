@@ -18,6 +18,7 @@ import {
 import { Visibility, Edit, Delete } from "@mui/icons-material";
 import { moveCarBetweenStages } from "./store";
 import { deleteCarFromBackend, fetchCarsFromBackend, updateCarStageInBackend } from './pipelineThunks'; // update the path as needed
+import dayjs from 'dayjs';
 
 function Pipeline({ onViewCar, onEditCar }) {
     const theme = useTheme();
@@ -261,9 +262,17 @@ function Pipeline({ onViewCar, onEditCar }) {
                                                                     fontSize: "0.7rem",
                                                                     textAlign: "left",
                                                                     justifyContent: "left"
-                                                                }}>
-                                                                0 Days
+                                                                }}
+                                                            >
+                                                                {(() => {
+                                                                    const purchaseDate = dayjs(car.purchaseDate);
+                                                                    const saleDate = car.status === "Sold" ? dayjs(car.saleDate) : null;
+                                                                    const referenceDate = saleDate || dayjs();
+                                                                    const diffDays = purchaseDate.isValid() ? referenceDate.diff(purchaseDate, "day") : 0;
+                                                                    return `${diffDays} Days`;
+                                                                })()}
                                                             </Typography>
+
                                                             <Tooltip title="View">
                                                                 <IconButton
                                                                     onClick={() => onViewCar(car)}
