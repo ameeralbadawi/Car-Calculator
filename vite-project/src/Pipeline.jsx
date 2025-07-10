@@ -251,28 +251,40 @@ function Pipeline({ onViewCar, onEditCar }) {
                                                                 }
                                                             }
                                                         }}>
-                                                            <Typography
-                                                                sx={{
-                                                                    color: theme.palette.text.primary,
-                                                                    fontWeight: "500",
-                                                                    backgroundColor: "yellow",
-                                                                    px: "4px",
-                                                                    py: "1px",
-                                                                    borderRadius: "3px",
-                                                                    fontSize: "0.7rem",
-                                                                    textAlign: "left",
-                                                                    justifyContent: "left"
-                                                                }}
-                                                            >
-                                                                {(() => {
-                                                                    const purchaseDate = dayjs(car.purchaseDate);
-                                                                    const saleDate = car.status === "Sold" ? dayjs(car.saleDate) : null;
-                                                                    const referenceDate = saleDate || dayjs();
-                                                                    const diffDays = purchaseDate.isValid() ? referenceDate.diff(purchaseDate, "day") : 0;
-                                                                    return `${diffDays} Days`;
-                                                                })()}
-                                                            </Typography>
+                                                            {(() => {
+                                                                const today = dayjs();
+                                                                const purchaseDate = dayjs(car?.purchaseDate);
+                                                                const saleDate = dayjs(car?.saleDate);
+                                                                const dateToCompare = car?.status === 'Sold' ? saleDate : purchaseDate;
+                                                                const days = dateToCompare.isValid() ? today.diff(dateToCompare, 'day') : 0;
 
+                                                                let backgroundColor = '';
+                                                                if (days < 14) {
+                                                                    backgroundColor = 'lightgreen';
+                                                                } else if (days < 30) {
+                                                                    backgroundColor = 'yellow';
+                                                                } else {
+                                                                    backgroundColor = 'lightcoral';
+                                                                }
+
+                                                                return (
+                                                                    <Typography
+                                                                        sx={{
+                                                                            color: theme.palette.text.primary,
+                                                                            fontWeight: '500',
+                                                                            backgroundColor,
+                                                                            px: '4px',
+                                                                            py: '1px',
+                                                                            borderRadius: '3px',
+                                                                            fontSize: '0.7rem',
+                                                                            textAlign: 'left',
+                                                                            justifyContent: 'left',
+                                                                        }}
+                                                                    >
+                                                                        {`${days} Days`}
+                                                                    </Typography>
+                                                                );
+                                                            })()}
                                                             <Tooltip title="View">
                                                                 <IconButton
                                                                     onClick={() => onViewCar(car)}
