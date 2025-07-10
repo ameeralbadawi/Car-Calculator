@@ -106,11 +106,11 @@ const InvoiceModal = ({ open, onClose, car }) => {
 
     const saleAmount = parseFloat(Car.saleDetails?.saleAmount) || 0;
     const amountPaid = parseFloat(Car.PurchaseDetails?.amountPaid) || 0;
-    const cost = amountPaid +
+    const totalCost = amountPaid +
       (parseFloat(Car.TransportDetails?.cost) || 0) +
       partsTotal + mechanicTotal + bodyshopTotal + miscTotal +
       (parseFloat(Car.saleDetails?.sellerFees) || 0);
-    const grossProfit = saleAmount - cost;
+    const grossProfit = saleAmount - totalCost;
     const commission = parseFloat(Car.saleDetails?.commission) || 0;
     const netProfit = grossProfit - commission;
 
@@ -124,7 +124,7 @@ const InvoiceModal = ({ open, onClose, car }) => {
         MiscellaniousDetails: { ...Car.MiscellaniousDetails, miscTotal },
         InvoiceDetails: {
           sale: saleAmount,
-          cost,
+          totalCost,
           grossProfit,
           commission,
           netProfit,

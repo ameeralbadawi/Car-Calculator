@@ -397,7 +397,7 @@ const InvoicePDF = ({ formData }) => {
 
           <View style={styles.summaryRow}>
             <Text>COST</Text>
-            <Text>(${Number(InvoiceDetails.cost).toFixed(2)})</Text>
+            <Text>(${Number(InvoiceDetails.totalCost).toFixed(2)})</Text>
           </View>
 
           <View style={styles.summaryRow}>
