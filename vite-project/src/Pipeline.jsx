@@ -201,7 +201,7 @@ function Pipeline({ onViewCar, onEditCar }) {
                                                                     fontSize: "0.7rem"
                                                                 }}
                                                             >
-                                                                {car.vin.slice(-6)}
+                                                                {car.vin.slice(-8)}
                                                             </Typography>
 
                                                             <Typography
@@ -216,7 +216,7 @@ function Pipeline({ onViewCar, onEditCar }) {
                                                                     fontSize: "0.7rem"
                                                                 }}
                                                             >
-                                                                ${car.cost}
+                                                                ${car.totalCost}
                                                             </Typography>
                                                         </Box>
 
