@@ -238,43 +238,38 @@ function Pipeline({ onViewCar, onEditCar }) {
 
                                                         </Box>
 
-                                                        <Box sx={{
-                                                            display: "flex",
-                                                            justifyContent: "left",
-                                                            gap: "2px",
-                                                            "& .MuiIconButton-root": {
-                                                                width: "24px",
-                                                                height: "24px",
-                                                                padding: "4px",
-                                                                "& svg": {
-                                                                    fontSize: "16px"
-                                                                }
-                                                            }
-                                                        }}>
+                                                        <Box
+                                                            sx={{
+                                                                display: "flex",
+                                                                justifyContent: "space-between",
+                                                                alignItems: "center",
+                                                                gap: "8px",
+                                                                width: "100%",
+                                                            }}
+                                                        >
+                                                            {/* Days Counter - Left Side */}
                                                             {car.status !== "Sold" && (() => {
                                                                 const today = dayjs();
                                                                 const purchaseDate = dayjs(car?.purchaseDate);
                                                                 const days = purchaseDate.isValid() ? today.diff(purchaseDate, 'day') : 0;
 
-                                                                let backgroundColor = theme.palette.success.light;
+                                                                let backgroundColor = theme.palette.success.main;
                                                                 if (days >= 30) {
-                                                                    backgroundColor = 'lightcoral';
+                                                                    backgroundColor = theme.palette.error.main; // red
                                                                 } else if (days >= 15) {
-                                                                    backgroundColor = 'yellow';
-                                                                } else {
-                                                                    backgroundColor = 'lightgreen';
+                                                                    backgroundColor = "#fdd835"; // yellow shade
                                                                 }
 
                                                                 return (
                                                                     <Typography
                                                                         variant="caption"
                                                                         sx={{
-                                                                            color: theme.palette.text.secondary,
-                                                                            fontFamily: "'Roboto Mono', monospace",
+                                                                            color: theme.palette.common.white,
+                                                                            fontWeight: "500",
                                                                             backgroundColor,
-                                                                            px: "3px",
+                                                                            px: "4px",
                                                                             py: "1px",
-                                                                            borderRadius: "2px",
+                                                                            borderRadius: "3px",
                                                                             fontSize: "0.7rem",
                                                                         }}
                                                                     >
@@ -282,33 +277,51 @@ function Pipeline({ onViewCar, onEditCar }) {
                                                                     </Typography>
                                                                 );
                                                             })()}
-                                                            <Tooltip title="View">
-                                                                <IconButton
-                                                                    onClick={() => onViewCar(car)}
-                                                                    sx={{ color: theme.palette.primary.main }}
-                                                                >
-                                                                    <Visibility />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                            <Tooltip title="Edit">
-                                                                <IconButton
-                                                                    onClick={() => onEditCar(car)}
-                                                                    sx={{ color: theme.palette.info.main }}
-                                                                >
-                                                                    <Edit />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                            <Tooltip title="Delete">
-                                                                <IconButton
-                                                                    onClick={() => {
-                                                                        setCarToDelete(car);
-                                                                        setIsDeleteDialogOpen(true);
-                                                                    }}
-                                                                    sx={{ color: theme.palette.error.main }}
-                                                                >
-                                                                    <Delete />
-                                                                </IconButton>
-                                                            </Tooltip>
+
+                                                            {/* Action Buttons - Right Side */}
+                                                            <Box
+                                                                sx={{
+                                                                    display: "flex",
+                                                                    justifyContent: "right",
+                                                                    gap: "4px",
+                                                                    "& .MuiIconButton-root": {
+                                                                        width: "24px",
+                                                                        height: "24px",
+                                                                        padding: "4px",
+                                                                        "& svg": {
+                                                                            fontSize: "16px",
+                                                                        },
+                                                                    },
+                                                                }}
+                                                            >
+                                                                <Tooltip title="View">
+                                                                    <IconButton
+                                                                        onClick={() => onViewCar(car)}
+                                                                        sx={{ color: "#778899" }}
+                                                                    >
+                                                                        <Visibility />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                                <Tooltip title="Edit">
+                                                                    <IconButton
+                                                                        onClick={() => onEditCar(car)}
+                                                                        sx={{ color: "#778899" }}
+                                                                    >
+                                                                        <Edit />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                                <Tooltip title="Delete">
+                                                                    <IconButton
+                                                                        onClick={() => {
+                                                                            setCarToDelete(car);
+                                                                            setIsDeleteDialogOpen(true);
+                                                                        }}
+                                                                        sx={{ color: theme.palette.error.main }}
+                                                                    >
+                                                                        <Delete />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            </Box>
                                                         </Box>
                                                     </CardContent>
                                                 </Card>
