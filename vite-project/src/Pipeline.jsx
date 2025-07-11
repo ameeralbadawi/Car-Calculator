@@ -240,7 +240,7 @@ function Pipeline({ onViewCar, onEditCar }) {
 
                                                         <Box sx={{
                                                             display: "flex",
-                                                            justifyContent: "flex-end",
+                                                            justifyContent: "left",
                                                             gap: "2px",
                                                             "& .MuiIconButton-root": {
                                                                 width: "24px",
@@ -251,34 +251,31 @@ function Pipeline({ onViewCar, onEditCar }) {
                                                                 }
                                                             }
                                                         }}>
-                                                            {(() => {
+                                                            {car.status !== "Sold" && (() => {
                                                                 const today = dayjs();
                                                                 const purchaseDate = dayjs(car?.purchaseDate);
-                                                                const saleDate = dayjs(car?.saleDate);
-                                                                const dateToCompare = car?.status === 'Sold' ? saleDate : purchaseDate;
-                                                                const days = dateToCompare.isValid() ? today.diff(dateToCompare, 'day') : 0;
+                                                                const days = purchaseDate.isValid() ? today.diff(purchaseDate, 'day') : 0;
 
-                                                                let backgroundColor = '';
-                                                                if (days < 14) {
-                                                                    backgroundColor = 'lightgreen';
-                                                                } else if (days < 30) {
+                                                                let backgroundColor = theme.palette.success.light;
+                                                                if (days >= 30) {
+                                                                    backgroundColor = 'lightcoral';
+                                                                } else if (days >= 15) {
                                                                     backgroundColor = 'yellow';
                                                                 } else {
-                                                                    backgroundColor = 'lightcoral';
+                                                                    backgroundColor = 'lightgreen';
                                                                 }
 
                                                                 return (
                                                                     <Typography
+                                                                        variant="caption"
                                                                         sx={{
-                                                                            color: theme.palette.text.primary,
-                                                                            fontWeight: '500',
+                                                                            color: theme.palette.text.secondary,
+                                                                            fontFamily: "'Roboto Mono', monospace",
                                                                             backgroundColor,
-                                                                            px: '4px',
-                                                                            py: '1px',
-                                                                            borderRadius: '3px',
-                                                                            fontSize: '0.7rem',
-                                                                            textAlign: 'left',
-                                                                            justifyContent: 'left',
+                                                                            px: "3px",
+                                                                            py: "1px",
+                                                                            borderRadius: "2px",
+                                                                            fontSize: "0.7rem",
                                                                         }}
                                                                     >
                                                                         {`${days} Days`}
