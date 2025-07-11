@@ -68,20 +68,20 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
                 value={value}
                 onChange={handleChange}
                 sx={{
-                    // borderBottom: '2px solid #778899',
+                    // borderBottom: '2px solid #778899'
                     '& .MuiTabs-indicator': {
                         backgroundColor: '#778899',
                         height: '3px',
                     },
                 }}
             >
-                <Tab icon={<HomeIcon />} label="Home" sx={styledTab} />
-                <Tab icon={<RemoveRedEyeOutlinedIcon />} label="Watchlist" sx={styledTab} />
-                <Tab icon={<CallMergeOutlinedIcon />} label="Pipeline" sx={styledTab} />
-                <Tab icon={<DirectionsCarFilledIcon />} label="Inventory" sx={styledTab} />
-                <Tab icon={<AttachMoneyIcon />} label="Sold" sx={styledTab} />
-                <Tab icon={<LeaderboardIcon />} label="Reports" sx={styledTab} />
-                <Tab icon={<SettingsIcon />} label="Settings" sx={styledTab} />
+                <Tab icon={<HomeIcon />} label="HOME" sx={styledTab} />
+                <Tab icon={<RemoveRedEyeOutlinedIcon />} label="WATCHLIST" sx={styledTab} />
+                <Tab icon={<CallMergeOutlinedIcon />} label="PIPELINE" sx={styledTab} />
+                <Tab icon={<DirectionsCarFilledIcon />} label="INVENTORY" sx={styledTab} />
+                <Tab icon={<AttachMoneyIcon />} label="SOLD" sx={styledTab} />
+                <Tab icon={<LeaderboardIcon />} label="REPORTS" sx={styledTab} />
+                <Tab icon={<SettingsIcon />} label="SETTINGS" sx={styledTab} />
             </Tabs>
 
 
@@ -136,20 +136,26 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
 const styledTab = {
     color: '#778899',
     fontWeight: 500,
-    fontSize: '0.9rem',
-    textTransform: 'none',
-    minHeight: '48px',
-    paddingX: 2,
+    fontSize: '0.75rem',               // Smaller font size
+    textTransform: 'none',             // No all-caps
+    minHeight: '36px',                 // Reduced tab height
+    paddingX: 1.5,                     // Narrow horizontal padding
+    paddingY: 0.5,                     // Narrow vertical padding
+    '& .MuiTab-iconWrapper': {
+        fontSize: '1.5rem',               // Smaller icons
+        marginBottom: '0px !important', // Align icon and text
+    },
     '&.Mui-selected': {
-      color: '#778899',
-      fontWeight: 'bold',
+        color: '#778899',
+        fontWeight: 'bold',
     },
     '&:hover': {
-      backgroundColor: '#f5f5f5',
-      borderRadius: '8px 8px 0 0',
+        backgroundColor: '#f0f0f0',
+        borderRadius: '6px 6px 0 0',
     },
-  };
-  
+};
+
+
 
 const tabContentStyle = {
     display: 'flex',
