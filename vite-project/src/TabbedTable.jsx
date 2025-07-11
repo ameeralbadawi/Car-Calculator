@@ -64,19 +64,26 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
 
     return (
         <Box sx={{ width: '100%' }}>
-            <Tabs value={value} onChange={handleChange} sx={{
-                '& .MuiTabs-indicator': { backgroundColor: 'black' },
-                borderBottom: '2px solid black',
-            }}>
-                {/* Tab definitions remain the same */}
-                <Tab icon={<HomeIcon />} label="Home" sx={tabStyle('black')} />
-                <Tab icon={<RemoveRedEyeOutlinedIcon />} label="Watchlist" sx={watchlistTabStyle} />
-                <Tab icon={<CallMergeOutlinedIcon />} label="Pipeline" sx={tabStyle('black')} />
-                <Tab icon={<DirectionsCarFilledIcon />} label="Inventory" sx={tabStyle('red')} />
-                <Tab icon={<AttachMoneyIcon />} label="Sold" sx={tabStyle('green')} />
-                <Tab icon={<LeaderboardIcon />} label="Reports" sx={tabStyle('grey')} />
-                <Tab icon={<SettingsIcon />} label="Settings" sx={tabStyle('black')} />
+            <Tabs
+                value={value}
+                onChange={handleChange}
+                sx={{
+                    // borderBottom: '2px solid #778899',
+                    '& .MuiTabs-indicator': {
+                        backgroundColor: '#778899',
+                        height: '3px',
+                    },
+                }}
+            >
+                <Tab icon={<HomeIcon />} label="Home" sx={styledTab} />
+                <Tab icon={<RemoveRedEyeOutlinedIcon />} label="Watchlist" sx={styledTab} />
+                <Tab icon={<CallMergeOutlinedIcon />} label="Pipeline" sx={styledTab} />
+                <Tab icon={<DirectionsCarFilledIcon />} label="Inventory" sx={styledTab} />
+                <Tab icon={<AttachMoneyIcon />} label="Sold" sx={styledTab} />
+                <Tab icon={<LeaderboardIcon />} label="Reports" sx={styledTab} />
+                <Tab icon={<SettingsIcon />} label="Settings" sx={styledTab} />
             </Tabs>
+
 
             <TabPanel value={value} index={0}>
                 <Typography>Coming Soon...</Typography>
@@ -99,7 +106,7 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
             </TabPanel>
 
             <TabPanel value={value} index={4}>
-                <SoldTable onViewCar={handleViewCar} onEditCar={handleEditCar}/>
+                <SoldTable onViewCar={handleViewCar} onEditCar={handleEditCar} />
             </TabPanel>
 
             <TabPanel value={value} index={5}>
@@ -116,7 +123,7 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
                 car={selectedCar}
                 onSave={handleSave}
             />
-            
+
             <ViewModal
                 open={isViewModalOpen}
                 onClose={() => setIsViewModalOpen(false)}
@@ -126,24 +133,23 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
     );
 }
 
-// Style helper functions
-const tabStyle = (color) => ({
-    color,
-    '&.Mui-selected': { color, fontWeight: 'bold' },
-});
-
-const watchlistTabStyle = {
-    color: 'white',
-    backgroundColor: 'white',
-    borderBottom: 'none',
-    '-webkit-text-stroke': '0.6px black',
-    '& .MuiSvgIcon-root': { color: 'black' },
+const styledTab = {
+    color: '#778899',
+    fontWeight: 500,
+    fontSize: '0.9rem',
+    textTransform: 'none',
+    minHeight: '48px',
+    paddingX: 2,
     '&.Mui-selected': {
-        '-webkit-text-stroke': '1.2px black',
-        color: 'white',
-        fontWeight: 'bold',
+      color: '#778899',
+      fontWeight: 'bold',
     },
-};
+    '&:hover': {
+      backgroundColor: '#f5f5f5',
+      borderRadius: '8px 8px 0 0',
+    },
+  };
+  
 
 const tabContentStyle = {
     display: 'flex',
