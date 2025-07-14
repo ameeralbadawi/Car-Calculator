@@ -128,6 +128,7 @@ function Pipeline({ onViewCar, onEditCar }) {
                                         overflowY: "auto",
                                         backgroundColor: theme.palette.background.paper,
                                         padding: "0 4px",
+                                        minHeight: 0,
                                     }}
                                 >
                                     <Typography
@@ -158,6 +159,7 @@ function Pipeline({ onViewCar, onEditCar }) {
                                                     {...provided.draggableProps}
                                                     {...provided.dragHandleProps}
                                                     sx={{
+                                                        flexShrink: 0,
                                                         width: "calc(100% - 8px)",
                                                         margin: "4px 0",
                                                         padding: "4px",
