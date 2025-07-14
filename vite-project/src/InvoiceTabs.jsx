@@ -99,23 +99,42 @@ const InvoiceTabs = ({ formData, setFormData }) => {
     return (
         <>
             <Tabs
-                value={selectedTab}
-                onChange={handleTabChange}
-                indicatorColor="primary"
-                textColor="primary"
-                variant="scrollable"
-                scrollButtons="auto"
-            >
-                <Tab label="Estimate" />
-                <Tab label="Purchased" />
-                <Tab label="Transport" />
-                <Tab label="Parts" />
-                <Tab label="Mechanic" />
-                <Tab label="Bodyshop" />
-                <Tab label="Misc." />
-                <Tab label="Sold" />
-                <Tab label="Invoice" />
-            </Tabs>
+  value={selectedTab}
+  onChange={handleTabChange}
+  indicatorColor="#778899"
+  textColor="#778899"
+  variant="scrollable"
+  scrollButtons="auto"
+  TabIndicatorProps={{
+    style: {
+      backgroundColor: "#778899", // Custom underline color
+      height: "3px" // Optional: customize thickness
+    }
+  }}
+>
+  {[
+    "ESTIMATE",
+    "PURCHASED",
+    "TRANSPORT",
+    "PARTS",
+    "MECHANIC",
+    "BODYSHOP",
+    "MISC.",
+    "SOLD",
+    "INVOICE"
+  ].map((label, index) => (
+    <Tab
+      key={label}
+      label={label}
+      sx={{
+        color: selectedTab === index ? "#778899" : "#000",
+        fontWeight: selectedTab === index ? "bold" : "normal",
+        textTransform: "none"
+      }}
+    />
+  ))}
+</Tabs>
+
             <Box sx={{ mt: 2 }}>{renderTabContent()}</Box>
         </>
     );

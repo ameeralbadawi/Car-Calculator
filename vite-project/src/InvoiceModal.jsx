@@ -153,7 +153,7 @@ const InvoiceModal = ({ open, onClose, car }) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Invoice Modal</DialogTitle>
+      <DialogTitle>Vehicle Details</DialogTitle>
       <DialogContent>
         <Box sx={{ mb: 2 }}>
           <Typography variant="h6">{`${year} ${make} ${model}`}</Typography>
@@ -164,10 +164,22 @@ const InvoiceModal = ({ open, onClose, car }) => {
         <InvoiceTabs formData={enrichedFormData} setFormData={setFormData} />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="secondary">
+        <Button onClick={onClose} sx={{
+      color: '#fff',
+      backgroundColor: 'red',
+      '&:hover': {
+        backgroundColor: '#cc0000',
+      },
+    }}>
           Cancel
         </Button>
-        <Button onClick={handleSave} color="primary" variant="contained">
+        <Button onClick={handleSave} variant="contained" sx={{
+      backgroundColor: '#778899',
+      color: '#fff',
+      '&:hover': {
+        backgroundColor: '#667788',
+      },
+    }}>
           Save
         </Button>
       </DialogActions>
