@@ -185,20 +185,25 @@ function Pipeline({ onViewCar, onEditCar }) {
                                                         width: "100%",
                                                         gap: "2px"
                                                     }}>
-                                                        <Typography
-                                                            variant="body2"
-                                                            sx={{
-                                                                fontWeight: "600",
-                                                                color: theme.palette.text.primary,
-                                                                overflow: "hidden",
-                                                                whiteSpace: "nowrap",
-                                                                textOverflow: "ellipsis",
-                                                                fontSize: "0.8rem",
-                                                                lineHeight: 1.2,
-                                                            }}
+                                                        <Tooltip
+                                                            title={`${car?.year || '—'} ${car?.make ? car.make.charAt(0).toUpperCase() + car.make.slice(1).toLowerCase() : 'Unknown'} ${car?.model || 'Model'}`}
                                                         >
-                                                            {`${car?.year || '—'} ${car?.make ? car.make.charAt(0).toUpperCase() + car.make.slice(1).toLowerCase() : 'Unknown'} ${car?.model ? (car.model.length > 10 ? car.model.substring(0, 10) + '...' : car.model) : 'Model'}`}
-                                                        </Typography>
+                                                            <Typography
+                                                                variant="body2"
+                                                                sx={{
+                                                                    fontWeight: "600",
+                                                                    color: theme.palette.text.primary,
+                                                                    overflow: "hidden",
+                                                                    whiteSpace: "nowrap",
+                                                                    textOverflow: "ellipsis",
+                                                                    fontSize: "0.8rem",
+                                                                    lineHeight: 1.2,
+                                                                }}
+                                                            >
+                                                                {`${car?.year || '—'} ${car?.make ? car.make.charAt(0).toUpperCase() + car.make.slice(1).toLowerCase() : 'Unknown'} ${car?.model ? (car.model.length > 10 ? car.model.substring(0, 10) + '...' : car.model) : 'Model'}`}
+                                                            </Typography>
+                                                        </Tooltip>
+
 
                                                         <Box sx={{
                                                             display: "flex",
