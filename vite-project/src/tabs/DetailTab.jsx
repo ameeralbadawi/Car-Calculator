@@ -21,9 +21,14 @@ const DetailTab = ({ data, onChange }) => {
 
   const handleItemChange = (index, field, value) => {
     const updatedItems = [...data.miscServices];
-    updatedItems[index][field] = field === 'amount' ? Number(value) : value;
+    const updatedItem = {
+      ...updatedItems[index],
+      [field]: field === 'amount' ? Number(value) : value,
+    };
+    updatedItems[index] = updatedItem;
     onChange({ ...data, miscServices: updatedItems });
   };
+
 
   const handleNotesChange = (e) => {
     const { name, value } = e.target;
@@ -35,9 +40,12 @@ const DetailTab = ({ data, onChange }) => {
       <Typography variant="h6" sx={{ mb: 2 }}>
         Miscellaneous Details
       </Typography>
-
       <PartsTable
-        items={data.miscServices || [{ name: '', service: '', amount: 0 }]}
+        items={
+          Array.isArray(data.miscServices) && data.miscServices.length > 0
+            ? data.miscServices
+            : [{ name: '', service: '', amount: 0 }]
+        }
         onAdd={handleAddItem}
         onRemove={handleRemoveItem}
         onChange={handleItemChange}
@@ -51,6 +59,7 @@ const DetailTab = ({ data, onChange }) => {
         notesValue={data.miscNotes}
         onNotesChange={handleNotesChange}
       />
+
     </Box>
   );
 };

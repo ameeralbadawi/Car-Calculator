@@ -78,7 +78,7 @@ const InvoiceModal = ({ open, onClose, car }) => {
             bodyshopNotes: car.bodyshopNotes || '',
           },
           MiscellaniousDetails: {
-            miscServices: car.detailServices || [{ name: '', service: '', amount: 0 }],
+            miscServices: car.miscServices || [{ name: '', service: '', amount: 0 }],
             miscNotes: car.miscNotes || '',
           },
           saleDetails: {

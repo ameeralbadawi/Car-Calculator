@@ -36,9 +36,10 @@ const PartsTable = ({
                 <TableCell key={col.field}>{col.label}</TableCell>
               ))}
               <TableCell align="right">
-                <IconButton onClick={onAdd} color="primary">
-                  <AddIcon />
-                </IconButton>
+              <IconButton onClick={onAdd} sx={{ color: 'success.main' }}>
+  <AddIcon />
+</IconButton>
+
               </TableCell>
             </TableRow>
           </TableHead>

@@ -18,9 +18,15 @@ const PartsTab = ({ data, onChange }) => {
 
   const handlePartChange = (index, field, value) => {
     const updatedParts = [...data.parts];
-    updatedParts[index][field] = field === 'amount' ? Number(value) : value;
+    const updatedItem = {
+      ...updatedParts[index],
+      [field]: field === 'amount' ? Number(value) : value,
+    };
+    updatedParts[index] = updatedItem;
+  
     onChange({ ...data, parts: updatedParts });
   };
+  
 
   const handleNotesChange = (e) => {
     const { name, value } = e.target;
