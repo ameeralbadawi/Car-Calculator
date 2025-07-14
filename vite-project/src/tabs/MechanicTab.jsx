@@ -21,9 +21,15 @@ const MechanicTab = ({ data, onChange }) => {
 
   const handleItemChange = (index, field, value) => {
     const updatedItems = [...data.mechanicServices];
-    updatedItems[index][field] = field === 'amount' ? Number(value) : value;
+    const updatedItem = {
+      ...updatedItems[index],
+      [field]: field === 'amount' ? Number(value) : value,
+    };
+    updatedItems[index] = updatedItem;
+  
     onChange({ ...data, mechanicServices: updatedItems });
   };
+  
 
   const handleNotesChange = (e) => {
     const { name, value } = e.target;
