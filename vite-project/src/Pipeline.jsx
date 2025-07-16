@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
 import { moveCarBetweenStages } from "./store";
-import { deleteCarFromBackend, fetchCarsFromBackend, updateCarStageInBackend } from './pipelineThunks'; // update the path as needed
+import { deleteCarFromBackend, updateCarStageInBackend } from './pipelineThunks'; // update the path as needed
 import dayjs from 'dayjs';
 
 function Pipeline({ onViewCar, onEditCar }) {
@@ -43,12 +43,6 @@ function Pipeline({ onViewCar, onEditCar }) {
 
         return amountPaid + transport + partsTotal + mechanicTotal + bodyshopTotal + miscTotal + sellerFees;
     };
-
-
-    // Fetch cars on component mount
-    useEffect(() => {
-        dispatch(fetchCarsFromBackend());
-    }, [dispatch]);
 
     const onDragEnd = (result) => {
         const { source, destination, draggableId } = result;
