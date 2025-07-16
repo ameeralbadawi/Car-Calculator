@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Tabs, Tab, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 import CarTable from './CarTable';
@@ -17,6 +17,8 @@ import SoldTable from './SoldTable';
 import VinField from './VinField';
 import InvoiceModal from './InvoiceModal';
 import ViewModal from './ViewModal';
+import { fetchCarsFromBackend } from './pipelineThunks';
+import { useDispatch } from 'react-redux';
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -39,6 +41,11 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [viewCar, setViewCar] = useState(null);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(fetchCarsFromBackend());
+      }, [dispatch]);
 
     const handleChange = (event, newValue) => setValue(newValue);
 
