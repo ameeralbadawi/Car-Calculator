@@ -21,6 +21,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Tooltip from "@mui/material/Tooltip";
 import { deleteCarFromStage } from "./store";
 
 function InventoryTable({ onViewCar, onEditCar }) {
@@ -182,38 +183,40 @@ function InventoryTable({ onViewCar, onEditCar }) {
 
       {/* Action menu */}
       <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        PaperProps={{
-          sx: {
-            borderRadius: 2,
-            boxShadow: 3,
-            minWidth: 160,
-          },
-        }}
-      >
-        <MenuItem onClick={handleView}>
-          <ListItemIcon>
-            <VisibilityIcon fontSize="small" />
-          </ListItemIcon>
-          View
-        </MenuItem>
-        <MenuItem onClick={handleEdit}>
-          <ListItemIcon>
-            <EditIcon fontSize="small" />
-          </ListItemIcon>
-          Edit
-        </MenuItem>
-        <MenuItem onClick={handleDeleteClick}>
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" color="error" />
-          </ListItemIcon>
-          <Typography color="error.main">Delete</Typography>
-        </MenuItem>
-      </Menu>
+  anchorEl={anchorEl}
+  open={Boolean(anchorEl)}
+  onClose={handleMenuClose}
+  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+  transformOrigin={{ vertical: "top", horizontal: "right" }}
+  PaperProps={{
+    sx: {
+      borderRadius: 2,
+      boxShadow: 3,
+      p: 1,
+      display: 'flex',
+      flexDirection: 'row',
+      gap: 1,
+    },
+  }}
+>
+  <Tooltip title="View">
+    <IconButton onClick={handleView} size="small" sx={{ color: "#778899" }}>
+      <VisibilityIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
+
+  <Tooltip title="Edit">
+    <IconButton onClick={handleEdit} size="small" sx={{ color: "#778899" }}>
+      <EditIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
+
+  <Tooltip title="Delete">
+    <IconButton onClick={handleDeleteClick} size="small" color="error">
+      <DeleteIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
+</Menu>
 
       {/* Delete Dialog */}
       <Dialog
