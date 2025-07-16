@@ -22,7 +22,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Tooltip from "@mui/material/Tooltip";
-import { deleteCarFromStage } from "./store";
+import { deleteCarFromBackend } from "./pipelineThunks";
 
 function InventoryTable({ onViewCar, onEditCar }) {
   const theme = useTheme();
@@ -76,11 +76,14 @@ function InventoryTable({ onViewCar, onEditCar }) {
 
   const handleDeleteConfirm = () => {
     if (carToDelete) {
-      dispatch(deleteCarFromStage({ stage: carToDelete.status, carId: carToDelete.id }));
+        dispatch(deleteCarFromBackend({
+            vin: carToDelete.vin,
+            stage: carToDelete.status,
+            carId: carToDelete.id
+        }));
     }
     setIsDeleteDialogOpen(false);
-    setCarToDelete(null);
-  };
+};
 
   const getStatusColor = (status) => {
     switch (status) {
