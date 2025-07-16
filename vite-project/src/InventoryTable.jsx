@@ -220,50 +220,93 @@ function InventoryTable({ onViewCar, onEditCar }) {
 
       {/* Delete Dialog */}
       <Dialog
-        open={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            px: 2,
-            py: 1.5,
-            minWidth: 400,
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            fontWeight: "bold",
-            backgroundColor: theme.palette.grey[100],
-            borderBottom: `1px solid ${theme.palette.divider}`,
-          }}
-        >
-          Confirm Deletion
-        </DialogTitle>
-        <DialogContent sx={{ py: 2 }}>
-          <Typography variant="body2">
-            Are you sure you want to delete{" "}
-            <Box component="span" fontWeight="bold" color="error.main">
-              {carToDelete?.year} {carToDelete?.make} {carToDelete?.model}
-            </Box>
-            ?
-          </Typography>
-        </DialogContent>
-        <DialogActions
-          sx={{
-            borderTop: `1px solid ${theme.palette.divider}`,
-            justifyContent: "flex-end",
-          }}
-        >
-          <Button onClick={() => setIsDeleteDialogOpen(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button onClick={handleDeleteConfirm} variant="contained" color="error">
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+  open={isDeleteDialogOpen}
+  onClose={() => setIsDeleteDialogOpen(false)}
+  PaperProps={{
+    sx: {
+      borderRadius: 3,
+      px: 0,
+      py: 0,
+      minWidth: 420,
+      overflow: "hidden",
+      boxShadow: 10,
+    },
+  }}
+>
+  <DialogTitle
+    sx={{
+      fontWeight: 600,
+      px: 3,
+      py: 2.5,
+      fontSize: "1.125rem",
+      bgcolor: theme.palette.background.default,
+      borderBottom: `1px solid ${theme.palette.divider}`,
+    }}
+  >
+    Confirm Deletion
+  </DialogTitle>
+
+  <DialogContent sx={{ px: 3, py: 2 }}>
+    <Typography variant="body1" gutterBottom>
+      Are you sure you want to remove the following vehicle?
+    </Typography>
+    <Typography
+      variant="h6"
+      fontWeight={600}
+      color="error"
+      sx={{
+        mt: 1,
+        px: 1.5,
+        py: 1,
+        backgroundColor: theme.palette.grey[100],
+        borderRadius: 2,
+        fontSize: "0.95rem",
+      }}
+    >
+      {carToDelete?.year} {carToDelete?.make} {carToDelete?.model} - {carToDelete?.vin.slice(-8)}
+    </Typography>
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      sx={{ mt: 1.5 }}
+    >
+      This action is permanent and cannot be undone.
+    </Typography>
+  </DialogContent>
+
+  <DialogActions
+    sx={{
+      px: 3,
+      py: 1.5,
+      bgcolor: theme.palette.background.default,
+      borderTop: `1px solid ${theme.palette.divider}`,
+    }}
+  >
+    <Button
+      onClick={() => setIsDeleteDialogOpen(false)}
+      sx={{
+        textTransform: "none",
+        fontWeight: 500,
+        color: theme.palette.text.primary,
+        "&:hover": {
+          backgroundColor: theme.palette.grey[100],
+        },
+      }}
+    >
+      Cancel
+    </Button>
+    <Button
+      onClick={handleDeleteConfirm}
+      variant="contained"
+      color="error"
+      sx={{ textTransform: "none", fontWeight: 500 }}
+    >
+      Delete
+    </Button>
+  </DialogActions>
+</Dialog>
+
+</>
   );
 }
 
