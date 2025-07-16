@@ -36,6 +36,19 @@ function InventoryTable({ onViewCar, onEditCar }) {
       .filter((car) => car.status !== "Sold")
   );
 
+  const calculateTotalCost = (car) => {
+    const partsTotal = (car.parts || []).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+    const mechanicTotal = (car.mechanicServices || []).reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+    const bodyshopTotal = (car.bodyshopServices || []).reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+    const miscTotal = (car.miscServices || []).reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+
+    const amountPaid = parseFloat(car.amountPaid) || 0;
+    const transport = parseFloat(car.cost) || 0;
+    const sellerFees = parseFloat(car.sellerFees) || 0;
+
+    return amountPaid + transport + partsTotal + mechanicTotal + bodyshopTotal + miscTotal + sellerFees;
+};
+
   const handleMenuOpen = (event, car) => {
     setAnchorEl(event.currentTarget);
     setCarToDelete(car);
@@ -100,10 +113,10 @@ function InventoryTable({ onViewCar, onEditCar }) {
       header: "VIN",
     },
     {
-      accessorKey: "cost",
       header: "Cost",
-      Cell: ({ cell }) => `$${Number(cell.getValue()).toFixed(2)}`,
-    },
+      accessorFn: (car) => calculateTotalCost(car), // raw number
+      Cell: ({ cell }) => `$${Number(cell.getValue()).toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+    },    
     {
       accessorKey: "status",
       header: "Status",
