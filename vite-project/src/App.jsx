@@ -154,9 +154,11 @@ function App() {
   };
 
   const columns = [
-    { accessorKey: 'year', header: 'Year' },
-    { accessorKey: 'make', header: 'Make' },
-    { accessorKey: 'model', header: 'Model' },
+    {
+      header: "Vehicle",
+      accessorFn: (row) => `${row.year || ""} ${row.make || ""} ${row.model || ""}`.trim(),
+      Cell: ({ cell }) => `${cell.getValue()}`,
+    },
     { accessorKey: 'vin', header: 'VIN' },
     { accessorKey: 'runNumber', header: 'RUN #'},
     { 
@@ -267,43 +269,53 @@ function App() {
         moveToPurchased={moveToPurchased} 
         pipelineCars={pipelineCars} 
       />
-     <Menu
+<Menu
   anchorEl={anchorEl}
   open={Boolean(anchorEl)}
   onClose={handleMenuClose}
   PaperProps={{
     sx: {
-      minWidth: '200px', // Set a minimum width for the menu
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center', // This centers the menu items
-      justifyContent: 'center',
-    }
+      minWidth: 180,
+      borderRadius: 2,
+      py: 1,
+      boxShadow: 3,
+    },
   }}
 >
-  <MenuItem 
+  <MenuItem
     onClick={handlePurchased}
     sx={{
-      width: '100%',
       justifyContent: 'center',
-      fontSize: '0.875rem', // Smaller font size
-      fontWeight: 'bold',   // Bold text
+      fontSize: '0.875rem',
+      fontWeight: 'bold',
+      color: '#778899',
+      '&:hover': {
+        backgroundColor: '#778899',
+        color: 'white',
+      },
     }}
   >
     PURCHASED
   </MenuItem>
-  <MenuItem 
+
+  <MenuItem
     onClick={handleDelete}
     sx={{
-      width: '100%',
       justifyContent: 'center',
+      '&:hover': {
+        backgroundColor: 'error.main',
+        '& .MuiSvgIcon-root': {
+          color: '#fff',
+        },
+      },
     }}
   >
     <IconButton size="small">
-      <DeleteIcon fontSize="small" />
+      <DeleteIcon fontSize="small" color='error'/>
     </IconButton>
   </MenuItem>
 </Menu>
+
       <VehicleFormModal
         open={open}
         handleClose={handleClose}
