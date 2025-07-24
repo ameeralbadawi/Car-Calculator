@@ -1,5 +1,7 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit';
 import { fetchCarsFromBackend, updateCarStageInBackend, updateCarInBackend} from './pipelineThunks'; // import the thunk
+import { fetchWatchlistsFromBackend, createWatchlistInBackend } from './watchlistThunks';
+
 
 // Initial state for pipeline
 const initialPipelineState = {
@@ -19,11 +21,8 @@ const initialPipelineState = {
 
 // Initial state for sheets
 const initialSheetsState = {
-  sheets: [
-    { id: 1, name: 'Sheet 1', data: [] },
-    { id: 2, name: 'Sheet 2', data: [] }
-  ],
-  activeSheetId: 1
+  sheets: [],
+  activeSheetId: null,
 };
 
 const pipelineSlice = createSlice({
@@ -137,10 +136,8 @@ const sheetsSlice = createSlice({
     },
     deleteSheet: (state, action) => {
       const sheetId = action.payload;
-      // Don't allow deleting the last sheet
       if (state.sheets.length > 1) {
         state.sheets = state.sheets.filter(sheet => sheet.id !== sheetId);
-        // If we deleted the active sheet, set first sheet as active
         if (state.activeSheetId === sheetId) {
           state.activeSheetId = state.sheets[0].id;
         }
@@ -152,6 +149,30 @@ const sheetsSlice = createSlice({
         sheet.data = sheet.data.filter(car => car.id !== carId);
       });
     }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchWatchlistsFromBackend.fulfilled, (state, action) => {
+        // Replace local sheets with watchlists from backend
+        state.sheets = action.payload.map(watchlist => ({
+          id: watchlist.id,
+          name: watchlist.name,
+          data: [] // We'll populate cars separately
+        }));
+        // Default to first watchlist
+        if (state.sheets.length > 0) {
+          state.activeSheetId = state.sheets[0].id;
+        }
+      })
+      .addCase(createWatchlistInBackend.fulfilled, (state, action) => {
+        const newWatchlist = action.payload;
+        state.sheets.push({
+          id: newWatchlist.id,
+          name: newWatchlist.name,
+          data: []
+        });
+        state.activeSheetId = newWatchlist.id;
+      });
   }
 });
 
