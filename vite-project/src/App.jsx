@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import VehicleFormModal from './VehicleFormModal';
 import { formatCurrency } from './utils';
 import TabbedTable from './TabbedTable';
@@ -8,6 +8,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch } from 'react-redux';
 import { addCarToSheet, deleteCarFromSheet } from './store';
 import { saveCarToBackend } from './pipelineThunks'; // update the path as needed
+import { fetchWatchlistsFromBackend, createWatchlistInBackend } from "./watchlistThunks";
+
 
 
 const formatMake = (make) => {
@@ -31,6 +33,15 @@ function App() {
   const [pipelineCars, setPipelineCars] = useState([]);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchWatchlistsFromBackend()).then((action) => {
+      if (action.payload?.length === 0) {
+        dispatch(createWatchlistInBackend("Sheet 1"));
+        dispatch(createWatchlistInBackend("Sheet 2"));
+      }
+    });
+  }, []);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
