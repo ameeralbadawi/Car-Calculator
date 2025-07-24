@@ -12,11 +12,12 @@ import {
 import { Add, Edit, Delete as DeleteIcon } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  addSheet,
   renameSheet,
   setActiveSheet,
   deleteSheet,
 } from './store';
+import { createWatchlistInBackend } from './watchlistThunks';
+
 
 function CarTable({ columns, rows, setRows, handleMenuOpen }) {
   const theme = useTheme();
@@ -26,7 +27,9 @@ function CarTable({ columns, rows, setRows, handleMenuOpen }) {
   const [editValue, setEditValue] = useState('');
 
   const handleAddSheet = () => {
-    dispatch(addSheet());
+    const newId = sheets.length > 0 ? Math.max(...sheets.map(s => s.id)) + 1 : 1;
+    const newName = `Sheet ${newId}`;
+    dispatch(createWatchlistInBackend(newName));
   };
 
   const handleRenameStart = (index) => {
