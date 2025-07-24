@@ -16,7 +16,7 @@ import {
   setActiveSheet,
   deleteSheet,
 } from './store';
-import { createWatchlistInBackend } from './watchlistThunks';
+import { createWatchlistInBackend, renameWatchlistInBackend } from './watchlistThunks';
 
 
 function CarTable({ columns, rows, setRows, handleMenuOpen }) {
@@ -38,7 +38,7 @@ function CarTable({ columns, rows, setRows, handleMenuOpen }) {
   };
 
   const handleRenameSave = (id) => {
-    dispatch(renameSheet({ id, newName: editValue }));
+    dispatch(renameWatchlistInBackend({ id, newName: editValue }));
     setEditingTab(null);
   };
 

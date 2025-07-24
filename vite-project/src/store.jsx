@@ -1,6 +1,6 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit';
 import { fetchCarsFromBackend, updateCarStageInBackend, updateCarInBackend} from './pipelineThunks'; // import the thunk
-import { fetchWatchlistsFromBackend, createWatchlistInBackend } from './watchlistThunks';
+import { fetchWatchlistsFromBackend, createWatchlistInBackend, renameWatchlistInBackend } from './watchlistThunks';
 
 
 // Initial state for pipeline
@@ -172,7 +172,14 @@ const sheetsSlice = createSlice({
           data: []
         });
         state.activeSheetId = newWatchlist.id;
-      });
+      })
+      .addCase(renameWatchlistInBackend.fulfilled, (state, action) => {
+        const updatedWatchlist = action.payload;
+        const index = state.sheets.findIndex(sheet => sheet.id === updatedWatchlist.id);
+        if (index !== -1) {
+          state.sheets[index].name = updatedWatchlist.name;
+        }
+      });      
   }
 });
 
