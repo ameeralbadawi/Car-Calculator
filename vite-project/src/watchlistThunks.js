@@ -31,3 +31,19 @@ export const createWatchlistInBackend = createAsyncThunk(
     }
   }
 );
+
+// PATCH /watchlists/:id
+export const renameWatchlistInBackend = createAsyncThunk(
+    'sheets/renameWatchlist',
+    async ({ id, newName }, thunkAPI) => {
+      try {
+        const response = await axios.patch(`${BASE_URL}/watchlists/${id}`, {
+          name: newName,
+        });
+        return response.data;
+      } catch (err) {
+        return thunkAPI.rejectWithValue(err.response?.data || 'Failed to rename watchlist');
+      }
+    }
+  );
+  
