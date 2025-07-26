@@ -12,11 +12,9 @@ import {
 import { Add, Edit, Delete as DeleteIcon } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  renameSheet,
   setActiveSheet,
-  deleteSheet,
 } from './store';
-import { createWatchlistInBackend, renameWatchlistInBackend } from './watchlistThunks';
+import { createWatchlistInBackend, renameWatchlistInBackend, deleteSheetThunk } from './watchlistThunks';
 
 
 function CarTable({ columns, rows, setRows, handleMenuOpen }) {
@@ -110,7 +108,7 @@ function CarTable({ columns, rows, setRows, handleMenuOpen }) {
                             size="small"
                             onClick={(e) => {
                               e.stopPropagation();
-                              dispatch(deleteSheet(sheet.id));
+                              dispatch(deleteSheetThunk(sheet.id));
                             }}
                             sx={{ ml: 0.5 }}
                           >
