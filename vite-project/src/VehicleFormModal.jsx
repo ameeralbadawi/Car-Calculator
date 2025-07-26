@@ -9,6 +9,7 @@ import {
     FormControlLabel,
     Typography,
     IconButton,
+    Divider
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
@@ -227,176 +228,192 @@ function VehicleFormModal({
                 boxShadow: 24,
                 p: 4
             }}>
-                <Typography variant="h6" align="center" gutterBottom>Vehicle Details</Typography>
+                <Typography variant="h6" align="center" gutterBottom>
+                    Add Vehicle
+                </Typography>
 
-                <Box sx={{ display: 'flex', gap: 2, marginBottom: 2 }}>
+                {/* VIN & Run# */}
+                <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
                     <TextField
+                        color='#778899'
                         label="VIN"
-                        fullWidth
-                        margin="normal"
                         value={vin}
                         onChange={(e) => setVin(e.target.value)}
-                        sx={{ flex: 3 }}  // Gives more space to VIN field
+                        fullWidth
+                        sx={{ flex: 3 }}
                     />
                     <TextField
+                        color='#778899'
                         label="Run#"
-                        fullWidth
-                        margin="normal"
-                        type="string"
                         value={runNumber}
                         onChange={(e) => setRunNumber(e.target.value)}
-                        inputProps={{ min: 0 }}
-                        sx={{ flex: 1 }}  // Gives less space to Run# field
+                        fullWidth
+                        sx={{ flex: 1 }}
                     />
                 </Box>
+
+                {/* MMR */}
                 <TextField
+                    color='#778899'
                     label="MMR"
-                    fullWidth
-                    margin="normal"
                     value={localMmr}
                     onChange={(e) => setLocalMmr(e.target.value)}
                     onBlur={handleMmrBlur}
+                    fullWidth
                     type="number"
                     inputProps={{ min: 0 }}
+                    sx={{ mb: 2 }}
                 />
 
-                <Box sx={{ display: 'flex', gap: 2 }}>
+                {/* Profit */}
+                <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
                     <TextField
+                        color='#778899'
                         label="Profit (Amount)"
-                        fullWidth
                         value={profitAmount}
                         onChange={handleProfitAmountChange}
+                        fullWidth
                         type="number"
                         inputProps={{ min: 0 }}
                     />
                     <TextField
+                        color='#778899'
                         label="Profit (%)"
-                        fullWidth
                         value={profitPercentage}
                         onChange={handleProfitPercentageChange}
+                        fullWidth
                         type="number"
                         inputProps={{ min: 0, max: 100 }}
                     />
                 </Box>
-                <TextField
-                    label="Transport"
-                    fullWidth
-                    margin="normal"
-                    value={transport}
-                    onChange={handleTransportChange}
-                    type="number"
-                    inputProps={{ min: 0 }}
-                />
-                <TextField
-                    label="Repair"
-                    fullWidth
-                    margin="normal"
-                    value={repair}
-                    onChange={handleRepairChange}
-                    type="number"
-                    inputProps={{ min: 0 }}
-                />
-                <Box sx={{
-                    display: 'flex',
-                    gap: 2,
-                    mt: 2
-                }}>
-                    <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                        <TextField
-                            label="Fees (Amount)"
-                            fullWidth
-                            value={feeAmount}
-                            onChange={handleFeeAmountChange}
-                            onFocus={() => setFeeAmountTouched(true)}
-                            type="number"
-                            inputProps={{ min: 0 }}
-                            color={feeAmountTouched ? "warning" : "primary"}
-                            helperText={feeAmountTouched ? "Manually entered" : "Auto-calculated"}
-                        />
-                    </Box>
-                    <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                        <TextField
-                            label="Fees (%)"
-                            fullWidth
-                            value={feePercentage}
-                            onChange={handleFeePercentageChange}
-                            onFocus={() => setFeePercentageTouched(true)}
-                            type="number"
-                            inputProps={{ min: 0, max: 100 }}
-                            color={feePercentageTouched ? "warning" : "primary"}
-                            helperText={feePercentageTouched ? "Manually entered" : "Auto-calculated"}
-                        />
-                    </Box>
-                    <Box sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '56px'
-                    }}>
-                        <IconButton
-                            onClick={resetFeeCalculation}
-                            title="Reset fees to auto calculation"
-                            sx={{
-                                height: '56px',
-                                width: '56px',
-                                mt: '-20px' // This lifts the button up by 10px
-                            }}
-                        >
-                            <RefreshIcon />
-                        </IconButton>
-                    </Box>
+
+                {/* Transport & Repair */}
+                <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                    <TextField
+                        color='#778899'
+                        label="Transport"
+                        value={transport}
+                        onChange={handleTransportChange}
+                        fullWidth
+                        type="number"
+                        inputProps={{ min: 0 }}
+                    />
+                    <TextField
+                        color='#778899'
+                        label="Repair"
+                        value={repair}
+                        onChange={handleRepairChange}
+                        fullWidth
+                        type="number"
+                        inputProps={{ min: 0 }}
+                    />
                 </Box>
 
+                {/* Fees */}
+                <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                    <TextField
+                        label="Fees (Amount)"
+                        value={feeAmount}
+                        onChange={handleFeeAmountChange}
+                        onFocus={() => setFeeAmountTouched(true)}
+                        fullWidth
+                        type="number"
+                        inputProps={{ min: 0 }}
+                        color={feeAmountTouched ? 'warning' : '#778899'}
+                        helperText={feeAmountTouched ? 'Manually entered' : 'Auto-calculated'}
+                    />
+                    <TextField
+                        label="Fees (%)"
+                        value={feePercentage}
+                        onChange={handleFeePercentageChange}
+                        onFocus={() => setFeePercentageTouched(true)}
+                        fullWidth
+                        type="number"
+                        inputProps={{ min: 0, max: 100 }}
+                        color={feePercentageTouched ? 'warning' : '#778899'}
+                        helperText={feePercentageTouched ? 'Manually entered' : 'Auto-calculated'}
+                    />
+                    <IconButton
+                        onClick={resetFeeCalculation}
+                        title="Reset fees"
+                        sx={{
+                            alignSelf: 'center',
+                            mt: '-8px'
+                        }}
+                    >
+                        <RefreshIcon />
+                    </IconButton>
+                </Box>
+
+                {/* Max Bid */}
                 <TextField
+                    color='#778899'
                     label="Max Bid (Calculated)"
+                    value={maxBid}
                     fullWidth
                     margin="normal"
-                    value={maxBid}
                     InputProps={{ readOnly: true }}
+                    sx={{ mb: 3 }}
                 />
 
-                <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-                    <Box sx={{ flex: 1, maxHeight: 200, overflowY: 'auto', border: '1px solid #ccc', p: 1, borderRadius: 1 }}>
-                        <Typography variant="subtitle1" align="center">Carfax</Typography>
-                        <FormGroup>
-                            {carfaxOptions.map((option) => (
-                                <FormControlLabel
-                                    key={option}
-                                    control={
-                                        <Checkbox
-                                            checked={carfaxStatuses.includes(option)}
-                                            onChange={() => handleCheckboxToggle(option, carfaxStatuses, setCarfaxStatuses)}
+                <Divider sx={{ my: 3 }} />
+
+                {/* Carfax & Autocheck Checkboxes */}
+                <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                    {[['Carfax', carfaxOptions, carfaxStatuses, setCarfaxStatuses],
+                    ['Autocheck', autocheckOptions, autocheckStatuses, setAutocheckStatuses]].map(
+                        ([label, options, statuses, setStatuses]) => (
+                            <Box
+                                key={label}
+                                sx={{
+                                    flex: 1,
+                                    maxHeight: 200,
+                                    overflowY: 'auto',
+                                    border: '1px solid #ccc',
+                                    borderRadius: 1,
+                                    p: 2,
+                                }}
+                            >
+                                <Typography variant="subtitle1" align="center" gutterBottom>
+                                    {label}
+                                </Typography>
+                                <FormGroup>
+                                    {options.map((option) => (
+                                        <FormControlLabel
+                                            key={option}
+                                            control={
+                                                <Checkbox
+                                                    checked={statuses.includes(option)}
+                                                    onChange={() =>
+                                                        handleCheckboxToggle(option, statuses, setStatuses)
+                                                    }
+                                                    sx={{
+                                                        '&.Mui-checked': {
+                                                          color: '#778899',
+                                                        },
+                                                      }}
+                                                />
+                                            }
+                                            label={option}
                                         />
-                                    }
-                                    label={option}
-                                />
-                            ))}
-                        </FormGroup>
-                    </Box>
-                    <Box sx={{ flex: 1, maxHeight: 200, overflowY: 'auto', border: '1px solid #ccc', p: 1, borderRadius: 1 }}>
-                        <Typography variant="subtitle1" align="center">Autocheck</Typography>
-                        <FormGroup>
-                            {autocheckOptions.map((option) => (
-                                <FormControlLabel
-                                    key={option}
-                                    control={
-                                        <Checkbox
-                                            checked={autocheckStatuses.includes(option)}
-                                            onChange={() => handleCheckboxToggle(option, autocheckStatuses, setAutocheckStatuses)}
-                                        />
-                                    }
-                                    label={option}
-                                />
-                            ))}
-                        </FormGroup>
-                    </Box>
+                                    ))}
+                                </FormGroup>
+                            </Box>
+                        )
+                    )}
                 </Box>
 
-                <Button variant="contained" onClick={handleSubmitForm} sx={{ mt: 3, display: 'block', mx: 'auto' }}>
+                {/* Submit */}
+                <Button
+                    variant="contained"
+                    onClick={handleSubmitForm}
+                    fullWidth
+                    sx={{ mt: 1, backgroundColor: '#778899'}}
+                >
                     Submit
                 </Button>
             </Box>
-        </Modal >
+        </Modal>
     );
 }
 
