@@ -60,3 +60,14 @@ export const deleteSheetThunk = createAsyncThunk(
     }
 );
 
+export const addCarToWatchlistThunk = createAsyncThunk(
+    'watchlist/addCarToWatchlist',
+    async ({ watchlistId, carData }, thunkAPI) => {
+      try {
+        const response = await axios.post(`${BASE_URL}/watchlists/${watchlistId}/cars/`, carData);
+        return response.data;
+      } catch (err) {
+        return thunkAPI.rejectWithValue(err.response?.data || 'Failed to add car to watchlist');
+      }
+    }
+  );

@@ -1,6 +1,6 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit';
 import { fetchCarsFromBackend, updateCarStageInBackend, updateCarInBackend} from './pipelineThunks'; // import the thunk
-import { fetchWatchlistsFromBackend, createWatchlistInBackend, renameWatchlistInBackend, deleteSheetThunk } from './watchlistThunks';
+import { fetchWatchlistsFromBackend, createWatchlistInBackend, renameWatchlistInBackend, deleteSheetThunk, addCarToWatchlistThunk } from './watchlistThunks';
 
 
 // Initial state for pipeline
@@ -189,7 +189,16 @@ const sheetsSlice = createSlice({
         if (state.activeSheetId === action.payload) {
           state.activeSheetId = state.sheets.length > 0 ? state.sheets[0].id : null;
         }
-      }); 
+      })
+      .addCase(addCarToWatchlistThunk.fulfilled, (state, action) => {
+        const newCar = action.payload;
+      
+        // Find the active sheet and push the car into its data array
+        const activeSheet = state.sheets.find(sheet => sheet.id === state.activeSheetId);
+        if (activeSheet) {
+          activeSheet.data.push(newCar);
+        }
+      });
   }
 });
 
