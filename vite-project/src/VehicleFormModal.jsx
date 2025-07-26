@@ -13,22 +13,19 @@ import {
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
+const formatMake = (make) => {
+    if (!make || typeof make !== 'string') return 'N/A';
+    return make.charAt(0).toUpperCase() + make.slice(1).toLowerCase();
+  };
+
 function VehicleFormModal({
     open,
-    handleClose,
-    vin,
-    setVin,
-    mmr = 0,
-    setMmr,
-    transport,
-    setTransport,
-    repair,
-    setRepair,
-    profit,
-    setProfit,
-    handleSubmit,
+    onClose,
+    onSubmit,
 }) {
-    const [localMmr, setLocalMmr] = useState(mmr);
+    const [vin, setVin] = useState('');
+    const [mmr, setMmr] = useState(0);
+    const [localMmr, setLocalMmr] = useState(0);
     const [profitAmount, setProfitAmount] = useState('2000');
     const [profitPercentage, setProfitPercentage] = useState('10');
     const [feeAmount, setFeeAmount] = useState('0');
@@ -38,6 +35,9 @@ function VehicleFormModal({
     const [feeAmountTouched, setFeeAmountTouched] = useState(false);
     const [feePercentageTouched, setFeePercentageTouched] = useState(false);
     const [runNumber, setRunNumber] = useState('');
+    const [transport, setTransport] = useState('');
+    const [repair, setRepair] = useState('');
+    const [profit, setProfit] = useState(0);
 
     const carfaxOptions = [
         "Minor", "Moderate", "Severe", "Total Loss", "Structural Dmg", "Airbags Deployed",
@@ -79,7 +79,6 @@ function VehicleFormModal({
         }
     };
 
-    // Profit sync
     const updateProfitCalculations = (mmrValue, isAmountChange, newValue) => {
         if (!mmrValue || mmrValue <= 0) return;
 
@@ -100,7 +99,6 @@ function VehicleFormModal({
         }
     };
 
-    // Fee sync
     useEffect(() => {
         if (localMmr > 0) {
             const mmrVal = parseFloat(localMmr) || 0;
@@ -149,17 +147,16 @@ function VehicleFormModal({
     };
 
     const resetFeeCalculation = () => {
-        setFeePercentage('5'); // Reset to default 5%
+        setFeePercentage('5');
         setFeeAmountTouched(false);
         setFeePercentageTouched(false);
 
-        // Trigger the fee amount recalculation
         const mmrVal = parseFloat(localMmr) || 0;
         const p = parseFloat(profitAmount) || 0;
         const t = parseFloat(transport) || 0;
         const r = parseFloat(repair) || 0;
         const feeBase = mmrVal - p - t - r;
-        const calculatedAmount = (feeBase * 5) / 100; // 5% of feeBase
+        const calculatedAmount = (feeBase * 5) / 100;
         setFeeAmount(calculatedAmount.toFixed(2));
     };
 
@@ -194,27 +191,48 @@ function VehicleFormModal({
         updateProfitCalculations(mmrVal, false, val);
     };
 
-    const handleTransportChange = (e) => setTransport(e.target.value);
-    const handleRepairChange = (e) => setRepair(e.target.value);
-
-    const handleSubmitForm = () => {
-        handleSubmit({
-            vin,
-            runNumber,
-            mmr: parseFloat(localMmr),
-            transport,
-            repair,
-            profit: parseFloat(profitAmount),
-            fees: parseFloat(feeAmount),
-            carfaxStatuses,
-            autocheckStatuses,
-        });
-        resetForm();
-        handleClose();
+    const handleSubmitForm = async () => {
+        try {
+            // 1. Decode the VIN using NHTSA API (or your backend)
+            const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`);
+            const data = await response.json();
+    
+            // 2. Extract year, make, model
+            const results = data.Results || [];
+            const year = results.find(r => r.Variable === "Model Year")?.Value || "";
+            const makeRaw = results.find(r => r.Variable === "Make")?.Value || "";
+            const model = results.find(r => r.Variable === "Model")?.Value || "";
+            const make = formatMake(makeRaw);
+    
+            // 3. Build flat payload
+            const carPayload = {
+                vin,
+                year,
+                make,
+                model,
+                run_number: runNumber,
+                mmr: parseFloat(localMmr),
+                transport: parseFloat(transport),
+                repair: parseFloat(repair),
+                profit: parseFloat(profitAmount),
+                fees: parseFloat(feeAmount),
+                carfax_statuses: carfaxStatuses,
+                autocheck_statuses: autocheckStatuses,
+            };
+    
+            // 4. Submit and reset
+            onSubmit(carPayload); // 🔄 send to App.jsx or backend
+            resetForm();
+            onClose();
+        } catch (error) {
+            console.error("VIN decode failed:", error);
+            alert("Failed to decode VIN. Please try again.");
+        }
     };
+    
 
     return (
-        <Modal open={open} onClose={handleClose}>
+        <Modal open={open} onClose={onClose}>
             <Box sx={{
                 position: 'absolute',
                 top: '50%',
@@ -234,79 +252,31 @@ function VehicleFormModal({
 
                 {/* VIN & Run# */}
                 <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField
-                        color='#778899'
-                        label="VIN"
-                        value={vin}
-                        onChange={(e) => setVin(e.target.value)}
-                        fullWidth
-                        sx={{ flex: 3 }}
-                    />
-                    <TextField
-                        color='#778899'
-                        label="Run#"
-                        value={runNumber}
-                        onChange={(e) => setRunNumber(e.target.value)}
-                        fullWidth
-                        sx={{ flex: 1 }}
-                    />
+                    <TextField label="VIN" value={vin} onChange={(e) => setVin(e.target.value)} fullWidth sx={{ flex: 3 }} />
+                    <TextField label="Run#" value={runNumber} onChange={(e) => setRunNumber(e.target.value)} fullWidth sx={{ flex: 1 }} />
                 </Box>
 
                 {/* MMR */}
                 <TextField
-                    color='#778899'
                     label="MMR"
                     value={localMmr}
                     onChange={(e) => setLocalMmr(e.target.value)}
                     onBlur={handleMmrBlur}
                     fullWidth
                     type="number"
-                    inputProps={{ min: 0 }}
                     sx={{ mb: 2 }}
                 />
 
                 {/* Profit */}
                 <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField
-                        color='#778899'
-                        label="Profit (Amount)"
-                        value={profitAmount}
-                        onChange={handleProfitAmountChange}
-                        fullWidth
-                        type="number"
-                        inputProps={{ min: 0 }}
-                    />
-                    <TextField
-                        color='#778899'
-                        label="Profit (%)"
-                        value={profitPercentage}
-                        onChange={handleProfitPercentageChange}
-                        fullWidth
-                        type="number"
-                        inputProps={{ min: 0, max: 100 }}
-                    />
+                    <TextField label="Profit (Amount)" value={profitAmount} onChange={handleProfitAmountChange} fullWidth type="number" />
+                    <TextField label="Profit (%)" value={profitPercentage} onChange={handleProfitPercentageChange} fullWidth type="number" />
                 </Box>
 
                 {/* Transport & Repair */}
                 <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField
-                        color='#778899'
-                        label="Transport"
-                        value={transport}
-                        onChange={handleTransportChange}
-                        fullWidth
-                        type="number"
-                        inputProps={{ min: 0 }}
-                    />
-                    <TextField
-                        color='#778899'
-                        label="Repair"
-                        value={repair}
-                        onChange={handleRepairChange}
-                        fullWidth
-                        type="number"
-                        inputProps={{ min: 0 }}
-                    />
+                    <TextField label="Transport" value={transport} onChange={(e) => setTransport(e.target.value)} fullWidth type="number" />
+                    <TextField label="Repair" value={repair} onChange={(e) => setRepair(e.target.value)} fullWidth type="number" />
                 </Box>
 
                 {/* Fees */}
@@ -315,46 +285,23 @@ function VehicleFormModal({
                         label="Fees (Amount)"
                         value={feeAmount}
                         onChange={handleFeeAmountChange}
-                        onFocus={() => setFeeAmountTouched(true)}
                         fullWidth
                         type="number"
-                        inputProps={{ min: 0 }}
-                        color={feeAmountTouched ? 'warning' : '#778899'}
-                        helperText={feeAmountTouched ? 'Manually entered' : 'Auto-calculated'}
+                        helperText={feeAmountTouched ? 'Manual' : 'Auto'}
                     />
                     <TextField
                         label="Fees (%)"
                         value={feePercentage}
                         onChange={handleFeePercentageChange}
-                        onFocus={() => setFeePercentageTouched(true)}
                         fullWidth
                         type="number"
-                        inputProps={{ min: 0, max: 100 }}
-                        color={feePercentageTouched ? 'warning' : '#778899'}
-                        helperText={feePercentageTouched ? 'Manually entered' : 'Auto-calculated'}
+                        helperText={feePercentageTouched ? 'Manual' : 'Auto'}
                     />
-                    <IconButton
-                        onClick={resetFeeCalculation}
-                        title="Reset fees"
-                        sx={{
-                            alignSelf: 'center',
-                            mt: '-8px'
-                        }}
-                    >
-                        <RefreshIcon />
-                    </IconButton>
+                    <IconButton onClick={resetFeeCalculation}><RefreshIcon /></IconButton>
                 </Box>
 
                 {/* Max Bid */}
-                <TextField
-                    color='#778899'
-                    label="Max Bid (Calculated)"
-                    value={maxBid}
-                    fullWidth
-                    margin="normal"
-                    InputProps={{ readOnly: true }}
-                    sx={{ mb: 3 }}
-                />
+                <TextField label="Max Bid" value={maxBid} fullWidth InputProps={{ readOnly: true }} sx={{ mb: 3 }} />
 
                 <Divider sx={{ my: 3 }} />
 
@@ -363,20 +310,8 @@ function VehicleFormModal({
                     {[['Carfax', carfaxOptions, carfaxStatuses, setCarfaxStatuses],
                     ['Autocheck', autocheckOptions, autocheckStatuses, setAutocheckStatuses]].map(
                         ([label, options, statuses, setStatuses]) => (
-                            <Box
-                                key={label}
-                                sx={{
-                                    flex: 1,
-                                    maxHeight: 200,
-                                    overflowY: 'auto',
-                                    border: '1px solid #ccc',
-                                    borderRadius: 1,
-                                    p: 2,
-                                }}
-                            >
-                                <Typography variant="subtitle1" align="center" gutterBottom>
-                                    {label}
-                                </Typography>
+                            <Box key={label} sx={{ flex: 1, maxHeight: 200, overflowY: 'auto', border: '1px solid #ccc', borderRadius: 1, p: 2 }}>
+                                <Typography variant="subtitle1" align="center" gutterBottom>{label}</Typography>
                                 <FormGroup>
                                     {options.map((option) => (
                                         <FormControlLabel
@@ -384,14 +319,7 @@ function VehicleFormModal({
                                             control={
                                                 <Checkbox
                                                     checked={statuses.includes(option)}
-                                                    onChange={() =>
-                                                        handleCheckboxToggle(option, statuses, setStatuses)
-                                                    }
-                                                    sx={{
-                                                        '&.Mui-checked': {
-                                                          color: '#778899',
-                                                        },
-                                                      }}
+                                                    onChange={() => handleCheckboxToggle(option, statuses, setStatuses)}
                                                 />
                                             }
                                             label={option}
@@ -403,13 +331,7 @@ function VehicleFormModal({
                     )}
                 </Box>
 
-                {/* Submit */}
-                <Button
-                    variant="contained"
-                    onClick={handleSubmitForm}
-                    fullWidth
-                    sx={{ mt: 1, backgroundColor: '#778899'}}
-                >
+                <Button variant="contained" onClick={handleSubmitForm} fullWidth sx={{ mt: 1, backgroundColor: '#778899' }}>
                     Submit
                 </Button>
             </Box>

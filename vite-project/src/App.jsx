@@ -5,35 +5,32 @@ import TabbedTable from './TabbedTable';
 import { IconButton, Menu, MenuItem, Tooltip, Box } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useDispatch } from 'react-redux';
-import { addCarToSheet, deleteCarFromSheet } from './store';
-import { saveCarToBackend } from './pipelineThunks'; // update the path as needed
-import { fetchWatchlistsFromBackend, createWatchlistInBackend } from "./watchlistThunks";
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  addCarToSheet,
+  deleteCarFromSheet
+} from './store';
+import {
+  fetchWatchlistsFromBackend,
+  createWatchlistInBackend,
+  addCarToWatchlistThunk
+} from './watchlistThunks';
+import { saveCarToBackend } from './pipelineThunks';
 
 
-
-const formatMake = (make) => {
-  if (!make || typeof make !== 'string') return 'N/A';
-  return make.charAt(0).toUpperCase() + make.slice(1).toLowerCase();
-};
 
 function App() {
-  const [open, setOpen] = useState(false);
-  const [vin, setVin] = useState('');
-  const [mmr, setMmr] = useState('');
-  const [transport, setTransport] = useState('');
-  const [repair, setRepair] = useState('');
-  const [carfaxStatuses, setCarfaxStatuses] = useState([]);
-  const [autocheckStatuses, setAutocheckStatuses] = useState([]);
-  const [profit, setProfit] = useState(0);
   const [rows, setRows] = useState([]);
   const [cars, setCars] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCar, setSelectedCar] = useState(null);
   const [pipelineCars, setPipelineCars] = useState([]);
+  const [showVehicleForm, setShowVehicleForm] = useState(false);
 
   const dispatch = useDispatch();
+  const activeSheetId = useSelector(state => state.sheets.activeSheetId);
 
+  // Load watchlists on mount
   useEffect(() => {
     dispatch(fetchWatchlistsFromBackend()).then((action) => {
       if (action.payload?.length === 0) {
@@ -41,10 +38,7 @@ function App() {
         dispatch(createWatchlistInBackend("Sheet 2"));
       }
     });
-  }, []);
-
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  }, [dispatch]);
 
   const handleMenuOpen = (event, car) => {
     setAnchorEl(event.currentTarget);
@@ -58,127 +52,89 @@ function App() {
 
   const handlePurchased = () => {
     if (!selectedCar) return;
-    
-    // Create a new car object with status (only for purchased cars)
+
     const purchasedCar = {
       ...selectedCar,
-      status: 'Purchased' // Adding status only here
+      status: 'Purchased'
     };
 
-    // Update the rows state (keeping original rows)
     setRows(rows.filter(row => row.id !== selectedCar.id));
-    
-    // Update the cars state
-    setCars(cars.map(car => 
+    setCars(cars.map(car =>
       car.id === selectedCar.id ? purchasedCar : car
     ));
 
-    // Add to pipeline
     moveToPurchased(purchasedCar);
-    
-    // Dispatch to Redux
-    dispatch(deleteCarFromSheet({ carId: selectedCar.id })); // Remove from sheet
+
+    dispatch(deleteCarFromSheet({ carId: selectedCar.id }));
     dispatch(saveCarToBackend({ stage: 'Purchased', car: purchasedCar }));
-    
+
     handleMenuClose();
   };
 
   const moveToPurchased = (car) => {
     setPipelineCars((prevCars) => [...prevCars, car]);
   };
+  
 
-  const handleSubmit = async ({ 
-    vin, 
-    runNumber,
-    mmr, 
-    transport, 
-    repair, 
-    profit, 
-    fees, 
-    carfaxStatuses, 
-    autocheckStatuses 
-  }) => {
-    const parsedMmr = parseFloat(mmr) || 0;
-    const parsedProfit = parseFloat(profit) || 0;
-    const parsedTransport = parseFloat(transport) || 0;
-    const parsedRepair = parseFloat(repair) || 0;
-    const parsedFees = parseFloat(fees) || 0;
-  
-    const maxBid = parsedMmr - parsedProfit - parsedTransport - parsedRepair - parsedFees;
-  
-    const vehicleDetails = await fetchVehicleDetails(vin);
-  
-    const newCar = {
-      id: Date.now(),
-      vin,
-      runNumber: runNumber || null,
-      mmr: parsedMmr,
-      transport: parsedTransport,
-      repair: parsedRepair,
-      fees: parsedFees,
-      maxBid,
-      profit: parsedProfit,
-      carfaxStatuses,
-      autocheckStatuses,
-      ...vehicleDetails
-      // No status property here
-    };
-  
-    // Dispatch to add to the active sheet in Redux
-    dispatch(addCarToSheet({ car: newCar }));
-    
-    // // Dispatch to add to the Purchased stage in pipeline
-    // dispatch(addCarToStage({ stage: 'Purchased', car: newCar }));
-  
-    // Update local state if still needed
-    setRows([...rows, newCar]);
-    setCars([...cars, newCar]);
-    handleClose();
-  };
-
-  const fetchVehicleDetails = async (vin) => {
+  const handleAddCarToWatchlist = async (carData) => {
     try {
-      const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVIN/${vin}?format=json`);
-      const data = await response.json();
-      return {
-        make: formatMake(data.Results.find(result => result.Variable === 'Make')?.Value || 'N/A'),
-        model: data.Results.find(result => result.Variable === 'Model')?.Value || 'N/A',
-        year: data.Results.find(result => result.Variable === 'Model Year')?.Value || 'N/A',
+      // Destructure vin and run_number separately, gather the rest as "details"
+      const { vin, run_number, ...rest } = carData;
+  
+      // Wrap everything except vin inside details, but also include run_number in details
+      // (run_number is part of details in your backend model)
+      const payload = {
+        vin,
+        details: {
+          run_number,
+          ...rest
+        }
       };
+  
+      const response = await dispatch(addCarToWatchlistThunk({
+        watchlistId: activeSheetId,
+        carData: payload
+      })).unwrap();
+  
+      // response.car contains the full car record saved
+      const fullCar = response.car;
+  
+      setRows((prev) => [...prev, fullCar]);
+      setCars((prev) => [...prev, fullCar]);
+      setShowVehicleForm(false);
     } catch (error) {
-      console.error("Error fetching vehicle details:", error);
-      return { make: 'N/A', model: 'N/A', year: 'N/A' };
+      console.error("Failed to add car to watchlist:", error);
     }
   };
+  
+  
 
   const handleDelete = () => {
     if (!selectedCar) return;
-    
-    // Update local state
+
     setRows(rows.filter(row => row.id !== selectedCar.id));
     setCars(cars.filter(car => car.id !== selectedCar.id));
-    
-    // Dispatch to Redux
     dispatch(deleteCarFromSheet({ carId: selectedCar.id }));
-    
+
     handleMenuClose();
   };
 
   const columns = [
     {
-      header: "Vehicle",
-      accessorFn: (row) => `${row.year || ""} ${row.make || ""} ${row.model || ""}`.trim(),
-      Cell: ({ cell }) => `${cell.getValue()}`,
+      header: 'Vehicle',
+      accessorFn: (row) => {
+        return `${row.car.details.year || ""} ${row.car.details.make || ""} ${row.car.details.model || ""}`.trim();
+      },
+    },    
+    { accessorKey: 'car.vin', header: 'VIN' },
+    { accessorKey: 'car.details.run_number', header: 'RUN #' },
+    {
+      accessorKey: 'car.details.mmr',
+      header: 'MMR',
+      Cell: ({ cell }) => formatCurrency(cell.getValue())
     },
-    { accessorKey: 'vin', header: 'VIN' },
-    { accessorKey: 'runNumber', header: 'RUN #'},
-    { 
-      accessorKey: 'mmr', 
-      header: 'MMR', 
-      Cell: ({ cell }) => formatCurrency(cell.getValue()) 
-    },
-    { 
-      accessorKey: 'profit',
+    {
+      accessorKey: 'car.details.profit',
       header: 'Profit',
       Cell: ({ cell }) => formatCurrency(cell.getValue()),
       muiTableBodyCellProps: {
@@ -188,71 +144,50 @@ function App() {
         }
       }
     },
-    { accessorKey: 'transport', header: 'Transport', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
-    { accessorKey: 'repair', header: 'Repair', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
-    { accessorKey: 'fees', header: 'Fees', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
+    { accessorKey: 'car.details.transport', header: 'Transport', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
+    { accessorKey: 'car.details.repair', header: 'Repair', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
+    { accessorKey: 'car.details.fees', header: 'Fees', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
     {
-      accessorKey: 'maxBid',
       header: 'Max Bid',
-      muiTableBodyCellProps: {
-        sx: {
-          fontWeight: 'bold',
-        },
+      accessorFn: (row) => {
+        const details = row?.car?.details || {};
+        const {
+          mmr = 0,
+          profit = 0,
+          transport = 0,
+          repair = 0,
+          fees = 0,
+        } = details;
+    
+        return mmr - profit - transport - repair - fees;
       },
       Cell: ({ cell }) => formatCurrency(cell.getValue()),
     },
-    { 
-      accessorKey: 'carfaxStatuses', 
+    {
+      accessorKey: 'car.details.carfax_statuses',
       header: 'Carfax',
       Cell: ({ cell }) => {
         const statuses = cell.getValue();
         if (!statuses || statuses.length === 0) return 'N/A';
-        
         return (
-          <Tooltip 
-            title={statuses.join(', ')} 
-            placement="top" 
-            arrow
-            disableInteractive
-          >
-            <Box sx={{ 
-              maxWidth: '150px',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }}>
-              {statuses.length > 2 
-                ? `${statuses.slice(0, 2).join(', ')}...` 
-                : statuses.join(', ')}
+          <Tooltip title={statuses.join(', ')} placement="top" arrow disableInteractive>
+            <Box sx={{ maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {statuses.length > 2 ? `${statuses.slice(0, 2).join(', ')}...` : statuses.join(', ')}
             </Box>
           </Tooltip>
         );
       }
     },
-    { 
-      accessorKey: 'autocheckStatuses', 
+    {
+      accessorKey: 'car.details.autocheck_statuses',
       header: 'Autocheck',
       Cell: ({ cell }) => {
         const statuses = cell.getValue();
         if (!statuses || statuses.length === 0) return 'N/A';
-        
         return (
-          <Tooltip 
-            title={statuses.join(', ')} 
-            placement="top" 
-            arrow
-            disableInteractive
-          >
-            <Box sx={{ 
-              maxWidth: '150px',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              cursor: 'pointer'
-            }}>
-              {statuses.length > 2 
-                ? `${statuses.slice(0, 2).join(', ')}...` 
-                : statuses.join(', ')}
+          <Tooltip title={statuses.join(', ')} placement="top" arrow disableInteractive>
+            <Box sx={{ maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {statuses.length > 2 ? `${statuses.slice(0, 2).join(', ')}...` : statuses.join(', ')}
             </Box>
           </Tooltip>
         );
@@ -271,80 +206,27 @@ function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '20px' }}>
-      <TabbedTable 
-        rows={rows} 
-        setRows={setRows} 
-        columns={columns} 
-        handleOpen={handleOpen} 
-        cars={cars} 
-        moveToPurchased={moveToPurchased} 
-        pipelineCars={pipelineCars} 
+      <TabbedTable
+        rows={rows}
+        setRows={setRows}
+        columns={columns}
+        handleOpen={() => setShowVehicleForm(true)}
+        cars={cars}
+        moveToPurchased={moveToPurchased}
+        pipelineCars={pipelineCars}
       />
-<Menu
-  anchorEl={anchorEl}
-  open={Boolean(anchorEl)}
-  onClose={handleMenuClose}
-  PaperProps={{
-    sx: {
-      minWidth: 180,
-      borderRadius: 2,
-      py: 1,
-      boxShadow: 3,
-    },
-  }}
->
-  <MenuItem
-    onClick={handlePurchased}
-    sx={{
-      justifyContent: 'center',
-      fontSize: '0.875rem',
-      fontWeight: 'bold',
-      color: '#778899',
-      '&:hover': {
-        backgroundColor: '#778899',
-        color: 'white',
-      },
-    }}
-  >
-    PURCHASED
-  </MenuItem>
 
-  <MenuItem
-    onClick={handleDelete}
-    sx={{
-      justifyContent: 'center',
-      '&:hover': {
-        backgroundColor: 'error.main',
-        '& .MuiSvgIcon-root': {
-          color: '#fff',
-        },
-      },
-    }}
-  >
-    <IconButton size="small">
-      <DeleteIcon fontSize="small" color='error'/>
-    </IconButton>
-  </MenuItem>
-</Menu>
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+        <MenuItem onClick={handlePurchased}>PURCHASED</MenuItem>
+        <MenuItem onClick={handleDelete}>
+          <IconButton size="small"><DeleteIcon fontSize="small" color='error' /></IconButton>
+        </MenuItem>
+      </Menu>
 
       <VehicleFormModal
-        open={open}
-        handleClose={handleClose}
-        vin={vin}
-        setVin={setVin}
-        mmr={mmr}
-        setMmr={setMmr}
-        transport={transport}
-        setTransport={setTransport}
-        repair={repair}
-        setRepair={setRepair}
-        carfaxStatuses={carfaxStatuses}
-        setCarfaxStatuses={setCarfaxStatuses}
-        autocheckStatuses={autocheckStatuses}
-        setAutocheckStatuses={setAutocheckStatuses}
-        profit={profit}
-        setProfit={setProfit}
-        handleSubmit={handleSubmit}
+        open={showVehicleForm}
+        onClose={() => setShowVehicleForm(false)}
+        onSubmit={handleAddCarToWatchlist}
       />
     </div>
   );
