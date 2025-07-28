@@ -73,7 +73,6 @@ export const addCarToWatchlistThunk = createAsyncThunk(
   );
 
   // Thunk to fetch items for a specific watchlist
-// In watchlistThunks.js
 export const fetchCarsInWatchlist = createAsyncThunk(
     'watchlists/fetchCarsInWatchlist',
     async (watchlistId, { rejectWithValue }) => {
@@ -88,5 +87,25 @@ export const fetchCarsInWatchlist = createAsyncThunk(
       }
     }
   );
-  
+  export const deleteCarFromWatchlistThunk = createAsyncThunk(
+    'watchlists/deleteCarFromWatchlist',
+    async ({ watchlistId, carId }, { rejectWithValue, dispatch }) => {
+      try {
+        const response = await axios.delete(`${BASE_URL}/watchlists/${watchlistId}/cars/${carId}`);
+        return { 
+          watchlistId, 
+          carId,
+          deletedInfo: response.data // Now expecting the simpler response
+        };
+      } catch (error) {
+        // If it's a 500 error but we know deletions often succeed
+        if (error.response?.status === 500) {
+          // Force a refresh to ensure consistency
+          await dispatch(fetchCarsInWatchlist(watchlistId));
+          return { watchlistId, carId, serverError: true };
+        }
+        return rejectWithValue(error.response?.data || 'Failed to delete car');
+      }
+    }
+  );
   
