@@ -1,6 +1,6 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit';
-import { fetchCarsFromBackend, updateCarStageInBackend, updateCarInBackend} from './pipelineThunks'; // import the thunk
-import { fetchWatchlistsFromBackend, createWatchlistInBackend, renameWatchlistInBackend, deleteSheetThunk, addCarToWatchlistThunk } from './watchlistThunks';
+import { fetchCarsFromBackend, updateCarStageInBackend, updateCarInBackend } from './pipelineThunks'; // import the thunk
+import { fetchWatchlistsFromBackend, createWatchlistInBackend, renameWatchlistInBackend, deleteSheetThunk, addCarToWatchlistThunk, fetchCarsInWatchlist } from './watchlistThunks';
 
 
 // Initial state for pipeline
@@ -40,19 +40,19 @@ const pipelineSlice = createSlice({
     },
     addCarToStage: (state, action) => {
       const { stage, car } = action.payload;
-      
+
       // Set status on top-level for quick access
       car.status = stage;
-    
+
       // Also set status inside nested car.data object
       if (!car.data) {
         car.data = {};
       }
       car.data.status = stage;
-    
+
       // Add the car to the appropriate stage
       state.stages[stage].push(car);
-    },    
+    },
     deleteCarFromStage: (state, action) => {
       const { stage, carId } = action.payload;
       state.stages[stage] = state.stages[stage].filter((car) => car.id !== carId);
@@ -91,22 +91,22 @@ const pipelineSlice = createSlice({
       })
       .addCase(updateCarStageInBackend.fulfilled, (state, action) => {
         const { vin, newStage } = action.payload;
-        
-      
+
+
         // Find the car in all stages and update its stage
-      for (const [stage, cars] of Object.entries(state.stages)) {
-        const index = cars.findIndex(car => car.vin === vin);
-        if (index !== -1) {
-          const car = cars[index];
-          car.status = newStage;
-          state.stages[stage].splice(index, 1);
-          if (!state.stages[newStage]) state.stages[newStage] = [];
-          state.stages[newStage].push(car);
-          break;
+        for (const [stage, cars] of Object.entries(state.stages)) {
+          const index = cars.findIndex(car => car.vin === vin);
+          if (index !== -1) {
+            const car = cars[index];
+            car.status = newStage;
+            state.stages[stage].splice(index, 1);
+            if (!state.stages[newStage]) state.stages[newStage] = [];
+            state.stages[newStage].push(car);
+            break;
           }
         }
-      })   
-  }  
+      })
+  }
 });
 
 const sheetsSlice = createSlice({
@@ -126,6 +126,18 @@ const sheetsSlice = createSlice({
     },
     setActiveSheet: (state, action) => {
       state.activeSheetId = action.payload;
+    },
+    setWatchlistCars: (state, action) => {
+      const { watchlistId, cars } = action.payload;
+
+      // Update the cars map
+      state.watchlistCars[watchlistId] = cars;
+
+      // Also update the sheet's data if you use it to render tables
+      const sheetToUpdate = state.sheets.find(sheet => sheet.id === watchlistId);
+      if (sheetToUpdate) {
+        sheetToUpdate.data = cars;
+      }
     },
     addCarToSheet: (state, action) => {
       const { car } = action.payload;
@@ -184,7 +196,7 @@ const sheetsSlice = createSlice({
         state.sheets = state.sheets.filter(
           (sheet) => sheet.id !== action.payload
         );
-        
+
         // Optional: if deleted sheet was active, reset to another sheet
         if (state.activeSheetId === action.payload) {
           state.activeSheetId = state.sheets.length > 0 ? state.sheets[0].id : null;
@@ -192,18 +204,26 @@ const sheetsSlice = createSlice({
       })
       .addCase(addCarToWatchlistThunk.fulfilled, (state, action) => {
         const newCar = action.payload;
-      
-        // Find the active sheet and push the car into its data array
         const activeSheet = state.sheets.find(sheet => sheet.id === state.activeSheetId);
         if (activeSheet) {
-          activeSheet.data.push(newCar);
+          // Wrap the car in the same structure as GET response
+          activeSheet.data.push({
+            car: newCar.car
+          });
+        }
+      })
+      .addCase(fetchCarsInWatchlist.fulfilled, (state, action) => {
+        const { watchlistId, cars } = action.payload;
+        const sheet = state.sheets.find(s => s.id === watchlistId);
+        if (sheet) {
+          sheet.data = cars; // Now cars is already in the correct format
         }
       });
   }
 });
 
 export const { moveCarBetweenStages, addCarToStage, deleteCarFromStage, updateCarInStage } = pipelineSlice.actions;
-export const { addSheet, renameSheet, setActiveSheet, addCarToSheet, deleteSheet, deleteCarFromSheet } = sheetsSlice.actions;
+export const { addSheet, renameSheet, setActiveSheet, addCarToSheet, deleteSheet, deleteCarFromSheet, setWatchlistCars } = sheetsSlice.actions;
 
 const store = configureStore({
   reducer: {

@@ -6,22 +6,25 @@ import { IconButton, Menu, MenuItem, Tooltip, Box } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  addCarToSheet,
-  deleteCarFromSheet
-} from './store';
+import { deleteCarFromSheet, setWatchlistCars } from './store';
 import {
   fetchWatchlistsFromBackend,
   createWatchlistInBackend,
-  addCarToWatchlistThunk
+  addCarToWatchlistThunk,
+  fetchCarsInWatchlist
 } from './watchlistThunks';
 import { saveCarToBackend } from './pipelineThunks';
 
 
 
 function App() {
-  const [rows, setRows] = useState([]);
-  const [cars, setCars] = useState([]);
+  const activeSheet = useSelector(state =>
+    state.sheets.sheets.find(sheet => sheet.id === state.sheets.activeSheetId)
+  );
+
+  const rows = activeSheet?.data || [];
+  const cars = rows;
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCar, setSelectedCar] = useState(null);
   const [pipelineCars, setPipelineCars] = useState([]);
@@ -30,15 +33,39 @@ function App() {
   const dispatch = useDispatch();
   const activeSheetId = useSelector(state => state.sheets.activeSheetId);
 
+  // In your App component
+  const transformFetchedCar = (carWrapper) => {
+    return {
+      car: carWrapper.car // Ensure this matches what your columns expect
+    };
+  };
+
+  const transformFetchedCars = (cars) => cars.map(carWrapper => ({
+    car: carWrapper.car
+  }));
+
   // Load watchlists on mount
   useEffect(() => {
     dispatch(fetchWatchlistsFromBackend()).then((action) => {
-      if (action.payload?.length === 0) {
+      const watchlists = action.payload || [];
+
+      if (watchlists.length === 0) {
         dispatch(createWatchlistInBackend("Sheet 1"));
         dispatch(createWatchlistInBackend("Sheet 2"));
+      } else {
+        watchlists.forEach((watchlist) => {
+          dispatch(fetchCarsInWatchlist(watchlist.id)).then((carAction) => {
+            const rawCars = carAction.payload || [];
+            const formattedCars = transformFetchedCars(rawCars);
+
+            // Dispatch another action to set transformed cars in state
+            dispatch(setWatchlistCars({ watchlistId: watchlist.id, cars: formattedCars }));
+          });
+        });
       }
     });
   }, [dispatch]);
+
 
   const handleMenuOpen = (event, car) => {
     setAnchorEl(event.currentTarget);
@@ -57,12 +84,6 @@ function App() {
       ...selectedCar,
       status: 'Purchased'
     };
-
-    setRows(rows.filter(row => row.id !== selectedCar.id));
-    setCars(cars.map(car =>
-      car.id === selectedCar.id ? purchasedCar : car
-    ));
-
     moveToPurchased(purchasedCar);
 
     dispatch(deleteCarFromSheet({ carId: selectedCar.id }));
@@ -74,13 +95,13 @@ function App() {
   const moveToPurchased = (car) => {
     setPipelineCars((prevCars) => [...prevCars, car]);
   };
-  
+
 
   const handleAddCarToWatchlist = async (carData) => {
     try {
       // Destructure vin and run_number separately, gather the rest as "details"
       const { vin, run_number, ...rest } = carData;
-  
+
       // Wrap everything except vin inside details, but also include run_number in details
       // (run_number is part of details in your backend model)
       const payload = {
@@ -90,30 +111,26 @@ function App() {
           ...rest
         }
       };
-  
+
       const response = await dispatch(addCarToWatchlistThunk({
         watchlistId: activeSheetId,
         carData: payload
       })).unwrap();
-  
+
       // response.car contains the full car record saved
       const fullCar = response.car;
-  
-      setRows((prev) => [...prev, fullCar]);
-      setCars((prev) => [...prev, fullCar]);
+
       setShowVehicleForm(false);
     } catch (error) {
       console.error("Failed to add car to watchlist:", error);
     }
   };
-  
-  
+
+
 
   const handleDelete = () => {
     if (!selectedCar) return;
 
-    setRows(rows.filter(row => row.id !== selectedCar.id));
-    setCars(cars.filter(car => car.id !== selectedCar.id));
     dispatch(deleteCarFromSheet({ carId: selectedCar.id }));
 
     handleMenuClose();
@@ -123,49 +140,66 @@ function App() {
     {
       header: 'Vehicle',
       accessorFn: (row) => {
-        return `${row.car.details.year || ""} ${row.car.details.make || ""} ${row.car.details.model || ""}`.trim();
+        const details = row.car?.details || {};
+        return `${details.year || ""} ${details.make || ""} ${details.model || ""}`.trim();
       },
-    },    
-    { accessorKey: 'car.vin', header: 'VIN' },
-    { accessorKey: 'car.details.run_number', header: 'RUN #' },
-    {
-      accessorKey: 'car.details.mmr',
-      header: 'MMR',
-      Cell: ({ cell }) => formatCurrency(cell.getValue())
     },
     {
-      accessorKey: 'car.details.profit',
+      header: 'VIN',
+      accessorFn: (row) => row.car?.vin || '',
+    },
+    {
+      header: 'RUN #',
+      accessorFn: (row) => row.car?.details?.run_number || '',
+    },
+    {
+      header: 'MMR',
+      accessorFn: (row) => row.car?.details?.mmr || 0,
+      Cell: ({ cell }) => formatCurrency(cell.getValue()),
+    },
+    {
       header: 'Profit',
+      accessorFn: (row) => row.car?.details?.profit || 0,
       Cell: ({ cell }) => formatCurrency(cell.getValue()),
       muiTableBodyCellProps: {
         sx: {
           color: 'success.main',
-          fontWeight: 'bold'
-        }
-      }
+          fontWeight: 'bold',
+        },
+      },
     },
-    { accessorKey: 'car.details.transport', header: 'Transport', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
-    { accessorKey: 'car.details.repair', header: 'Repair', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
-    { accessorKey: 'car.details.fees', header: 'Fees', Cell: ({ cell }) => formatCurrency(cell.getValue()) },
+    {
+      header: 'Transport',
+      accessorFn: (row) => row.car?.details?.transport || 0,
+      Cell: ({ cell }) => formatCurrency(cell.getValue()),
+    },
+    {
+      header: 'Repair',
+      accessorFn: (row) => row.car?.details?.repair || 0,
+      Cell: ({ cell }) => formatCurrency(cell.getValue()),
+    },
+    {
+      header: 'Fees',
+      accessorFn: (row) => row.car?.details?.fees || 0,
+      Cell: ({ cell }) => formatCurrency(cell.getValue()),
+    },
     {
       header: 'Max Bid',
       accessorFn: (row) => {
-        const details = row?.car?.details || {};
-        const {
-          mmr = 0,
-          profit = 0,
-          transport = 0,
-          repair = 0,
-          fees = 0,
-        } = details;
-    
+        const details = row.car?.details || {};
+        const mmr = details.mmr || 0;
+        const profit = details.profit || 0;
+        const transport = details.transport || 0;
+        const repair = details.repair || 0;
+        const fees = details.fees || 0;
+
         return mmr - profit - transport - repair - fees;
       },
       Cell: ({ cell }) => formatCurrency(cell.getValue()),
     },
     {
-      accessorKey: 'car.details.carfax_statuses',
       header: 'Carfax',
+      accessorFn: (row) => row.car?.details?.carfax_statuses || [],
       Cell: ({ cell }) => {
         const statuses = cell.getValue();
         if (!statuses || statuses.length === 0) return 'N/A';
@@ -179,8 +213,8 @@ function App() {
       }
     },
     {
-      accessorKey: 'car.details.autocheck_statuses',
       header: 'Autocheck',
+      accessorFn: (row) => row.car?.details?.autocheck_statuses || [],
       Cell: ({ cell }) => {
         const statuses = cell.getValue();
         if (!statuses || statuses.length === 0) return 'N/A';
@@ -204,17 +238,17 @@ function App() {
     },
   ];
 
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '20px' }}>
       <TabbedTable
         rows={rows}
-        setRows={setRows}
         columns={columns}
         handleOpen={() => setShowVehicleForm(true)}
-        cars={cars}
         moveToPurchased={moveToPurchased}
         pipelineCars={pipelineCars}
       />
+
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
         <MenuItem onClick={handlePurchased}>PURCHASED</MenuItem>

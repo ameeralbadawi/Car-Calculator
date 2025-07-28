@@ -71,3 +71,22 @@ export const addCarToWatchlistThunk = createAsyncThunk(
       }
     }
   );
+
+  // Thunk to fetch items for a specific watchlist
+// In watchlistThunks.js
+export const fetchCarsInWatchlist = createAsyncThunk(
+    'watchlists/fetchCarsInWatchlist',
+    async (watchlistId, { rejectWithValue }) => {
+      try {
+        const response = await axios.get(`${BASE_URL}/watchlists/${watchlistId}/cars/`);
+        return {
+          watchlistId,
+          cars: response.data.map(item => ({ car: item.car })) // Transform here
+        };
+      } catch (error) {
+        return rejectWithValue(error.response.data);
+      }
+    }
+  );
+  
+  
