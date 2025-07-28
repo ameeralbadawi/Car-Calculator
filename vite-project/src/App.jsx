@@ -11,7 +11,8 @@ import {
   fetchWatchlistsFromBackend,
   createWatchlistInBackend,
   addCarToWatchlistThunk,
-  fetchCarsInWatchlist
+  fetchCarsInWatchlist,
+  deleteCarFromWatchlistThunk
 } from './watchlistThunks';
 import { saveCarToBackend } from './pipelineThunks';
 
@@ -126,13 +127,23 @@ function App() {
     }
   };
 
-
-
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedCar) return;
-
-    dispatch(deleteCarFromSheet({ carId: selectedCar.id }));
-
+  
+    const carId = selectedCar.car?.id || selectedCar.id;
+    
+    try {
+      await dispatch(deleteCarFromWatchlistThunk({ 
+        watchlistId: activeSheetId, 
+        carId 
+      })).unwrap();
+      
+      // Success case - no need to do anything, UI already updated
+    } catch (error) {
+      // Error already handled in the thunk
+      console.error('Car deletion error:', error);
+    }
+    
     handleMenuClose();
   };
 
