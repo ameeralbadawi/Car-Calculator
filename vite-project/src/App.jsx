@@ -78,20 +78,125 @@ function App() {
     setSelectedCar(null);
   };
 
-  const handlePurchased = () => {
+  const handlePurchased = async () => {
     if (!selectedCar) return;
 
-    const purchasedCar = {
-      ...selectedCar,
-      status: 'Purchased'
-    };
-    moveToPurchased(purchasedCar);
+    try {
+      const car = selectedCar.car;
+      const details = car.details || {};
 
-    dispatch(deleteCarFromSheet({ carId: selectedCar.id }));
-    dispatch(saveCarToBackend({ stage: 'Purchased', car: purchasedCar }));
+      // 1. Delete from active watchlist
+      await dispatch(deleteCarFromWatchlistThunk({
+        watchlistId: activeSheetId,
+        carId: car.id,
+      })).unwrap();
 
-    handleMenuClose();
+      // 2. Calculate max bid
+      const maxBid =
+        (details.mmr || 0) -
+        (details.profit || 0) -
+        (details.transport || 0) -
+        (details.repair || 0) -
+        (details.fees || 0);
+
+      // 3. Build the purchased car object
+      const purchasedCar = {
+        vin: car.vin || '',
+        status: 'Purchased',
+        Car: {
+          CarDetails: {
+            vin: car.vin || '',
+            year: details.year || '',
+            make: details.make || '',
+            model: details.model || '',
+          },
+          EstimateDetails: {
+            mmr: details.mmr || 0,
+            profit: details.profit || 0,
+            transport: details.transport || 0,
+            repair: details.repair || 0,
+            fees: details.fees || 0,
+            maxBid,
+            carfaxStatuses: details.carfax_statuses || [],
+            autocheckStatuses: details.autocheck_statuses || [],
+          },
+          PurchaseDetails: {
+            purchaseDate: '',
+            purchaseFrom: '',
+            purchaseLocation: '',
+            mileage: '',
+            winningBid: '',
+            amountPaid: 0,
+            buyerName: '',
+            stockNumber: '',
+            color: '',
+            purchaseNotes: '',
+          },
+          TransportDetails: {
+            transporterName: '',
+            transporterPhone: '',
+            pickupDate: '',
+            deliveryDate: '',
+            cost: 0,
+            transporterNotes: '',
+          },
+          PartsDetails: {
+            parts: [{ part: '', purchasedFrom: '', amount: 0 }],
+            partsNotes: '',
+          },
+          MechanicDetails: {
+            mechanicServices: [{ shop: '', service: '', amount: 0 }],
+            mechanicNotes: '',
+          },
+          BodyshopDetails: {
+            bodyshopServices: [{ shop: '', service: '', amount: 0 }],
+            bodyshopNotes: '',
+          },
+          MiscellaniousDetails: {
+            miscServices: [{ name: '', service: '', amount: 0 }],
+            miscNotes: '',
+          },
+          saleDetails: {
+            saleType: '',
+            saleDate: '',
+            saleAmount: 0,
+            sellerFees: 0,
+            soldTo: '',
+            salesmanName: '',
+            commission: 0,
+            saleNotes: '',
+          }
+        }
+
+      };
+
+      // 4. Save to backend
+      const result = await dispatch(saveCarToBackend({
+        stage: 'Purchased',
+        car: purchasedCar,
+      })).unwrap();
+
+      // 5. Update UI
+      moveToPurchased(result);
+
+      enqueueSnackbar(
+        `Successfully purchased ${details.year} ${details.make} ${details.model}`,
+        { variant: 'success' }
+      );
+    } catch (error) {
+      console.error('Error in purchase process:', error);
+      enqueueSnackbar(
+        `Failed to purchase vehicle: ${error.message || 'Unknown error'}`,
+        { variant: 'error' }
+      );
+    } finally {
+      handleMenuClose();
+    }
   };
+
+
+
+
 
   const moveToPurchased = (car) => {
     setPipelineCars((prevCars) => [...prevCars, car]);
@@ -129,21 +234,21 @@ function App() {
 
   const handleDelete = async () => {
     if (!selectedCar) return;
-  
+
     const carId = selectedCar.car?.id || selectedCar.id;
-    
+
     try {
-      await dispatch(deleteCarFromWatchlistThunk({ 
-        watchlistId: activeSheetId, 
-        carId 
+      await dispatch(deleteCarFromWatchlistThunk({
+        watchlistId: activeSheetId,
+        carId
       })).unwrap();
-      
+
       // Success case - no need to do anything, UI already updated
     } catch (error) {
       // Error already handled in the thunk
       console.error('Car deletion error:', error);
     }
-    
+
     handleMenuClose();
   };
 
