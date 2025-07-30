@@ -16,7 +16,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 const formatMake = (make) => {
     if (!make || typeof make !== 'string') return 'N/A';
     return make.charAt(0).toUpperCase() + make.slice(1).toLowerCase();
-  };
+};
 
 function VehicleFormModal({
     open,
@@ -196,14 +196,14 @@ function VehicleFormModal({
             // 1. Decode the VIN using NHTSA API (or your backend)
             const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`);
             const data = await response.json();
-    
+
             // 2. Extract year, make, model
             const results = data.Results || [];
             const year = results.find(r => r.Variable === "Model Year")?.Value || "";
             const makeRaw = results.find(r => r.Variable === "Make")?.Value || "";
             const model = results.find(r => r.Variable === "Model")?.Value || "";
             const make = formatMake(makeRaw);
-    
+
             // 3. Build flat payload
             const carPayload = {
                 vin,
@@ -219,7 +219,7 @@ function VehicleFormModal({
                 carfax_statuses: carfaxStatuses,
                 autocheck_statuses: autocheckStatuses,
             };
-    
+
             // 4. Submit and reset
             onSubmit(carPayload); // 🔄 send to App.jsx or backend
             resetForm();
@@ -229,7 +229,7 @@ function VehicleFormModal({
             alert("Failed to decode VIN. Please try again.");
         }
     };
-    
+
 
     return (
         <Modal open={open} onClose={onClose}>
@@ -252,8 +252,30 @@ function VehicleFormModal({
 
                 {/* VIN & Run# */}
                 <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField label="VIN" value={vin} onChange={(e) => setVin(e.target.value)} fullWidth sx={{ flex: 3 }} />
-                    <TextField label="Run#" value={runNumber} onChange={(e) => setRunNumber(e.target.value)} fullWidth sx={{ flex: 1 }} />
+                    <TextField label="VIN" value={vin} onChange={(e) => setVin(e.target.value)} fullWidth
+                        sx={{
+                            flex: 3,
+                            '& label.Mui-focused': {
+                                color: '#778899',
+                            },
+                            '& .MuiOutlinedInput-root': {
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#778899',
+                                },
+                            },
+                        }} />
+                    <TextField label="Run#" value={runNumber} onChange={(e) => setRunNumber(e.target.value)} fullWidth
+                        sx={{
+                            flex: 1,
+                            '& label.Mui-focused': {
+                                color: '#778899',
+                            },
+                            '& .MuiOutlinedInput-root': {
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#778899',
+                                },
+                            },
+                        }} />
                 </Box>
 
                 {/* MMR */}
@@ -264,19 +286,69 @@ function VehicleFormModal({
                     onBlur={handleMmrBlur}
                     fullWidth
                     type="number"
-                    sx={{ mb: 2 }}
+                    sx={{
+                        mb: 2,
+                        '& label.Mui-focused': {
+                            color: '#778899',
+                        },
+                        '& .MuiOutlinedInput-root': {
+                            '&.Mui-focused fieldset': {
+                                borderColor: '#778899',
+                            },
+                        },
+                    }}
                 />
 
                 {/* Profit */}
                 <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField label="Profit (Amount)" value={profitAmount} onChange={handleProfitAmountChange} fullWidth type="number" />
-                    <TextField label="Profit (%)" value={profitPercentage} onChange={handleProfitPercentageChange} fullWidth type="number" />
+                    <TextField label="Profit (Amount)" value={profitAmount} onChange={handleProfitAmountChange} fullWidth type="number"
+                        sx={{
+                            '& label.Mui-focused': {
+                                color: '#778899',
+                            },
+                            '& .MuiOutlinedInput-root': {
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#778899',
+                                },
+                            },
+                        }} />
+                    <TextField label="Profit (%)" value={profitPercentage} onChange={handleProfitPercentageChange} fullWidth type="number"
+                        sx={{
+                            '& label.Mui-focused': {
+                                color: '#778899',
+                            },
+                            '& .MuiOutlinedInput-root': {
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#778899',
+                                },
+                            },
+                        }} />
                 </Box>
 
                 {/* Transport & Repair */}
                 <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField label="Transport" value={transport} onChange={(e) => setTransport(e.target.value)} fullWidth type="number" />
-                    <TextField label="Repair" value={repair} onChange={(e) => setRepair(e.target.value)} fullWidth type="number" />
+                    <TextField label="Transport" value={transport} onChange={(e) => setTransport(e.target.value)} fullWidth type="number"
+                        sx={{
+                            '& label.Mui-focused': {
+                                color: '#778899',
+                            },
+                            '& .MuiOutlinedInput-root': {
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#778899',
+                                },
+                            },
+                        }} />
+                    <TextField label="Repair" value={repair} onChange={(e) => setRepair(e.target.value)} fullWidth type="number"
+                        sx={{
+                            '& label.Mui-focused': {
+                                color: '#778899',
+                            },
+                            '& .MuiOutlinedInput-root': {
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#778899',
+                                },
+                            },
+                        }} />
                 </Box>
 
                 {/* Fees */}
@@ -288,6 +360,16 @@ function VehicleFormModal({
                         fullWidth
                         type="number"
                         helperText={feeAmountTouched ? 'Manual' : 'Auto'}
+                        sx={{
+                            '& label.Mui-focused': {
+                                color: '#778899',
+                            },
+                            '& .MuiOutlinedInput-root': {
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#778899',
+                                },
+                            },
+                        }}
                     />
                     <TextField
                         label="Fees (%)"
@@ -296,12 +378,41 @@ function VehicleFormModal({
                         fullWidth
                         type="number"
                         helperText={feePercentageTouched ? 'Manual' : 'Auto'}
+                        sx={{
+                            '& label.Mui-focused': {
+                                color: '#778899',
+                            },
+                            '& .MuiOutlinedInput-root': {
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#778899',
+                                },
+                            },
+                        }}
                     />
-                    <IconButton onClick={resetFeeCalculation}><RefreshIcon /></IconButton>
+                    <IconButton
+                        onClick={resetFeeCalculation}
+                        sx={{
+                            color: '#778899',
+                            paddingBottom: '30px',
+                        }}
+                    >
+                        <RefreshIcon />
+                    </IconButton>
                 </Box>
 
                 {/* Max Bid */}
-                <TextField label="Max Bid" value={maxBid} fullWidth InputProps={{ readOnly: true }} sx={{ mb: 3 }} />
+                <TextField label="Max Bid" value={maxBid} fullWidth InputProps={{ readOnly: true }}
+                    sx={{
+                        mb: 3,
+                        '& label.Mui-focused': {
+                            color: '#778899',
+                        },
+                        '& .MuiOutlinedInput-root': {
+                            '&.Mui-focused fieldset': {
+                                borderColor: '#778899',
+                            },
+                        },
+                    }} />
 
                 <Divider sx={{ my: 3 }} />
 
@@ -320,6 +431,11 @@ function VehicleFormModal({
                                                 <Checkbox
                                                     checked={statuses.includes(option)}
                                                     onChange={() => handleCheckboxToggle(option, statuses, setStatuses)}
+                                                    sx={{
+                                                        '&.Mui-checked': {
+                                                            color: '#778899',
+                                                        }
+                                                    }}
                                                 />
                                             }
                                             label={option}
