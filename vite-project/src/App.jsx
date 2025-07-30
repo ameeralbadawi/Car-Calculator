@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import VehicleFormModal from './VehicleFormModal';
 import { formatCurrency } from './utils';
 import TabbedTable from './TabbedTable';
-import { IconButton, Menu, MenuItem, Tooltip, Box } from '@mui/material';
+import { IconButton, Menu, MenuItem, Tooltip, Box, Typography} from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'react-redux';
@@ -194,14 +194,9 @@ function App() {
     }
   };
 
-
-
-
-
   const moveToPurchased = (car) => {
     setPipelineCars((prevCars) => [...prevCars, car]);
   };
-
 
   const handleAddCarToWatchlist = async (carData) => {
     try {
@@ -366,12 +361,50 @@ function App() {
       />
 
 
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={handlePurchased}>PURCHASED</MenuItem>
-        <MenuItem onClick={handleDelete}>
-          <IconButton size="small"><DeleteIcon fontSize="small" color='error' /></IconButton>
-        </MenuItem>
-      </Menu>
+<Menu
+  anchorEl={anchorEl}
+  open={Boolean(anchorEl)}
+  onClose={handleMenuClose}
+  PaperProps={{
+    sx: {
+      borderRadius: 2,
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+      minWidth: 180,
+      mt: 1,
+    },
+  }}
+  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+>
+  <MenuItem
+    onClick={handlePurchased}
+    sx={{
+      fontWeight: 500,
+      justifyContent: 'center',
+      '&:hover': {
+        backgroundColor: '#f0f4f8',
+        color: '#778899',
+      },
+    }}
+  >
+    <Typography variant='subtitle2'>PURCHASED</Typography>
+  </MenuItem>
+  <MenuItem
+    onClick={handleDelete}
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 1,
+      '&:hover': {
+        backgroundColor: '#ffecec',
+      },
+    }}
+  >
+    <DeleteIcon fontSize="small" color="error" />
+  </MenuItem>
+</Menu>
+
 
       <VehicleFormModal
         open={showVehicleForm}
