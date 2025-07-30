@@ -15,6 +15,7 @@ import {
   deleteCarFromWatchlistThunk
 } from './watchlistThunks';
 import { saveCarToBackend } from './pipelineThunks';
+import Header from './Header';
 
 
 
@@ -352,6 +353,7 @@ function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '20px' }}>
+      <Header/>
       <TabbedTable
         rows={rows}
         columns={columns}
