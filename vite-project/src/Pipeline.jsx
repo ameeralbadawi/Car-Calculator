@@ -342,39 +342,69 @@ function Pipeline({ onViewCar, onEditCar }) {
                 onClose={() => setIsDeleteDialogOpen(false)}
                 PaperProps={{
                     sx: {
-                        borderRadius: "12px",
-                        padding: "16px",
-                        minWidth: "400px"
-                    }
+                        borderRadius: 3,
+                        px: 0,
+                        py: 0,
+                        minWidth: 420,
+                        overflow: "hidden",
+                        boxShadow: 10,
+                    },
                 }}
             >
                 <DialogTitle sx={{
-                    fontWeight: "bold",
-                    padding: "16px 16px 8px",
-                    backgroundColor: theme.palette.grey[50],
-                    borderBottom: `1px solid ${theme.palette.grey[200]}`
+                    fontWeight: 600,
+                    px: 3,
+                    py: 2.5,
+                    fontSize: "1.125rem",
+                    bgcolor: theme.palette.background.default,
+                    borderBottom: `1px solid ${theme.palette.divider}`,
                 }}>
                     Confirm Deletion
                 </DialogTitle>
-                <DialogContent sx={{ padding: "16px" }}>
-                    <Typography>
-                        Are you sure you want to delete{" "}
-                        <Box component="span" fontWeight="bold" color={theme.palette.error.main}>
-                            {carToDelete?.year} {carToDelete?.make} {carToDelete?.model}
-                        </Box>?
+                <DialogContent sx={{ px: 3, py: 2 }}>
+                    <Typography variant="body1" gutterBottom>
+                        Are you sure you want to remove the following vehicle?
+                    </Typography>
+                    <Typography
+                        variant="h6"
+                        fontWeight={600}
+                        color="error"
+                        sx={{
+                            mt: 1,
+                            px: 1.5,
+                            py: 1,
+                            backgroundColor: theme.palette.grey[100],
+                            borderRadius: 2,
+                            fontSize: "0.95rem",
+                        }}
+                    >
+                        {carToDelete?.year} {carToDelete?.make} {carToDelete?.model} - {carToDelete?.vin.slice(-8)}
+                    </Typography>
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 1.5 }}
+                    >
+                        This action is permanent and cannot be undone.
                     </Typography>
                 </DialogContent>
-                <DialogActions sx={{
-                    padding: "8px 16px 16px",
-                    borderTop: `1px solid ${theme.palette.grey[200]}`
-                }}>
+                <DialogActions
+                    sx={{
+                        px: 3,
+                        py: 1.5,
+                        bgcolor: theme.palette.background.default,
+                        borderTop: `1px solid ${theme.palette.divider}`,
+                    }}
+                >
                     <Button
                         onClick={() => setIsDeleteDialogOpen(false)}
                         sx={{
-                            color: theme.palette.text.secondary,
+                            textTransform: "none",
+                            fontWeight: 500,
+                            color: theme.palette.text.primary,
                             "&:hover": {
-                                backgroundColor: theme.palette.grey[100]
-                            }
+                                backgroundColor: theme.palette.grey[100],
+                            },
                         }}
                     >
                         Cancel
@@ -382,12 +412,8 @@ function Pipeline({ onViewCar, onEditCar }) {
                     <Button
                         onClick={handleDeleteConfirm}
                         variant="contained"
-                        sx={{
-                            backgroundColor: theme.palette.error.main,
-                            "&:hover": {
-                                backgroundColor: theme.palette.error.dark
-                            }
-                        }}
+                        color="error"
+                        sx={{ textTransform: "none", fontWeight: 500 }}
                     >
                         Delete
                     </Button>
