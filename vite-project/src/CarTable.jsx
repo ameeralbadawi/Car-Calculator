@@ -8,6 +8,12 @@ import {
   TextField,
   Paper,
   useTheme,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Typography,
+  Button
 } from '@mui/material';
 import { Add, Edit, Delete as DeleteIcon } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
@@ -23,10 +29,13 @@ function CarTable({ columns, rows, setRows, handleMenuOpen }) {
   const { sheets, activeSheetId } = useSelector((state) => state.sheets);
   const [editingTab, setEditingTab] = useState(null);
   const [editValue, setEditValue] = useState('');
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [sheetToDelete, setSheetToDelete] = useState(null);
+
 
   const handleAddSheet = () => {
     const newId = sheets.length > 0 ? Math.max(...sheets.map(s => s.id)) + 1 : 1;
-    const newName = `Sheet ${newId}`;
+    const newName = `Sheet ${sheets.length + 1}`;
     dispatch(createWatchlistInBackend(newName));
   };
 
@@ -48,7 +57,17 @@ function CarTable({ columns, rows, setRows, handleMenuOpen }) {
   const activeTabIndex = sheets.findIndex((sheet) => sheet.id === activeSheetId);
   const activeSheetData = sheets.find((sheet) => sheet.id === activeSheetId)?.data || [];
 
+  const handleDeleteConfirm = () => {
+    if (sheetToDelete) {
+      dispatch(deleteSheetThunk(sheetToDelete.id));
+    }
+    setIsDeleteDialogOpen(false);
+    setSheetToDelete(null);
+  };
+  
+
   return (
+    <>
     <Box width="90%" mx="auto" pt={3}>
       <Paper elevation={2} sx={{ borderRadius: 2, p: 2 }}>
         <Box
@@ -108,12 +127,14 @@ function CarTable({ columns, rows, setRows, handleMenuOpen }) {
                             size="small"
                             onClick={(e) => {
                               e.stopPropagation();
-                              dispatch(deleteSheetThunk(sheet.id));
+                              setSheetToDelete(sheet); // capture the sheet to be deleted
+                              setIsDeleteDialogOpen(true);
                             }}
                             sx={{ ml: 0.5 }}
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
+
                         )}
                       </>
                     )}
@@ -143,12 +164,12 @@ function CarTable({ columns, rows, setRows, handleMenuOpen }) {
             initialState={{
               density: 'compact',
               columnVisibility: {
-                profit: false,
-                transport: false,
-                repair: false,
-                fees: false,
-                carfaxStatuses: false,
-                autocheckStatuses: false,
+                Profit: false,
+                Transport: false,
+                Repair: false,
+                Fees: false,
+                Carfax: false,
+                Autocheck: false,
               },
             }}
             muiTablePaperProps={{
@@ -176,6 +197,95 @@ function CarTable({ columns, rows, setRows, handleMenuOpen }) {
         </Box>
       </Paper>
     </Box>
+    <Dialog
+    open={isDeleteDialogOpen}
+    onClose={() => setIsDeleteDialogOpen(false)}
+    PaperProps={{
+      sx: {
+        borderRadius: 3,
+        px: 0,
+        py: 0,
+        minWidth: 420,
+        overflow: "hidden",
+        boxShadow: 10,
+      },
+    }}
+  >
+    <DialogTitle
+      sx={{
+        fontWeight: 600,
+        px: 3,
+        py: 2.5,
+        fontSize: "1.125rem",
+        bgcolor: theme.palette.background.default,
+        borderBottom: `1px solid ${theme.palette.divider}`,
+      }}
+    >
+      Confirm Deletion
+    </DialogTitle>
+  
+    <DialogContent sx={{ px: 3, py: 2 }}>
+      <Typography variant="body1" gutterBottom>
+        Are you sure you want to delete this sheet?
+      </Typography>
+      {sheetToDelete && (
+        <Typography
+          variant="h6"
+          fontWeight={600}
+          color="error"
+          sx={{
+            mt: 1,
+            px: 1.5,
+            py: 1,
+            backgroundColor: theme.palette.grey[100],
+            borderRadius: 2,
+            fontSize: "0.95rem",
+          }}
+        >
+          {sheetToDelete.name || `Sheet #${sheetToDelete.id}`}
+        </Typography>
+      )}
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ mt: 1.5 }}
+      >
+        This action is permanent and cannot be undone.
+      </Typography>
+    </DialogContent>
+  
+    <DialogActions
+      sx={{
+        px: 3,
+        py: 1.5,
+        bgcolor: theme.palette.background.default,
+        borderTop: `1px solid ${theme.palette.divider}`,
+      }}
+    >
+      <Button
+        onClick={() => setIsDeleteDialogOpen(false)}
+        sx={{
+          textTransform: "none",
+          fontWeight: 500,
+          color: theme.palette.text.primary,
+          "&:hover": {
+            backgroundColor: theme.palette.grey[100],
+          },
+        }}
+      >
+        Cancel
+      </Button>
+      <Button
+        onClick={handleDeleteConfirm}
+        variant="contained"
+        color="error"
+        sx={{ textTransform: "none", fontWeight: 500 }}
+      >
+        Delete
+      </Button>
+    </DialogActions>
+  </Dialog>
+  </>
   );
 }
 
