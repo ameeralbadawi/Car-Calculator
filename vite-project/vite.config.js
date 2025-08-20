@@ -4,12 +4,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: './',
   plugins: [react()],
+  // REMOVE the build.rollupOptions.external section entirely
   build: {
-    rollupOptions: {
-      external: [
-        '@clerk/clerk-react',
-        'react-router-dom'
-      ]
+    commonjsOptions: {
+      transformMixedEsModules: true
     }
   }
 })
