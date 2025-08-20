@@ -19,7 +19,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { deleteCarFromBackend } from "./pipelineThunks";
+import { deleteCarFromBackend } from "./pipelineThunks.jsx";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 

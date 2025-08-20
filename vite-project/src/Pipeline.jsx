@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
 import { moveCarBetweenStages } from "./store";
-import { deleteCarFromBackend, updateCarStageInBackend } from './pipelineThunks'; // update the path as needed
+import { deleteCarFromBackend, updateCarStageInBackend } from './pipelineThunks.jsx'; // update the path as needed
 import dayjs from 'dayjs';
 
 function Pipeline({ onViewCar, onEditCar }) {

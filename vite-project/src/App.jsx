@@ -14,7 +14,7 @@ import {
   fetchCarsInWatchlist,
   deleteCarFromWatchlistThunk
 } from './watchlistThunks';
-import { saveCarToBackend } from './pipelineThunks';
+import { saveCarToBackend } from './pipelineThunks.jsx';
 import Header from './Header';
 
 

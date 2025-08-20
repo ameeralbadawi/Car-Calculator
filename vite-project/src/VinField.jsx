@@ -9,7 +9,7 @@ import {
   CircularProgress,
   Alert 
 } from '@mui/material';
-import { saveCarToBackend } from './pipelineThunks'; // update the path as needed
+import { saveCarToBackend } from './pipelineThunks.jsx'; // update the path as needed
 
 
 // Add formatMake function directly in the component file
