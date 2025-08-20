@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import InvoiceTabs from './InvoiceTabs';
 import { useDispatch } from 'react-redux';
-import { updateCarInBackend, fetchCarsFromBackend } from './pipelineThunks'; 
+import { updateCarInBackend, fetchCarsFromBackend } from './pipelineThunks.jsx'; 
 
 
 const InvoiceModal = ({ open, onClose, car }) => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Tabs, Tab, Typography } from '@mui/material';
+import { Box, Tabs, Tab, Typography, Button } from '@mui/material';
 import PropTypes from 'prop-types';
 import CarTable from './CarTable';
 import AddCarButton from './AddCarButton';
@@ -17,8 +17,17 @@ import SoldTable from './SoldTable';
 import VinField from './VinField';
 import InvoiceModal from './InvoiceModal';
 import ViewModal from './ViewModal';
-import { fetchCarsFromBackend } from './pipelineThunks';
+import { fetchCarsFromBackend } from './pipelineThunks.jsx';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import {
+    SignedIn,
+    SignedOut,
+    SignInButton,
+    UserButton,
+    useUser,
+    useSession
+} from "@clerk/clerk-react";
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -42,10 +51,52 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [viewCar, setViewCar] = useState(null);
     const dispatch = useDispatch();
+    const { isSignedIn, user } = useUser();
+    const hasActiveSubscription = user?.publicMetadata?.subscriptionStatus === 'active';
+    const shouldDisableTabs = !isSignedIn || !hasActiveSubscription;
+    const navigate = useNavigate();
+    const { session } = useSession();
+
+    // Temporarily add this to your frontend to decode the token
+    useEffect(() => {
+        if (isSignedIn && session) {
+            const debugToken = async () => {
+                try {
+                    const token = await session.getToken({ template: "backend-api" });
+                    console.log("JWT Token:", token);
+
+                    // Decode the token to see its contents (without verification)
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    console.log("Token payload:", payload);
+
+                    // Check if the audience is correct
+                    console.log("Audience (should be 'backend-api'):", payload.aud);
+                    console.log("Issuer:", payload.iss);
+                    console.log("User ID:", payload.user_id);
+
+                } catch (error) {
+                    console.error("Token debug failed:", error);
+                }
+            };
+            debugToken();
+        }
+    }, [isSignedIn, session]);
 
     useEffect(() => {
-        dispatch(fetchCarsFromBackend());
-      }, [dispatch]);
+        if (isSignedIn && session) {
+            const fetchCars = async () => {
+                try {
+                    // ADD the template name exactly as you created it
+                    const token = await session.getToken({ template: "backend-api" });
+                    console.log("JWT Token:", token);
+                    dispatch(fetchCarsFromBackend({ token }));
+                } catch (error) {
+                    console.error("Failed to get JWT token:", error);
+                }
+            };
+            fetchCars();
+        }
+    }, [dispatch, isSignedIn, session]);
 
     const handleChange = (event, newValue) => setValue(newValue);
 
@@ -83,46 +134,135 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
                 }}
             >
                 <Tab icon={<HomeIcon />} label="HOME" sx={styledTab} />
-                <Tab icon={<RemoveRedEyeOutlinedIcon />} label="WATCHLIST" sx={styledTab} />
-                <Tab icon={<CallMergeOutlinedIcon />} label="PIPELINE" sx={styledTab} />
-                <Tab icon={<DirectionsCarFilledIcon />} label="INVENTORY" sx={styledTab} />
-                <Tab icon={<AttachMoneyIcon />} label="SOLD" sx={styledTab} />
-                <Tab icon={<LeaderboardIcon />} label="REPORTS" sx={styledTab} />
-                <Tab icon={<SettingsIcon />} label="SETTINGS" sx={styledTab} />
+                <Tab icon={<RemoveRedEyeOutlinedIcon />} label="WATCHLIST" sx={styledTab} disabled={shouldDisableTabs} />
+                <Tab icon={<CallMergeOutlinedIcon />} label="PIPELINE" sx={styledTab} disabled={shouldDisableTabs} />
+                <Tab icon={<DirectionsCarFilledIcon />} label="INVENTORY" sx={styledTab} disabled={shouldDisableTabs} />
+                <Tab icon={<AttachMoneyIcon />} label="SOLD" sx={styledTab} disabled={shouldDisableTabs} />
+                <Tab icon={<LeaderboardIcon />} label="REPORTS" sx={styledTab} disabled={shouldDisableTabs} />
+                <Tab icon={<SettingsIcon />} label="SETTINGS" sx={styledTab} disabled={shouldDisableTabs} />
             </Tabs>
 
 
             <TabPanel value={value} index={0}>
-                <Typography>Coming Soon...</Typography>
-            </TabPanel>
+                <Box sx={{ maxWidth: 600, mx: 'auto', textAlign: 'center', px: 2, py: 4 }}>
+                    <Typography
+                        variant="h4"
+                        sx={{ fontWeight: 'bold', color: '#778899', mb: 2 }}
+                        gutterBottom
+                    >
+                        WELCOME TO CARVINTORY
+                    </Typography>
 
-            <TabPanel value={value} index={1}>
-                <Box sx={tabContentStyle}>
-                    <AddCarButton handleOpen={handleOpen} />
-                    <CarTable data={rows} columns={columns} />
+                    <SignedOut>
+                        <Typography
+                            variant="body1"
+                            sx={{ mb: 3, color: '#555' }}
+                        >
+                            Please sign in to access your vehicle inventory management system.
+                        </Typography>
+
+                        <SignInButton mode="modal" asChild>
+                            <Button
+                                variant="contained"
+                                sx={{
+                                    backgroundColor: '#778899',
+                                    color: '#fff',
+                                    fontWeight: 'bold',
+                                    textTransform: 'none',
+                                    px: 4,
+                                    py: 1.5,
+                                    '&:hover': { backgroundColor: '#5f6f7f' },
+                                }}
+                            >
+                                SIGN IN
+                            </Button>
+                        </SignInButton>
+                    </SignedOut>
+
+                    <SignedIn>
+                        {!hasActiveSubscription && (
+                            <Box sx={{ mt: 4 }}>
+                                <Typography
+                                    variant="h6"
+                                    sx={{ color: '#444', fontWeight: 600, mb: 1 }}
+                                    gutterBottom
+                                >
+                                    UPGRADE TO UNLOCK ALL FEATURES
+                                </Typography>
+
+                                <Button
+                                    variant="contained"
+                                    sx={{
+                                        backgroundColor: '#778899',
+                                        color: '#fff',
+                                        fontWeight: 'bold',
+                                        textTransform: 'none',
+                                        px: 5,
+                                        py: 1.5,
+                                        '&:hover': { backgroundColor: '#5f6f7f' },
+                                    }}
+                                    onClick={() => navigate('/subscribe')}
+                                >
+                                    SUBSCRIBE NOW
+                                </Button>
+                            </Box>
+                        )}
+                    </SignedIn>
                 </Box>
             </TabPanel>
+            <SignedIn>
+                {hasActiveSubscription ? (
+                    <>
+                        <TabPanel value={value} index={1}>
+                            <Box sx={tabContentStyle}>
+                                <AddCarButton handleOpen={handleOpen} />
+                                <CarTable data={rows} columns={columns} />
+                            </Box>
+                        </TabPanel>
 
-            <TabPanel value={value} index={2}>
-                <VinField />
-                <Pipeline onViewCar={handleViewCar} onEditCar={handleEditCar} />
-            </TabPanel>
+                        <TabPanel value={value} index={2}>
+                            <VinField />
+                            <Pipeline onViewCar={handleViewCar} onEditCar={handleEditCar} />
+                        </TabPanel>
 
-            <TabPanel value={value} index={3}>
-                <InventoryTable onViewCar={handleViewCar} onEditCar={handleEditCar} />
-            </TabPanel>
+                        <TabPanel value={value} index={3}>
+                            <InventoryTable onViewCar={handleViewCar} onEditCar={handleEditCar} />
+                        </TabPanel>
 
-            <TabPanel value={value} index={4}>
-                <SoldTable onViewCar={handleViewCar} onEditCar={handleEditCar} />
-            </TabPanel>
+                        <TabPanel value={value} index={4}>
+                            <SoldTable onViewCar={handleViewCar} onEditCar={handleEditCar} />
+                        </TabPanel>
 
-            <TabPanel value={value} index={5}>
-                <Typography>Coming Soon...</Typography>
-            </TabPanel>
+                        <TabPanel value={value} index={5}>
+                            <Typography>Coming Soon...</Typography>
+                        </TabPanel>
 
-            <TabPanel value={value} index={6}>
-                <Settings />
-            </TabPanel>
+                        <TabPanel value={value} index={6}>
+                            <Settings />
+                        </TabPanel>
+                    </>
+                ) : (
+                    value !== 0 && (
+                        <TabPanel value={value} index={value}>
+                            <Box sx={{ textAlign: 'center', p: 4 }}>
+                                <Typography variant="h6" gutterBottom>
+                                    Subscription Required
+                                </Typography>
+                                <Typography paragraph>
+                                    Upgrade your account to access this feature
+                                </Typography>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => window.location.href = "/subscribe"}
+                                >
+                                    Upgrade Account
+                                </Button>
+                            </Box>
+                        </TabPanel>
+                    )
+                )}
+            </SignedIn>
 
             <InvoiceModal
                 open={isModalOpen}
