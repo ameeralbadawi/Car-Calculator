@@ -19,6 +19,7 @@ import { Visibility, Edit, Delete } from "@mui/icons-material";
 import { moveCarBetweenStages } from "./store";
 import { deleteCarFromBackend, updateCarStageInBackend } from './pipelineThunks.jsx'; // update the path as needed
 import dayjs from 'dayjs';
+import { useSession } from "@clerk/clerk-react";
 
 function Pipeline({ onViewCar, onEditCar }) {
     const theme = useTheme();
@@ -30,6 +31,8 @@ function Pipeline({ onViewCar, onEditCar }) {
 
     const [carToDelete, setCarToDelete] = useState(null);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+    const { session } = useSession();
 
     const calculateTotalCost = (car) => {
         const partsTotal = (car.parts || []).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
@@ -78,13 +81,20 @@ function Pipeline({ onViewCar, onEditCar }) {
         );
     };
 
-    const handleDeleteConfirm = () => {
-        if (carToDelete) {
-            dispatch(deleteCarFromBackend({
-                vin: carToDelete.vin,
-                stage: carToDelete.status,
-                carId: carToDelete.id
-            }));
+    const handleDeleteConfirm = async () => {
+        if (carToDelete && session) {
+            try {
+                const token = await session.getToken({ template: "backend-api" });
+
+                dispatch(deleteCarFromBackend({
+                    vin: carToDelete.vin,
+                    stage: carToDelete.status,
+                    carId: carToDelete.id,
+                    token, // ✅ pass token here
+                }));
+            } catch (err) {
+                console.error("Failed to get token:", err);
+            }
         }
         setIsDeleteDialogOpen(false);
     };
