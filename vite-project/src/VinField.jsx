@@ -10,6 +10,7 @@ import {
   Alert 
 } from '@mui/material';
 import { saveCarToBackend } from './pipelineThunks.jsx'; // update the path as needed
+import {useSession} from "@clerk/clerk-react";
 
 
 // Add formatMake function directly in the component file
@@ -23,6 +24,8 @@ const VinField = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
+  const { session } = useSession();
+
 
   const fetchVehicleDetails = async (vin) => {
     try {
@@ -122,7 +125,10 @@ const VinField = () => {
       };
       
 
-      dispatch(saveCarToBackend({ stage: 'Purchased', car: newCar }));
+      const token = await session.getToken({ template: "backend-api" });
+
+      // ✅ Pass token into your thunk
+      dispatch(saveCarToBackend({ stage: 'Purchased', car: newCar, token }));
       setVin('');
     } catch (err) {
       setError('Failed to fetch vehicle details. Please check the VIN and try again.');
