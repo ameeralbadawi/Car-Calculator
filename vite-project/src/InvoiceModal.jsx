@@ -10,12 +10,14 @@ import {
 } from '@mui/material';
 import InvoiceTabs from './InvoiceTabs';
 import { useDispatch } from 'react-redux';
-import { updateCarInBackend, fetchCarsFromBackend } from './pipelineThunks.jsx'; 
+import { updateCarInBackend, fetchCarsFromBackend } from './pipelineThunks.jsx';
+import { useSession } from "@clerk/clerk-react";
 
 
 const InvoiceModal = ({ open, onClose, car }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({ Car: {} });
+  const { session } = useSession();
 
   useEffect(() => {
     if (car) {
@@ -136,18 +138,29 @@ const InvoiceModal = ({ open, onClose, car }) => {
   const handleSave = async () => {
     const { vin } = formData.Car.CarDetails || {};
     if (!vin) return;
-  
-    // Wait for update to complete before fetching
-    const resultAction = await dispatch(updateCarInBackend({ vin, data: enrichedFormData.Car }));
-  
-    // Only fetch if update succeeded
-    if (updateCarInBackend.fulfilled.match(resultAction)) {
-      await dispatch(fetchCarsFromBackend());
+
+    try {
+      const token = await session.getToken({ template: "backend-api" });
+
+      const resultAction = await dispatch(
+        updateCarInBackend({
+          vin,
+          data: enrichedFormData.Car,
+          status: formData.status, // or whatever status you’re storing
+          token                    // ✅ attach token
+        })
+      );
+
+      if (updateCarInBackend.fulfilled.match(resultAction)) {
+        await dispatch(fetchCarsFromBackend({ token }));
+      }
+
+      onClose();
+    } catch (err) {
+      console.error("Failed to update car:", err);
     }
-  
-    onClose();
   };
-  
+
 
   const { year, make, model, vin } = formData.Car.CarDetails || {};
 
@@ -165,21 +178,21 @@ const InvoiceModal = ({ open, onClose, car }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} sx={{
-      color: '#fff',
-      backgroundColor: 'red',
-      '&:hover': {
-        backgroundColor: '#cc0000',
-      },
-    }}>
+          color: '#fff',
+          backgroundColor: 'red',
+          '&:hover': {
+            backgroundColor: '#cc0000',
+          },
+        }}>
           Cancel
         </Button>
         <Button onClick={handleSave} variant="contained" sx={{
-      backgroundColor: '#778899',
-      color: '#fff',
-      '&:hover': {
-        backgroundColor: '#667788',
-      },
-    }}>
+          backgroundColor: '#778899',
+          color: '#fff',
+          '&:hover': {
+            backgroundColor: '#667788',
+          },
+        }}>
           Save
         </Button>
       </DialogActions>

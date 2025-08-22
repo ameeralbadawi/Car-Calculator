@@ -9,36 +9,28 @@ const Header = () => {
 
     return (
         <AppBar
-            position="static"
-            elevation={0}
+            position="fixed"
             sx={{
                 backgroundColor: '#778899',
-                color: '#333',
-                borderBottom: '1px solid #e0e0e0',
-                mb: 2,
+                boxShadow: "none",
+                width: "100%",
+                margin: 0,
+                padding: 0,
             }}
         >
-            <Toolbar
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    px: 2,
-                    py: 1,
-                    minHeight: '64px',
-                    backgroundColor: "#778899",
-                }}
+            <Toolbar disableGutters sx={{ minHeight: 64, px: 2, display: 'flex', justifyContent: 'space-between', }}
+
             >
                 {/* Left side: Logo */}
                 <Box>
                     <img
-                    src={carvintory_logo} 
-                    alt="Carvintory Logo" 
-                    style={{ 
-                        height: '100px', // Adjust height as needed
-                        width: 'auto', // Maintain aspect ratio
-                        cursor: 'pointer' // Optional: if you want it to be clickable
-                    }} />
+                        src={carvintory_logo}
+                        alt="Carvintory Logo"
+                        style={{
+                            height: '100px', // Adjust height as needed
+                            width: 'auto', // Maintain aspect ratio
+                            cursor: 'pointer' // Optional: if you want it to be clickable
+                        }} />
                 </Box>
 
                 {/* Right side: Auth buttons */}
@@ -133,11 +125,14 @@ const Header = () => {
                             <Button
                                 variant="contained"
                                 sx={{
-                                    backgroundColor: '#778899',
-                                    color: '#fff',
+                                    backgroundColor: '#fff',   // white background
+                                    color: '#778899',          // text color
                                     textTransform: 'none',
                                     fontWeight: 'bold',
-                                    '&:hover': { backgroundColor: '#5f6f7f' },
+                                    border: '1px solid #778899', // optional: adds a border for contrast
+                                    '&:hover': {
+                                        backgroundColor: '#f0f0f0', // light gray hover
+                                    },
                                 }}
                             >
                                 SIGN IN

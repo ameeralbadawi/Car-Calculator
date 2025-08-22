@@ -308,14 +308,14 @@ function Pipeline({ onViewCar, onEditCar }) {
                                                                     },
                                                                 }}
                                                             >
-                                                                <Tooltip title="View">
+                                                                {/* <Tooltip title="View">
                                                                     <IconButton
                                                                         onClick={() => onViewCar(car)}
                                                                         sx={{ color: "#778899" }}
                                                                     >
                                                                         <Visibility />
                                                                     </IconButton>
-                                                                </Tooltip>
+                                                                </Tooltip> */}
                                                                 <Tooltip title="Edit">
                                                                     <IconButton
                                                                         onClick={() => onEditCar(car)}

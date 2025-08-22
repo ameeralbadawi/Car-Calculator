@@ -213,11 +213,11 @@ function SoldTable({ onViewCar, onEditCar }) {
           },
         }}
       >
-        <Tooltip title="View">
+        {/* <Tooltip title="View">
           <IconButton onClick={handleView} size="small" sx={{ color: "#778899" }}>
             <VisibilityIcon fontSize="small" />
           </IconButton>
-        </Tooltip>
+        </Tooltip> */}
 
         <Tooltip title="Edit">
           <IconButton onClick={handleEdit} size="small" sx={{ color: "#778899" }}>

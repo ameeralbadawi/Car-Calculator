@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import VehicleFormModal from './VehicleFormModal';
 import { formatCurrency } from './utils';
 import TabbedTable from './TabbedTable';
-import { IconButton, Menu, MenuItem, Tooltip, Box, Typography} from '@mui/material';
+import { IconButton, Menu, MenuItem, Tooltip, Box, Typography } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'react-redux';
@@ -352,68 +352,84 @@ function App() {
 
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '20px' }}>
-      <Header/>
-      <TabbedTable
-        rows={rows}
-        columns={columns}
-        handleOpen={() => setShowVehicleForm(true)}
-        moveToPurchased={moveToPurchased}
-        pipelineCars={pipelineCars}
-      />
+    <>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <div
+          style={{
+            margin: 0,
+            padding: 0,
+            backgroundColor: "#778899", // same as your header so no gaps show
+            height: "20vh",
+            width: "100vw",
+            overflow: "hidden",
+          }}
+        >
+          <Header />
+        </div>
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
+          <TabbedTable
+            rows={rows}
+            columns={columns}
+            handleOpen={() => setShowVehicleForm(true)}
+            moveToPurchased={moveToPurchased}
+            pipelineCars={pipelineCars}
+          />
+
+        </div>
 
 
-<Menu
-  anchorEl={anchorEl}
-  open={Boolean(anchorEl)}
-  onClose={handleMenuClose}
-  PaperProps={{
-    sx: {
-      borderRadius: 2,
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-      minWidth: 180,
-      mt: 1,
-    },
-  }}
-  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
->
-  <MenuItem
-    onClick={handlePurchased}
-    sx={{
-      fontWeight: 500,
-      justifyContent: 'center',
-      '&:hover': {
-        backgroundColor: '#f0f4f8',
-        color: '#778899',
-      },
-    }}
-  >
-    <Typography variant='subtitle2'>PURCHASED</Typography>
-  </MenuItem>
-  <MenuItem
-    onClick={handleDelete}
-    sx={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 1,
-      '&:hover': {
-        backgroundColor: '#ffecec',
-      },
-    }}
-  >
-    <DeleteIcon fontSize="small" color="error" />
-  </MenuItem>
-</Menu>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+          PaperProps={{
+            sx: {
+              borderRadius: 2,
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+              minWidth: 180,
+              mt: 1,
+            },
+          }}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        >
+          <MenuItem
+            onClick={handlePurchased}
+            sx={{
+              fontWeight: 500,
+              justifyContent: 'center',
+              '&:hover': {
+                backgroundColor: '#f0f4f8',
+                color: '#778899',
+              },
+            }}
+          >
+            <Typography variant='subtitle2'>PURCHASED</Typography>
+          </MenuItem>
+          <MenuItem
+            onClick={handleDelete}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 1,
+              '&:hover': {
+                backgroundColor: '#ffecec',
+              },
+            }}
+          >
+            <DeleteIcon fontSize="small" color="error" />
+          </MenuItem>
+        </Menu>
 
 
-      <VehicleFormModal
-        open={showVehicleForm}
-        onClose={() => setShowVehicleForm(false)}
-        onSubmit={handleAddCarToWatchlist}
-      />
-    </div>
+        <VehicleFormModal
+          open={showVehicleForm}
+          onClose={() => setShowVehicleForm(false)}
+          onSubmit={handleAddCarToWatchlist}
+        />
+      </div>
+    </>
   );
 }
 
