@@ -22,6 +22,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { deleteCarFromBackend } from "./pipelineThunks.jsx";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { useSession } from "@clerk/clerk-react";
+
 
 
 function SoldTable({ onViewCar, onEditCar }) {
@@ -30,6 +32,7 @@ function SoldTable({ onViewCar, onEditCar }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [carToDelete, setCarToDelete] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const { session } = useSession();
 
   const stages = useSelector((state) => state.pipeline.stages);
   const filteredData = useMemo(() => stages["Sold"] || [], [stages]);
@@ -91,16 +94,23 @@ function SoldTable({ onViewCar, onEditCar }) {
     handleMenuClose();
   };
 
-  const handleDeleteConfirm = () => {
-    if (carToDelete) {
-      dispatch(deleteCarFromBackend({
-        vin: carToDelete.vin,
-        stage: carToDelete.status,
-        carId: carToDelete.id
-      }));
+  const handleDeleteConfirm = async () => {
+    if (carToDelete && session) {
+        try {
+            const token = await session.getToken({ template: "backend-api" });
+
+            dispatch(deleteCarFromBackend({
+                vin: carToDelete.vin,
+                stage: carToDelete.status,
+                carId: carToDelete.id,
+                token, // ✅ pass token here
+            }));
+        } catch (err) {
+            console.error("Failed to get token:", err);
+        }
     }
     setIsDeleteDialogOpen(false);
-  };
+};
 
   const columns = useMemo(
     () => [
