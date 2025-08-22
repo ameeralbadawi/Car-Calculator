@@ -134,12 +134,12 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
                 }}
             >
                 <Tab icon={<HomeIcon />} label="HOME" sx={styledTab} />
-                <Tab icon={<RemoveRedEyeOutlinedIcon />} label="WATCHLIST" sx={styledTab} disabled={shouldDisableTabs} />
+                {/* <Tab icon={<RemoveRedEyeOutlinedIcon />} label="WATCHLIST" sx={styledTab} disabled={shouldDisableTabs} /> */}
                 <Tab icon={<CallMergeOutlinedIcon />} label="PIPELINE" sx={styledTab} disabled={shouldDisableTabs} />
                 <Tab icon={<DirectionsCarFilledIcon />} label="INVENTORY" sx={styledTab} disabled={shouldDisableTabs} />
                 <Tab icon={<AttachMoneyIcon />} label="SOLD" sx={styledTab} disabled={shouldDisableTabs} />
-                <Tab icon={<LeaderboardIcon />} label="REPORTS" sx={styledTab} disabled={shouldDisableTabs} />
-                <Tab icon={<SettingsIcon />} label="SETTINGS" sx={styledTab} disabled={shouldDisableTabs} />
+                {/* <Tab icon={<LeaderboardIcon />} label="REPORTS" sx={styledTab} disabled={shouldDisableTabs} />
+                <Tab icon={<SettingsIcon />} label="SETTINGS" sx={styledTab} disabled={shouldDisableTabs} /> */}
             </Tabs>
 
 
@@ -213,33 +213,33 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
             <SignedIn>
                 {hasActiveSubscription ? (
                     <>
-                        <TabPanel value={value} index={1}>
+                        {/* <TabPanel value={value} index={1}>
                             <Box sx={tabContentStyle}>
                                 <AddCarButton handleOpen={handleOpen} />
                                 <CarTable data={rows} columns={columns} />
                             </Box>
-                        </TabPanel>
+                        </TabPanel> */}
 
-                        <TabPanel value={value} index={2}>
+                        <TabPanel value={value} index={1}>
                             <VinField />
                             <Pipeline onViewCar={handleViewCar} onEditCar={handleEditCar} />
                         </TabPanel>
 
-                        <TabPanel value={value} index={3}>
+                        <TabPanel value={value} index={2}>
                             <InventoryTable onViewCar={handleViewCar} onEditCar={handleEditCar} />
                         </TabPanel>
 
-                        <TabPanel value={value} index={4}>
+                        <TabPanel value={value} index={3}>
                             <SoldTable onViewCar={handleViewCar} onEditCar={handleEditCar} />
                         </TabPanel>
 
-                        <TabPanel value={value} index={5}>
+                        {/* <TabPanel value={value} index={5}>
                             <Typography>Coming Soon...</Typography>
                         </TabPanel>
 
                         <TabPanel value={value} index={6}>
                             <Settings />
-                        </TabPanel>
+                        </TabPanel> */}
                     </>
                 ) : (
                     value !== 0 && (
