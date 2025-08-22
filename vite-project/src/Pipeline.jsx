@@ -21,6 +21,7 @@ import { deleteCarFromBackend, updateCarStageInBackend } from './pipelineThunks.
 import dayjs from 'dayjs';
 import { useSession } from "@clerk/clerk-react";
 
+
 function Pipeline({ onViewCar, onEditCar }) {
     const theme = useTheme();
     const dispatch = useDispatch();
@@ -46,40 +47,42 @@ function Pipeline({ onViewCar, onEditCar }) {
 
         return amountPaid + transport + partsTotal + mechanicTotal + bodyshopTotal + miscTotal + sellerFees;
     };
-
-    const onDragEnd = (result) => {
-        const { source, destination, draggableId } = result;
-
-        if (!destination) return;
-        if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-
-        const sourceStage = source.droppableId;
-        const destinationStage = destination.droppableId;
-
-        console.log("Dragged:", draggableId);
-        console.log("From:", sourceStage, "To:", destinationStage);
-
-        const car = stages[sourceStage].find((c) => c.vin === draggableId); // or c.id === parseInt(draggableId)
-        if (!car) {
-            console.warn("Car not found for drag ID:", draggableId);
-            return;
-        }
-
+    
+    const onDragEnd = async (result) => {
+      const { source, destination, draggableId } = result;
+    
+      if (!destination) return;
+      if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+    
+      const sourceStage = source.droppableId;
+      const destinationStage = destination.droppableId;
+    
+      const car = stages[sourceStage].find((c) => c.vin === draggableId);
+      if (!car) return;
+    
+      dispatch(
+        moveCarBetweenStages({
+          sourceStage,
+          destinationStage,
+          carId: car.id,
+        })
+      );
+    
+      try {
+        const token = await session.getToken({ template: "backend-api" });
+    
         dispatch(
-            moveCarBetweenStages({
-                sourceStage,
-                destinationStage,
-                carId: car.id,
-            })
+          updateCarStageInBackend({
+            vin: car.vin,
+            newStage: destinationStage,
+            token, // ✅ include token
+          })
         );
-
-        dispatch(
-            updateCarStageInBackend({
-                vin: car.vin,
-                newStage: destinationStage,
-            })
-        );
+      } catch (err) {
+        console.error("Failed to get token:", err);
+      }
     };
+    
 
     const handleDeleteConfirm = async () => {
         if (carToDelete && session) {
