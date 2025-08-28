@@ -30,56 +30,56 @@ const InvoiceTabs = ({ formData, setFormData }) => {
 
     const renderTabContent = () => {
         switch (selectedTab) {
+            // case 0:
+            //     return (
+            //         <EstimateTab
+            //             data={car.EstimateDetails}
+            //             onChange={newData => updateSection("EstimateDetails", newData)}
+            //         />
+            //     );
             case 0:
-                return (
-                    <EstimateTab
-                        data={car.EstimateDetails}
-                        onChange={newData => updateSection("EstimateDetails", newData)}
-                    />
-                );
-            case 1:
                 return (
                     <PurchasedTab
                         data={car.PurchaseDetails}
                         onChange={newData => updateSection("PurchaseDetails", newData)}
                     />
                 );
-            case 2:
+            case 1:
                 return (
                     <TransportTab
                         data={car.TransportDetails}
                         onChange={newData => updateSection("TransportDetails", newData)}
                     />
                 );
-            case 3:
+            case 2:
                 return (
                     <PartsTab
                         data={car.PartsDetails}
                         onChange={newData => updateSection("PartsDetails", newData)}
                     />
                 );
-            case 4:
+            case 3:
                 return (
                     <MechanicTab
                         data={car.MechanicDetails}
                         onChange={newData => updateSection("MechanicDetails", newData)}
                     />
                 );
-            case 5:
+            case 4:
                 return (
                     <BodyshopTab
                         data={car.BodyshopDetails}
                         onChange={newData => updateSection("BodyshopDetails", newData)}
                     />
                 );
-            case 6:
+            case 7:
                 return (
                     <DetailTab
                         data={car.MiscellaniousDetails}
                         onChange={newData => updateSection("MiscellaniousDetails", newData)}
                     />
                 );
-            case 7:
+            case 8:
                 return (
                     <SoldTab
                         data={car.saleDetails}
@@ -88,7 +88,7 @@ const InvoiceTabs = ({ formData, setFormData }) => {
                     />
                 );
 
-            case 8:
+            case 9:
                 return <InvoiceTab formData={formData} />;
 
             default:
@@ -113,7 +113,6 @@ const InvoiceTabs = ({ formData, setFormData }) => {
   }}
 >
   {[
-    "ESTIMATE",
     "PURCHASED",
     "TRANSPORT",
     "PARTS",

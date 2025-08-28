@@ -161,7 +161,7 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
                             Please sign in to access your vehicle inventory management system.
                         </Typography>
 
-                        <SignInButton mode="modal" asChild>
+                        {/* <SignInButton mode="modal" asChild>
                             <Button
                                 variant="contained"
                                 sx={{
@@ -176,7 +176,7 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
                             >
                                 SIGN IN
                             </Button>
-                        </SignInButton>
+                        </SignInButton> */}
                     </SignedOut>
 
                     <SignedIn>
