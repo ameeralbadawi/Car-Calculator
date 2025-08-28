@@ -354,19 +354,10 @@ function App() {
   return (
     <>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <div
-          style={{
-            margin: 0,
-            padding: 0,
-            backgroundColor: "#778899", // same as your header so no gaps show
-            height: "20vh",
-            width: "100vw",
-            overflow: "hidden",
-          }}
-        >
+
           <Header />
-        </div>
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
+
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', paddingTop: '120px' }}>
           <TabbedTable
             rows={rows}
             columns={columns}
