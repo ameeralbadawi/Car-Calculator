@@ -72,14 +72,14 @@ const InvoiceTabs = ({ formData, setFormData }) => {
                         onChange={newData => updateSection("BodyshopDetails", newData)}
                     />
                 );
-            case 7:
+            case 5:
                 return (
                     <DetailTab
                         data={car.MiscellaniousDetails}
                         onChange={newData => updateSection("MiscellaniousDetails", newData)}
                     />
                 );
-            case 8:
+            case 6:
                 return (
                     <SoldTab
                         data={car.saleDetails}
@@ -88,7 +88,7 @@ const InvoiceTabs = ({ formData, setFormData }) => {
                     />
                 );
 
-            case 9:
+            case 7:
                 return <InvoiceTab formData={formData} />;
 
             default:
