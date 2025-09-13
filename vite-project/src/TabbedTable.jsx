@@ -28,6 +28,7 @@ import {
     useUser,
     useSession
 } from "@clerk/clerk-react";
+import Home from './Home';
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -208,6 +209,7 @@ function TabbedTable({ rows, setRows, columns, handleOpen }) {
                             </Box>
                         )}
                     </SignedIn>
+                    <Home/>
                 </Box>
             </TabPanel>
             <SignedIn>
